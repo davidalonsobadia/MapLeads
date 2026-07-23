@@ -1,1 +1,1 @@
-CREATE DATABASE taskflow_db;
+CREATE DATABASE mapleads_db;

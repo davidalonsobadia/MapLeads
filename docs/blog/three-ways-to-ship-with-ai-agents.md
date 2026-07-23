@@ -1,7 +1,7 @@
 # Three ways I'm letting AI agents ship code (not just write it)
 
 > Draft for the blog. Audience: developers curious about agentic workflows that go beyond
-> "autocomplete in my editor." Grounded in a real FastAPI + Next.js monorepo (TaskFlow).
+> "autocomplete in my editor." Grounded in a real FastAPI + Next.js monorepo (MapLeads).
 
 There's a big difference between an AI that *writes code in your editor* and an AI that
 *ships code through your pipeline*. The first one hands you a diff and walks away. The
