@@ -1,6 +1,6 @@
-# TaskFlow Backend
+# MapLeads Backend
 
-A clean, production-ready FastAPI backend starter template with authentication, user management, and task lists.
+A FastAPI backend for MapLeads, with authentication, user management, and lead generation from Google Maps.
 
 ## ✨ Features
 
@@ -21,8 +21,8 @@ A clean, production-ready FastAPI backend starter template with authentication, 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/taskflow-backend.git
-cd taskflow-backend
+git clone https://github.com/yourusername/mapleads-backend.git
+cd mapleads-backend
 
 # Copy environment file
 cp .env.example .env
@@ -93,7 +93,6 @@ your-api-key-here
 
 - **Auth** - User registration, login, email verification, password reset
 - **Users** - User management
-- **Lists** - Task list management
 - **API Clients** - API key management
 
 ---
@@ -119,7 +118,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 FRONTEND_URL=http://localhost:3000
 
 # Database
-DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/taskflow_db
+DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/mapleads_db
 
 # Redis
 REDIS_URL=redis://redis:6379/0
@@ -181,19 +180,6 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
   }'
 ```
 
-### **Create a List**
-
-```bash
-curl -X POST http://localhost:8000/api/v1/lists \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "name": "My Tasks",
-    "description": "Things to do"
-  }'
-```
-
 > **Note**: Most endpoints require both an API key (`x-api-key` header) and an authentication token (`Authorization: Bearer` header) for authenticated requests.
 
 ---
@@ -223,7 +209,7 @@ docker-compose exec api alembic upgrade head
 docker-compose exec api python scripts/create_api_client.py --name "my-client"
 
 # Access database
-docker-compose exec db psql -U postgres -d taskflow_db
+docker-compose exec db psql -U postgres -d mapleads_db
 ```
 
 ---
@@ -231,7 +217,7 @@ docker-compose exec db psql -U postgres -d taskflow_db
 ## 📁 Project Structure
 
 ```
-taskflow-backend/
+mapleads-backend/
 ├── app/
 │   ├── api/              # API routes
 │   ├── core/             # Core utilities (config, email, etc.)
@@ -239,7 +225,6 @@ taskflow-backend/
 │   ├── domains/          # Business logic domains
 │   │   ├── auth/         # Authentication
 │   │   ├── users/        # User management
-│   │   ├── lists/        # Task lists
 │   │   └── api_clients/  # API key management
 │   ├── templates/        # Email templates
 │   └── main.py           # Application entry point
@@ -308,7 +293,7 @@ docker-compose logs -f worker
 Or manually verify in database:
 
 ```bash
-docker-compose exec db psql -U postgres -d taskflow_db -c \
+docker-compose exec db psql -U postgres -d mapleads_db -c \
   "UPDATE users SET is_verified = true WHERE email = 'user@example.com';"
 ```
 

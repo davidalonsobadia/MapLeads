@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner script for the TaskFlow API project.
+Test runner script for the MapLeads API project.
 
 This script runs the test suite for the project owner management system
 and other components.

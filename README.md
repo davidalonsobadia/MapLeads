@@ -1,6 +1,6 @@
-# TaskFlow - Full Stack Application
+# MapLeads - Full Stack Application
 
-A modern task management application with FastAPI backend and Next.js frontend, fully containerized with Docker.
+A SaaS platform for agencies to generate and manage local business leads from Google Maps, with FastAPI backend and Next.js frontend, fully containerized with Docker.
 
 ## 🏗️ Architecture
 
@@ -158,7 +158,7 @@ docker-compose exec frontend pnpm install
 docker-compose exec api python scripts/create_api_client.py --name "test"
 
 # Access database
-docker-compose exec db psql -U postgres -d taskflow_db
+docker-compose exec db psql -U postgres -d mapleads_db
 
 # Run migrations
 docker-compose exec api alembic upgrade head

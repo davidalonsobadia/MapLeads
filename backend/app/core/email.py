@@ -101,14 +101,14 @@ class EmailService:
         context = {
             "name": name,
             "verification_url": verification_url,
-            "app_name": "TaskFlow"
+            "app_name": "MapLeads"
         }
 
         html_content = cls.render_template("verify_email.html", context)
 
         return cls.send_email(
             to_email=to_email,
-            subject="Verify your TaskFlow account",
+            subject="Verify your MapLeads account",
             html_content=html_content
         )
 
@@ -130,14 +130,14 @@ class EmailService:
         context = {
             "name": name,
             "reset_url": reset_url,
-            "app_name": "TaskFlow"
+            "app_name": "MapLeads"
         }
 
         html_content = cls.render_template("reset_password.html", context)
 
         return cls.send_email(
             to_email=to_email,
-            subject="Reset your TaskFlow password",
+            subject="Reset your MapLeads password",
             html_content=html_content
         )
 
@@ -155,7 +155,7 @@ class EmailService:
         """
         context = {
             "name": name,
-            "app_name": "TaskFlow",
+            "app_name": "MapLeads",
             "login_url": f"{settings.FRONTEND_URL}/login"
         }
 
@@ -163,7 +163,7 @@ class EmailService:
 
         return cls.send_email(
             to_email=to_email,
-            subject="Welcome to TaskFlow!",
+            subject="Welcome to MapLeads!",
             html_content=html_content
         )
 

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "TaskFlow - Modern TODO Platform",
-  description: "Professional task management platform with lists and todos",
+  title: "MapLeads - Local Business Lead Generation",
+  description: "Find, organize, and follow up on local business leads from Google Maps",
   generator: "v0.app",
 }
 

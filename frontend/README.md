@@ -1,6 +1,6 @@
-# TaskFlow Frontend
+# MapLeads Frontend
 
-Next.js frontend application for TaskFlow task management system.
+Next.js frontend application for MapLeads, a local business lead generation platform.
 
 ## 🚀 Quick Start
 
@@ -73,7 +73,7 @@ If you want to connect to the backend running via the root `docker-compose.yml`:
    networks:
      frontend-network:
        external: true
-       name: craze_dashboard_taskflow-network
+       name: craze_dashboard_mapleads-network
    ```
 
 2. Or use the same network name as the root compose file.

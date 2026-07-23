@@ -13,7 +13,7 @@ words when strictly necessary.
 
 ## 1. Project overview
 
-TaskFlow is a monorepo with three parts:
+MapLeads is a monorepo with three parts:
 
 - **`backend/`** — FastAPI (Python 3.12) REST API. SQLAlchemy ORM, Pydantic v2,
   Alembic migrations, JWT auth, API-key gateway, Celery + Redis for async tasks.

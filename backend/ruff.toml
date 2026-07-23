@@ -1,4 +1,4 @@
-# Minimal lint configuration for the TaskFlow backend.
+# Minimal lint configuration for the MapLeads backend.
 # Intentionally small: catch real problems (undefined names, unused imports,
 # bad imports) without drowning in style noise. Tighten over time.
 

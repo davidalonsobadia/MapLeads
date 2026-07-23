@@ -19,7 +19,7 @@ export async function POST() {
         })
       } catch (error) {
         // Continue with logout even if backend call fails
-        console.warn("[TaskFlow] Backend logout failed:", error)
+        console.warn("[MapLeads] Backend logout failed:", error)
       }
     }
 
@@ -31,7 +31,7 @@ export async function POST() {
       message: "Logged out successfully",
     })
   } catch (error) {
-    console.error("[TaskFlow] Logout error:", error)
+    console.error("[MapLeads] Logout error:", error)
     return NextResponse.json(
       { success: false, message: "Logout failed" },
       { status: 500 },
