@@ -1,0 +1,139 @@
+from typing import List, Optional
+
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.domains.projects.models import Project
+
+from . import models, schemas
+
+
+class LeadService:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def _get_owned_project(self, user_id: int, project_id: int) -> Project:
+        """Return the project if owned by the user, else raise 404."""
+        project = (
+            self.db.query(Project)
+            .filter(Project.id == project_id, Project.user_id == user_id)
+            .first()
+        )
+        if project is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found",
+            )
+        return project
+
+    def save_leads(
+        self, user_id: int, project_id: int, items: List[schemas.LeadSaveItem]
+    ) -> schemas.LeadSaveResult:
+        """Save selected search results as leads under a project.
+
+        Deduplicates by (project_id, place_id): place_ids already saved — or
+        repeated within this batch — are skipped and reported, never duplicated
+        and never raising an IntegrityError.
+        """
+        self._get_owned_project(user_id, project_id)
+
+        existing = set(self.existing_place_ids(user_id, project_id))
+        saved: List[models.Lead] = []
+        skipped_place_ids: List[str] = []
+        seen: set[str] = set()
+
+        for item in items:
+            if item.place_id in existing or item.place_id in seen:
+                skipped_place_ids.append(item.place_id)
+                continue
+            seen.add(item.place_id)
+            lead = models.Lead(
+                project_id=project_id,
+                user_id=user_id,
+                place_id=item.place_id,
+                name=item.name,
+                address=item.address,
+                phone=item.phone,
+                website=item.website,
+                category=item.category,
+            )
+            self.db.add(lead)
+            saved.append(lead)
+
+        self.db.commit()
+        for lead in saved:
+            self.db.refresh(lead)
+
+        return schemas.LeadSaveResult(
+            saved=[schemas.LeadResponse.model_validate(lead) for lead in saved],
+            skipped_place_ids=skipped_place_ids,
+        )
+
+    def list_leads(
+        self,
+        user_id: int,
+        project_id: int,
+        status: Optional[str] = None,
+        q: Optional[str] = None,
+    ) -> List[models.Lead]:
+        """List the leads of an owned project, filtered by status and/or name search."""
+        self._get_owned_project(user_id, project_id)
+
+        query = self.db.query(models.Lead).filter(
+            models.Lead.project_id == project_id,
+            models.Lead.user_id == user_id,
+        )
+        if status is not None:
+            query = query.filter(models.Lead.status == status)
+        if q:
+            query = query.filter(models.Lead.name.ilike(f"%{q}%"))
+        return query.order_by(models.Lead.created_at.desc()).all()
+
+    def existing_place_ids(self, user_id: int, project_id: int) -> List[str]:
+        """Return the place_ids already saved in an owned project (for dedup marking)."""
+        self._get_owned_project(user_id, project_id)
+        rows = (
+            self.db.query(models.Lead.place_id)
+            .filter(
+                models.Lead.project_id == project_id,
+                models.Lead.user_id == user_id,
+            )
+            .all()
+        )
+        return [row[0] for row in rows]
+
+    def get_lead(self, user_id: int, lead_id: int) -> models.Lead:
+        """Get a single lead owned by the user or raise 404."""
+        lead = (
+            self.db.query(models.Lead)
+            .filter(models.Lead.id == lead_id, models.Lead.user_id == user_id)
+            .first()
+        )
+        if lead is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Lead not found",
+            )
+        return lead
+
+    def update_lead(
+        self, user_id: int, lead_id: int, data: schemas.LeadUpdate
+    ) -> models.Lead:
+        """Partially update a lead's status and/or linkedin_url.
+
+        Rejects a status outside the allowed set with 422.
+        """
+        lead = self.get_lead(user_id, lead_id)
+        updates = data.model_dump(exclude_unset=True)
+
+        if "status" in updates and updates["status"] not in schemas.ALLOWED_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid status; allowed: {', '.join(schemas.ALLOWED_STATUSES)}",
+            )
+
+        for field, value in updates.items():
+            setattr(lead, field, value)
+        self.db.commit()
+        self.db.refresh(lead)
+        return lead
