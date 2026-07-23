@@ -27,6 +27,7 @@ config.set_main_option("sqlalchemy.url", database_url)
 import app.domains.auth.models
 import app.domains.api_clients.models
 import app.domains.projects.models
+import app.domains.leads.models
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.db.base import Base
