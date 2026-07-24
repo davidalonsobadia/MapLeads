@@ -137,3 +137,59 @@ class LeadService:
         self.db.commit()
         self.db.refresh(lead)
         return lead
+
+    def add_note(
+        self, user_id: int, lead_id: int, data: schemas.LeadNoteCreate
+    ) -> models.LeadNote:
+        """Add a note or reminder to an owned lead's timeline.
+
+        Ownership is enforced through the parent lead. ``reminder_date`` is
+        required for reminders, but that is validated at the schema layer.
+        """
+        self.get_lead(user_id, lead_id)
+        note = models.LeadNote(
+            lead_id=lead_id,
+            type=data.type,
+            content=data.content,
+            reminder_date=data.reminder_date,
+        )
+        self.db.add(note)
+        self.db.commit()
+        self.db.refresh(note)
+        return note
+
+    def list_notes(self, user_id: int, lead_id: int) -> List[models.LeadNote]:
+        """List an owned lead's notes and reminders, newest first."""
+        self.get_lead(user_id, lead_id)
+        return (
+            self.db.query(models.LeadNote)
+            .filter(models.LeadNote.lead_id == lead_id)
+            .order_by(
+                models.LeadNote.created_at.desc(),
+                models.LeadNote.id.desc(),
+            )
+            .all()
+        )
+
+    def delete_note(self, user_id: int, lead_id: int, note_id: int) -> None:
+        """Delete a note that lives under an owned lead.
+
+        The note must belong to ``lead_id`` (which must be owned by the user);
+        a note under a different lead returns 404 even when the caller owns it.
+        """
+        self.get_lead(user_id, lead_id)
+        note = (
+            self.db.query(models.LeadNote)
+            .filter(
+                models.LeadNote.id == note_id,
+                models.LeadNote.lead_id == lead_id,
+            )
+            .first()
+        )
+        if note is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Note not found",
+            )
+        self.db.delete(note)
+        self.db.commit()
