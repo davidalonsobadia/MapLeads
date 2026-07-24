@@ -29,6 +29,7 @@ import app.domains.api_clients.models
 import app.domains.projects.models
 import app.domains.leads.models
 import app.domains.search.models
+import app.domains.billing.models
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.db.base import Base
