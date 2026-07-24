@@ -64,6 +64,37 @@ export interface Task {
   updatedAt: string
 }
 
+// Backend API response types (snake_case)
+export interface ProjectResponse {
+  id: number
+  user_id: number
+  name: string
+  archived: boolean
+  created_at: string
+  updated_at?: string | null
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface Project {
+  id: string
+  userId: string
+  name: string
+  archived: boolean
+  createdAt: string
+  updatedAt?: string
+}
+
+export function transformProjectResponse(backendProject: ProjectResponse): Project {
+  return {
+    id: String(backendProject.id),
+    userId: String(backendProject.user_id),
+    name: backendProject.name,
+    archived: backendProject.archived,
+    createdAt: backendProject.created_at,
+    updatedAt: backendProject.updated_at || undefined,
+  }
+}
+
 export interface AuthResponse {
   success: boolean
   message?: string

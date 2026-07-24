@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { authApi } from "@/features/auth/api"
+import { ProjectsList } from "@/features/projects/projects-list"
 import { Button } from "@/components/ui/button"
 import { MapPin, LogOut, Loader2 } from "lucide-react"
 
@@ -67,15 +68,7 @@ export default function DashboardPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="max-w-md mx-auto">
-            <MapPin className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">No projects yet</h2>
-            <p className="text-muted-foreground mb-6">
-              Projects, lead search, and the mini-CRM are coming soon.
-            </p>
-          </div>
-        </div>
+        <ProjectsList />
       </main>
     </div>
   )

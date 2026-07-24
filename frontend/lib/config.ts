@@ -19,6 +19,10 @@ export const config = {
           resetPassword: "/api/v1/auth/reset-password",
           me: "/api/v1/auth/me",
         },
+        projects: {
+          root: "/api/v1/projects",
+          byId: (id: string | number) => `/api/v1/projects/${id}`,
+        },
       },
       // Frontend API routes (proxy to backend)
       auth: {
@@ -29,6 +33,10 @@ export const config = {
         forgotPassword: "/api/auth/forgot-password",
         resetPassword: "/api/auth/reset-password",
         me: "/api/auth/me",
+      },
+      projects: {
+        root: "/api/projects",
+        byId: (id: string | number) => `/api/projects/${id}`,
       },
     },
   },
