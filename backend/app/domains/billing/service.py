@@ -293,7 +293,7 @@ class StripeBillingService:
         elif event_type == "customer.subscription.deleted":
             self._handle_subscription_deleted(obj)
         else:
-            logger.info(f"Ignoring unhandled Stripe event: {event_type}")
+            logger.info("Ignoring unhandled Stripe event: %s", event_type)
 
         return {"received": True}
 
@@ -369,8 +369,21 @@ class StripeBillingService:
 
         period_start = (stripe_sub or {}).get("current_period_start")
         period_end = (stripe_sub or {}).get("current_period_end")
-        if period_start:
-            subscription.period_start = datetime.utcfromtimestamp(period_start)
+        new_period_start = (
+            datetime.utcfromtimestamp(period_start) if period_start else None
+        )
+        # A new billing period resets the usage counter. This covers both the
+        # trial->paid conversion (the paid period differs from the trial window)
+        # and monthly renewals (period_start advances). Guarding on the period
+        # *changing* keeps mid-period ``subscription.updated`` events (payment
+        # method changes, plan swaps) from wiping usage the customer has spent.
+        if (
+            new_period_start is not None
+            and new_period_start != subscription.period_start
+        ):
+            subscription.leads_used_this_period = 0
+        if new_period_start is not None:
+            subscription.period_start = new_period_start
         if period_end:
             subscription.period_end = datetime.utcfromtimestamp(period_end)
 

@@ -138,6 +138,10 @@ def test_webhook_checkout_completed_upgrades_subscription(
     sub = _seed_subscription(db_session, test_user.id)
     assert sub.plan == plans.PLAN_TRIAL
     assert sub.trial_ends_at is not None
+    # Simulate leads saved during the trial: these must not be carried over as
+    # pre-consumed quota against the new paid period.
+    sub.leads_used_this_period = 150
+    db_session.commit()
 
     period_start = 1_700_000_000
     period_end = 1_702_592_000  # ~30 days later
@@ -192,6 +196,120 @@ def test_webhook_checkout_completed_upgrades_subscription(
     assert updated.stripe_customer_id == "cus_1"
     assert updated.stripe_subscription_id == "sub_1"
     assert updated.period_end.year == 2023
+    # Trial usage is not carried into the paid period.
+    assert updated.leads_used_this_period == 0
+
+
+def test_webhook_subscription_updated_renewal_resets_usage(
+    client, test_user, db_session, stripe_config, monkeypatch
+):
+    """A renewal (customer.subscription.updated with a new period) resets usage.
+
+    A PRO subscriber who exhausted their quota is flipped read-only by
+    ``record_leads_saved``. When Stripe renews the subscription for a new period,
+    the local record must reset ``leads_used_this_period`` and lift read-only, so
+    the paying customer is not permanently quota-locked.
+    """
+    sub = _seed_subscription(db_session, test_user.id)
+    sub.plan = plans.PLAN_PRO
+    sub.status = plans.STATUS_ACTIVE
+    sub.monthly_lead_quota = plans.PRO.monthly_lead_quota
+    sub.leads_used_this_period = plans.PRO.monthly_lead_quota  # quota exhausted
+    sub.read_only = True
+    sub.stripe_customer_id = "cus_renew"
+    sub.stripe_subscription_id = "sub_renew"
+    sub.trial_ends_at = None
+    db_session.commit()
+
+    new_period_start = 1_705_000_000  # advances past the seeded period
+    new_period_end = 1_707_592_000
+
+    def fake_construct_event(payload, sig_header, secret):
+        return {
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_renew",
+                    "status": "active",
+                    "customer": "cus_renew",
+                    "current_period_start": new_period_start,
+                    "current_period_end": new_period_end,
+                    "items": {"data": [{"price": {"id": "price_pro"}}]},
+                    "metadata": {"user_id": str(test_user.id)},
+                }
+            },
+        }
+
+    monkeypatch.setattr(stripe.Webhook, "construct_event", fake_construct_event)
+
+    response = client.post(
+        WEBHOOK, content=b"{}", headers={"stripe-signature": "t=1,v1=good"}
+    )
+    assert response.status_code == 200
+
+    db_session.expire_all()
+    updated = (
+        db_session.query(Subscription)
+        .filter(Subscription.user_id == test_user.id)
+        .first()
+    )
+    assert updated.plan == plans.PLAN_PRO
+    assert updated.leads_used_this_period == 0
+    assert updated.read_only is False
+    assert updated.status == plans.STATUS_ACTIVE
+    assert updated.period_end.year == 2024
+
+
+def test_webhook_subscription_updated_same_period_keeps_usage(
+    client, test_user, db_session, stripe_config, monkeypatch
+):
+    """A mid-period update (same period) must not wipe consumed usage."""
+    sub = _seed_subscription(db_session, test_user.id)
+    sub.plan = plans.PLAN_PRO
+    sub.status = plans.STATUS_ACTIVE
+    sub.monthly_lead_quota = plans.PRO.monthly_lead_quota
+    sub.leads_used_this_period = 120
+    sub.stripe_customer_id = "cus_same"
+    sub.stripe_subscription_id = "sub_same"
+    sub.trial_ends_at = None
+    period_start = 1_705_000_000
+    period_end = 1_707_592_000
+    from datetime import datetime
+
+    sub.period_start = datetime.utcfromtimestamp(period_start)
+    sub.period_end = datetime.utcfromtimestamp(period_end)
+    db_session.commit()
+
+    def fake_construct_event(payload, sig_header, secret):
+        return {
+            "type": "customer.subscription.updated",
+            "data": {
+                "object": {
+                    "id": "sub_same",
+                    "status": "active",
+                    "customer": "cus_same",
+                    "current_period_start": period_start,  # unchanged
+                    "current_period_end": period_end,
+                    "items": {"data": [{"price": {"id": "price_pro"}}]},
+                    "metadata": {"user_id": str(test_user.id)},
+                }
+            },
+        }
+
+    monkeypatch.setattr(stripe.Webhook, "construct_event", fake_construct_event)
+
+    response = client.post(
+        WEBHOOK, content=b"{}", headers={"stripe-signature": "t=1,v1=good"}
+    )
+    assert response.status_code == 200
+
+    db_session.expire_all()
+    updated = (
+        db_session.query(Subscription)
+        .filter(Subscription.user_id == test_user.id)
+        .first()
+    )
+    assert updated.leads_used_this_period == 120
 
 
 def test_webhook_subscription_deleted_marks_read_only(
