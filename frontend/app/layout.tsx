@@ -1,16 +1,19 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Roboto, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const geist = Geist({
+const roboto = Roboto({
   subsets: ["latin"],
-  variable: "--font-geist"
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-roboto",
 })
-const geistMono = Geist_Mono({
+const robotoMono = Roboto_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono"
+  display: "swap",
+  variable: "--font-roboto-mono",
 })
 
 export const metadata: Metadata = {
@@ -25,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${geist.variable} ${geistMono.variable}`} >
+    <html lang="en" className={`${roboto.variable} ${robotoMono.variable}`}>
       <body className={`font-sans antialiased`}>
         {children}
         <Analytics />
