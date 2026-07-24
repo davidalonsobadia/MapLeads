@@ -74,3 +74,8 @@ TRIAL_PERIOD_DAYS = 15
 # OPEN DECISION (flag, do not block): the trial monthly lead quota defaults to
 # the Basic plan quota (200). Confirm the intended trial quota with product.
 TRIAL_LEAD_QUOTA = BASIC.monthly_lead_quota
+# OPEN DECISION (flag, do not block): the trial does not cap active projects
+# (None == unlimited) so users can explore freely during the 15-day window; the
+# per-plan project limit only bites once they are on a paid plan. Confirm the
+# intended trial project limit with product.
+TRIAL_MAX_ACTIVE_PROJECTS = None
