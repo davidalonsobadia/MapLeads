@@ -2,15 +2,31 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { LogOut, Loader2, MapPin, Plus, Search } from "lucide-react"
 import { authApi } from "@/features/auth/api"
+import { billingApi } from "@/features/billing/api"
+import { TrialBanner } from "@/features/billing/trial-banner"
+import { UsageCard } from "@/features/billing/usage-card"
 import { ProjectsList } from "@/features/projects/projects-list"
+import { ProjectDialog } from "@/features/projects/project-dialog"
+import { projectsApi } from "@/features/projects/api"
 import { Button } from "@/components/ui/button"
-import { MapPin, LogOut, Loader2 } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import type { SubscriptionUsage } from "@/lib/types"
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ name?: string } | null>(null)
+  const [subscription, setSubscription] = useState<SubscriptionUsage | null>(null)
   const [loading, setLoading] = useState(true)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     loadData()
@@ -24,6 +40,11 @@ export default function DashboardPage() {
         return
       }
       setUser(userResult.user)
+
+      const subscriptionResult = await billingApi.getSubscription()
+      if (subscriptionResult.success && subscriptionResult.subscription) {
+        setSubscription(subscriptionResult.subscription)
+      }
     } catch (error) {
       console.error("[MapLeads] Load data error:", error)
       router.push("/login")
@@ -35,6 +56,18 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await authApi.logout()
     router.push("/login")
+  }
+
+  const handleCreateProject = async (name: string) => {
+    const result = await projectsApi.create(name)
+    if (!result.success) {
+      throw new Error(result.message || "Failed to create the project.")
+    }
+    setRefreshKey((key) => key + 1)
+  }
+
+  const scrollToProjects = () => {
+    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
   }
 
   if (loading) {
@@ -67,9 +100,52 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <ProjectsList />
+      <main className="container mx-auto space-y-8 px-4 py-8">
+        {subscription && <TrialBanner subscription={subscription} />}
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="md:col-span-2">
+            {subscription ? (
+              <UsageCard subscription={subscription} />
+            ) : (
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="text-base">Leads this month</CardTitle>
+                  <CardDescription>Usage is unavailable right now.</CardDescription>
+                </CardHeader>
+              </Card>
+            )}
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Quick actions</CardTitle>
+              <CardDescription>Start something new.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                New project
+              </Button>
+              <Button variant="outline" onClick={scrollToProjects}>
+                <Search className="mr-2 h-4 w-4" />
+                New search
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <section id="projects">
+          <ProjectsList refreshKey={refreshKey} />
+        </section>
       </main>
+
+      <ProjectDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        mode="create"
+        onSubmit={handleCreateProject}
+      />
     </div>
   )
 }
