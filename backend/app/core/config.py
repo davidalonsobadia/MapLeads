@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Frontend URL for email links (verification, password reset, etc.)
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Google Maps Platform: Places API (New). Provisioned via env; never hardcode.
+    GOOGLE_PLACES_API_KEY: str = ""
+
     # The actual key should be in the environment variable or .env file
     SECRET_KEY: str = "fallback-secret-c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
 
