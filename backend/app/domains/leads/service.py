@@ -1,12 +1,34 @@
-from typing import List, Optional
+import csv
+import io
+from datetime import datetime
+from typing import List, Optional, Tuple
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from app.domains.billing.service import SubscriptionService
 from app.domains.projects.models import Project
 
 from . import models, schemas
+
+# Column header -> Lead attribute, in export order.
+EXPORT_COLUMNS: Tuple[Tuple[str, str], ...] = (
+    ("name", "name"),
+    ("address", "address"),
+    ("phone", "phone"),
+    ("website", "website"),
+    ("category", "category"),
+    ("status", "status"),
+    ("date saved", "created_at"),
+)
+
+EXPORT_FORMATS = ("csv", "xlsx")
+
+CSV_MEDIA_TYPE = "text/csv"
+XLSX_MEDIA_TYPE = (
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
 
 
 class LeadService:
@@ -87,6 +109,28 @@ class LeadService:
             skipped_place_ids=skipped_place_ids,
         )
 
+    def _filtered_leads_query(
+        self,
+        user_id: int,
+        project_id: int,
+        status: Optional[str] = None,
+        q: Optional[str] = None,
+    ) -> "Query[models.Lead]":
+        """Build the ownership-scoped, filtered, ordered leads query.
+
+        Shared by ``list_leads`` and ``export`` so both honor the exact same
+        status/name filters. Assumes ownership has already been verified.
+        """
+        query = self.db.query(models.Lead).filter(
+            models.Lead.project_id == project_id,
+            models.Lead.user_id == user_id,
+        )
+        if status is not None:
+            query = query.filter(models.Lead.status == status)
+        if q:
+            query = query.filter(models.Lead.name.ilike(f"%{q}%"))
+        return query.order_by(models.Lead.created_at.desc())
+
     def list_leads(
         self,
         user_id: int,
@@ -96,16 +140,46 @@ class LeadService:
     ) -> List[models.Lead]:
         """List the leads of an owned project, filtered by status and/or name search."""
         self._get_owned_project(user_id, project_id)
+        return self._filtered_leads_query(user_id, project_id, status, q).all()
 
-        query = self.db.query(models.Lead).filter(
-            models.Lead.project_id == project_id,
-            models.Lead.user_id == user_id,
-        )
-        if status is not None:
-            query = query.filter(models.Lead.status == status)
-        if q:
-            query = query.filter(models.Lead.name.ilike(f"%{q}%"))
-        return query.order_by(models.Lead.created_at.desc()).all()
+    def export(
+        self,
+        user_id: int,
+        project_id: int,
+        status: Optional[str] = None,
+        q: Optional[str] = None,
+        format: str = "csv",
+    ) -> Tuple[bytes, str, str]:
+        """Export an owned project's filtered leads as CSV or XLSX.
+
+        Reuses the same filter logic as ``list_leads`` so the export matches
+        the currently applied ``status``/``q`` filters. Returns the file
+        content, its media type, and a suggested download filename that
+        reflects the filtered set.
+        """
+        if format not in EXPORT_FORMATS:
+            raise HTTPException(
+                status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid format; allowed: {', '.join(EXPORT_FORMATS)}",
+            )
+
+        self._get_owned_project(user_id, project_id)
+        leads = self._filtered_leads_query(user_id, project_id, status, q).all()
+
+        headers = [header for header, _ in EXPORT_COLUMNS]
+        rows = [
+            [_export_value(getattr(lead, attr)) for _, attr in EXPORT_COLUMNS]
+            for lead in leads
+        ]
+
+        filename = _export_filename(project_id, status, q, format)
+        if format == "xlsx":
+            content = _to_xlsx(headers, rows)
+            media_type = XLSX_MEDIA_TYPE
+        else:
+            content = _to_csv(headers, rows)
+            media_type = CSV_MEDIA_TYPE
+        return content, media_type, filename
 
     def existing_place_ids(self, user_id: int, project_id: int) -> List[str]:
         """Return the place_ids already saved in an owned project (for dedup marking)."""
@@ -211,3 +285,56 @@ class LeadService:
             )
         self.db.delete(note)
         self.db.commit()
+
+
+def _export_value(value: object) -> str:
+    """Render a lead attribute as a string cell for export."""
+    if value is None:
+        return ""
+    if isinstance(value, datetime):
+        # ISO 8601, seconds precision, no microseconds noise.
+        return value.replace(microsecond=0).isoformat()
+    return str(value)
+
+
+def _export_filename(
+    project_id: int, status: Optional[str], q: Optional[str], format: str
+) -> str:
+    """Build a download filename that reflects the filtered set."""
+    parts = [f"leads-project-{project_id}"]
+    if status:
+        parts.append(f"status-{_slugify(status)}")
+    if q:
+        parts.append(f"q-{_slugify(q)}")
+    return f"{'-'.join(parts)}.{format}"
+
+
+def _slugify(value: str) -> str:
+    """Reduce a filter value to a filename-safe token."""
+    slug = "".join(c if c.isalnum() else "-" for c in value.lower()).strip("-")
+    return slug or "all"
+
+
+def _to_csv(headers: List[str], rows: List[List[str]]) -> bytes:
+    """Serialize headers + rows to UTF-8 CSV bytes (with BOM for Excel)."""
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(headers)
+    writer.writerows(rows)
+    return buffer.getvalue().encode("utf-8-sig")
+
+
+def _to_xlsx(headers: List[str], rows: List[List[str]]) -> bytes:
+    """Serialize headers + rows to an in-memory XLSX workbook."""
+    from openpyxl import Workbook
+
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Leads"
+    sheet.append(headers)
+    for row in rows:
+        sheet.append(row)
+
+    buffer = io.BytesIO()
+    workbook.save(buffer)
+    return buffer.getvalue()

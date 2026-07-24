@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -49,6 +50,31 @@ def existing_place_ids(
 ):
     """Return the place_ids already saved in a project (used to mark search results)."""
     return service.LeadService(db).existing_place_ids(current_user.id, project_id)
+
+
+@router.get("/projects/{project_id}/leads/export")
+def export_leads(
+    project_id: int,
+    format: Literal["csv", "xlsx"] = Query(default="csv"),
+    status: Optional[str] = Query(default=None),
+    q: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Export a project's filtered leads as a CSV or XLSX download.
+
+    Honors the same ``status``/``q`` filters as the leads list. The response is
+    a streaming download whose ``Content-Disposition`` filename reflects the
+    filtered set.
+    """
+    content, media_type, filename = service.LeadService(db).export(
+        current_user.id, project_id, status, q, format
+    )
+    return StreamingResponse(
+        iter([content]),
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/leads/{lead_id}", response_model=schemas.LeadResponse)
