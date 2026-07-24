@@ -23,6 +23,9 @@ export const config = {
           root: "/api/v1/projects",
           byId: (id: string | number) => `/api/v1/projects/${id}`,
         },
+        searches: {
+          byProject: (id: string | number) => `/api/v1/projects/${id}/searches`,
+        },
         subscription: {
           root: "/api/v1/subscription",
         },
@@ -41,6 +44,9 @@ export const config = {
         root: "/api/projects",
         byId: (id: string | number) => `/api/projects/${id}`,
       },
+      searches: {
+        byProject: (id: string | number) => `/api/projects/${id}/searches`,
+      },
       subscription: {
         root: "/api/subscription",
       },
@@ -53,5 +59,8 @@ export const config = {
     verifyEmail: "/verify-email",
     forgotPassword: "/forgot-password",
     resetPassword: "/reset-password",
+    dashboard: "/dashboard",
+    project: (id: string | number) => `/projects/${id}`,
+    projectSearch: (id: string | number) => `/projects/${id}/search`,
   },
 } as const

@@ -1,6 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { Archive, ArchiveRestore, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { config } from "@/lib/config"
 import type { Project } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -31,7 +33,9 @@ export function ProjectItem({ project, onRename, onToggleArchive, onDelete }: Pr
     <Card className="py-4">
       <CardHeader className="px-4">
         <CardTitle className="flex items-center gap-2 text-base">
-          <span className="truncate">{project.name}</span>
+          <Link href={config.routes.project(project.id)} className="truncate hover:underline">
+            {project.name}
+          </Link>
           {project.archived && (
             <Badge variant="secondary" className="shrink-0">
               Archived

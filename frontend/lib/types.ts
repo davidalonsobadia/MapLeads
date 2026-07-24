@@ -96,6 +96,63 @@ export function transformProjectResponse(backendProject: ProjectResponse): Proje
 }
 
 // Backend API response types (snake_case)
+export interface SearchHistoryItemResponse {
+  id: number
+  project_id: number
+  user_id: number
+  keyword: string
+  location_type: string
+  params: Record<string, unknown>
+  result_count: number
+  created_at: string
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface SearchHistoryItem {
+  id: string
+  projectId: string
+  userId: string
+  keyword: string
+  locationType: string
+  params: Record<string, unknown>
+  resultCount: number
+  createdAt: string
+}
+
+export function transformSearchHistoryItemResponse(
+  backend: SearchHistoryItemResponse,
+): SearchHistoryItem {
+  return {
+    id: String(backend.id),
+    projectId: String(backend.project_id),
+    userId: String(backend.user_id),
+    keyword: backend.keyword,
+    locationType: backend.location_type,
+    params: backend.params ?? {},
+    resultCount: backend.result_count,
+    createdAt: backend.created_at,
+  }
+}
+
+/** Human-readable location label for a search history entry. */
+export function formatSearchLocation(item: SearchHistoryItem): string {
+  const params = item.params ?? {}
+  if (item.locationType === "text") {
+    const text = params.location_text
+    return typeof text === "string" && text.trim() ? text : "Text search"
+  }
+  // point search: lat/lng + radius_km
+  const lat = params.lat
+  const lng = params.lng
+  const radius = params.radius_km
+  if (typeof lat === "number" && typeof lng === "number") {
+    const coords = `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    return typeof radius === "number" ? `${coords} · ${radius} km` : coords
+  }
+  return "Point search"
+}
+
+// Backend API response types (snake_case)
 export interface SubscriptionUsageResponse {
   plan: string
   status: string
