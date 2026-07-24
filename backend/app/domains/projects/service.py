@@ -3,6 +3,8 @@ from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.domains.billing.service import SubscriptionService
+
 from . import models, schemas
 
 
@@ -11,7 +13,12 @@ class ProjectService:
         self.db = db
 
     def create(self, user_id: int, data: schemas.ProjectCreate) -> models.Project:
-        """Create a new project owned by the given user."""
+        """Create a new project owned by the given user.
+
+        Enforces the plan's active-project limit first: exceeding it raises 403
+        and creates nothing.
+        """
+        SubscriptionService(self.db).enforce_project_limit(user_id)
         project = models.Project(user_id=user_id, name=data.name)
         self.db.add(project)
         self.db.commit()

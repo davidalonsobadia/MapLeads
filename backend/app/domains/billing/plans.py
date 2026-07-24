@@ -74,3 +74,21 @@ TRIAL_PERIOD_DAYS = 15
 # OPEN DECISION (flag, do not block): the trial monthly lead quota defaults to
 # the Basic plan quota (200). Confirm the intended trial quota with product.
 TRIAL_LEAD_QUOTA = BASIC.monthly_lead_quota
+# The trial deliberately does NOT cap active projects (``None`` == unlimited):
+# the trial's constraint is the lead quota above, and evaluators are free to
+# organize their exploration across as many projects as they like. Only the
+# paid plans enforce a project limit.
+TRIAL_MAX_ACTIVE_PROJECTS = None
+
+
+def project_limit_for_plan(plan: str) -> Optional[int]:
+    """Return the max number of active projects allowed for a plan identifier.
+
+    ``None`` means unlimited. The trial is not part of the purchasable ``PLANS``
+    catalog, so it is resolved explicitly to the Basic-plan limit; an unknown
+    plan defaults to unlimited so a misconfigured record never blocks the user.
+    """
+    if plan == PLAN_TRIAL:
+        return TRIAL_MAX_ACTIVE_PROJECTS
+    plan_obj = PLANS.get(plan)
+    return plan_obj.max_active_projects if plan_obj else None
