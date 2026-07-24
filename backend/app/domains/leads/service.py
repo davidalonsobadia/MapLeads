@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.domains.billing.service import SubscriptionService
 from app.domains.projects.models import Project
 
 from . import models, schemas
@@ -34,11 +35,17 @@ class LeadService:
         Deduplicates by (project_id, place_id): place_ids already saved — or
         repeated within this batch — are skipped and reported, never duplicated
         and never raising an IntegrityError.
+
+        Only the new (non-duplicate) leads count toward the billing quota. The
+        quota is checked before inserting anything: when the account is
+        read-only (quota exhausted or trial expired) the whole save is rejected
+        with 403 and nothing is written. A batch of only duplicates consumes no
+        quota and is therefore never blocked.
         """
         self._get_owned_project(user_id, project_id)
 
         existing = set(self.existing_place_ids(user_id, project_id))
-        saved: List[models.Lead] = []
+        to_save: List[schemas.LeadSaveItem] = []
         skipped_place_ids: List[str] = []
         seen: set[str] = set()
 
@@ -47,6 +54,15 @@ class LeadService:
                 skipped_place_ids.append(item.place_id)
                 continue
             seen.add(item.place_id)
+            to_save.append(item)
+
+        billing = SubscriptionService(self.db)
+        allowed, reason = billing.can_save_leads(user_id, len(to_save))
+        if not allowed:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=reason)
+
+        saved: List[models.Lead] = []
+        for item in to_save:
             lead = models.Lead(
                 project_id=project_id,
                 user_id=user_id,
@@ -63,6 +79,8 @@ class LeadService:
         self.db.commit()
         for lead in saved:
             self.db.refresh(lead)
+
+        billing.record_leads_saved(user_id, len(saved))
 
         return schemas.LeadSaveResult(
             saved=[schemas.LeadResponse.model_validate(lead) for lead in saved],
