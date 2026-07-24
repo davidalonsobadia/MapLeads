@@ -13,6 +13,7 @@ passlib[bcrypt]
 python-jose[cryptography]
 bcrypt==4.0.1
 resend
+stripe
 jinja2
 aiofiles
 pytest

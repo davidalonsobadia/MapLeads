@@ -9,7 +9,8 @@ EXEMPT_PATHS = [
     "/docs",
     "/openapi.json",
     "/redoc",
-    "/api/v1/psp/mollie/webhooks/payment"  # Mollie webhook - uses signature validation
+    "/api/v1/psp/mollie/webhooks/payment",  # Mollie webhook - uses signature validation
+    "/api/v1/billing/webhook",  # Stripe webhook - authenticated by signature, not x-api-key
 ]
 
 class APIKeyMiddleware(BaseHTTPMiddleware):

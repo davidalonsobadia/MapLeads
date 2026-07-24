@@ -3,6 +3,36 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from . import plans
+
+
+class CheckoutSessionRequest(BaseModel):
+    """Body for creating a Stripe Checkout session.
+
+    ``plan`` must be one of the purchasable plan identifiers (the ``trial`` plan
+    is a provisioning state, not something a user can buy).
+    """
+
+    plan: str
+
+    def validate_plan(self) -> str:
+        """Return the plan if purchasable, else raise a ValueError."""
+        if self.plan not in plans.PLANS:
+            raise ValueError(f"Unknown plan '{self.plan}'")
+        return self.plan
+
+
+class CheckoutSessionResponse(BaseModel):
+    """The hosted Stripe Checkout URL to redirect the user to."""
+
+    url: str
+
+
+class PortalSessionResponse(BaseModel):
+    """The hosted Stripe Billing Portal URL to redirect the user to."""
+
+    url: str
+
 
 class SubscriptionUsage(BaseModel):
     """The current plan and usage snapshot for a user.

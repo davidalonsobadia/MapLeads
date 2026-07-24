@@ -23,6 +23,15 @@ class Settings(BaseSettings):
     # Google Maps Platform: Places API (New). Provisioned via env; never hardcode.
     GOOGLE_PLACES_API_KEY: str = ""
 
+    # Stripe billing. All provisioned via env; never commit real values. Empty
+    # defaults keep the app bootable and tests runnable without a Stripe account.
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    # Price IDs (one per purchasable plan) created in the Stripe dashboard.
+    STRIPE_PRICE_BASIC: str = ""
+    STRIPE_PRICE_PRO: str = ""
+    STRIPE_PRICE_ENTERPRISE: str = ""
+
     # The actual key should be in the environment variable or .env file
     SECRET_KEY: str = "fallback-secret-c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
 
