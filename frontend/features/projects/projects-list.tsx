@@ -11,7 +11,13 @@ import { ProjectDialog } from "./project-dialog"
 import { DeleteProjectDialog } from "./delete-project-dialog"
 import { ProjectItem } from "./project-item"
 
-export function ProjectsList() {
+interface ProjectsListProps {
+  /** Bump this value to force a reload from the parent (e.g. after an
+   *  external "New project" action). */
+  refreshKey?: number
+}
+
+export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +46,7 @@ export function ProjectsList() {
 
   useEffect(() => {
     load()
-  }, [load])
+  }, [load, refreshKey])
 
   const handleCreate = async (name: string) => {
     const result = await projectsApi.create(name)

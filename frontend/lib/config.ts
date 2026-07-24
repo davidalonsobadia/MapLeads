@@ -23,6 +23,9 @@ export const config = {
           root: "/api/v1/projects",
           byId: (id: string | number) => `/api/v1/projects/${id}`,
         },
+        subscription: {
+          root: "/api/v1/subscription",
+        },
       },
       // Frontend API routes (proxy to backend)
       auth: {
@@ -37,6 +40,9 @@ export const config = {
       projects: {
         root: "/api/projects",
         byId: (id: string | number) => `/api/projects/${id}`,
+      },
+      subscription: {
+        root: "/api/subscription",
       },
     },
   },

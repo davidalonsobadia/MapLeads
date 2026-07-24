@@ -95,6 +95,48 @@ export function transformProjectResponse(backendProject: ProjectResponse): Proje
   }
 }
 
+// Backend API response types (snake_case)
+export interface SubscriptionUsageResponse {
+  plan: string
+  status: string
+  leads_used: number
+  monthly_lead_quota: number
+  remaining: number
+  period_end: string
+  trial_ends_at?: string | null
+  trial_days_left: number
+  read_only: boolean
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface SubscriptionUsage {
+  plan: string
+  status: string
+  leadsUsed: number
+  monthlyLeadQuota: number
+  remaining: number
+  periodEnd: string
+  trialEndsAt?: string
+  trialDaysLeft: number
+  readOnly: boolean
+}
+
+export function transformSubscriptionUsageResponse(
+  backend: SubscriptionUsageResponse,
+): SubscriptionUsage {
+  return {
+    plan: backend.plan,
+    status: backend.status,
+    leadsUsed: backend.leads_used,
+    monthlyLeadQuota: backend.monthly_lead_quota,
+    remaining: backend.remaining,
+    periodEnd: backend.period_end,
+    trialEndsAt: backend.trial_ends_at || undefined,
+    trialDaysLeft: backend.trial_days_left,
+    readOnly: backend.read_only,
+  }
+}
+
 export interface AuthResponse {
   success: boolean
   message?: string
