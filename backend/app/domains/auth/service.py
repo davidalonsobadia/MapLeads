@@ -4,6 +4,9 @@ from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.domains.billing import plans
+from app.domains.billing.models import Subscription
+
 from . import models, schemas, utils
 from .tasks import (
     send_password_reset_email_task,
@@ -42,6 +45,31 @@ class AuthService:
         )
 
         self.db.add(db_user)
+        # Flush (not commit) so db_user.id is assigned without ending the
+        # transaction; this lets the user and its subscription be committed
+        # atomically below.
+        self.db.flush()
+        self.db.refresh(db_user)
+
+        # Provision a 15-day, no-credit-card trial subscription for the new
+        # user. Exactly one subscription per user; the trial spans the full
+        # trial window.
+        now = datetime.utcnow()
+        trial_ends_at = now + timedelta(days=plans.TRIAL_PERIOD_DAYS)
+        subscription = Subscription(
+            user_id=db_user.id,
+            plan=plans.PLAN_TRIAL,
+            status=plans.STATUS_TRIALING,
+            monthly_lead_quota=plans.TRIAL_LEAD_QUOTA,
+            leads_used_this_period=0,
+            period_start=now,
+            period_end=trial_ends_at,
+            trial_ends_at=trial_ends_at,
+            read_only=False,
+        )
+        self.db.add(subscription)
+        # Single commit: the user and its subscription are persisted together
+        # or not at all.
         self.db.commit()
         self.db.refresh(db_user)
 
