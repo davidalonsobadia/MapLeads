@@ -16,6 +16,7 @@ resend
 stripe
 jinja2
 aiofiles
+openpyxl
 pytest
 pytest-asyncio
 pytest-cov
