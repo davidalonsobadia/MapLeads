@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Allowed lead status values, mirrored by the CheckConstraint on the model.
 ALLOWED_STATUSES = ("new", "contacted", "interested", "discarded")
@@ -48,3 +48,32 @@ class LeadResponse(BaseModel):
 class LeadSaveResult(BaseModel):
     saved: List[LeadResponse]
     skipped_place_ids: List[str]
+
+
+class LeadNoteCreate(BaseModel):
+    """A dated note or follow-up reminder on a lead.
+
+    ``reminder_date`` is required when ``type == "reminder"`` and optional
+    (typically unset) for plain notes.
+    """
+
+    type: Literal["note", "reminder"]
+    content: str = Field(..., min_length=1)
+    reminder_date: Optional[datetime] = None
+
+    @model_validator(mode="after")
+    def _reminder_requires_date(self) -> "LeadNoteCreate":
+        if self.type == "reminder" and self.reminder_date is None:
+            raise ValueError("reminder_date is required when type is 'reminder'")
+        return self
+
+
+class LeadNoteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    lead_id: int
+    type: str
+    content: str
+    reminder_date: Optional[datetime] = None
+    created_at: datetime

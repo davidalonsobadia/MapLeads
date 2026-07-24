@@ -70,3 +70,42 @@ def update_lead(
 ):
     """Update a lead's status and/or linkedin_url. Invalid status returns 422."""
     return service.LeadService(db).update_lead(current_user.id, lead_id, data)
+
+
+@router.post(
+    "/leads/{lead_id}/notes",
+    response_model=schemas.LeadNoteResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_note(
+    lead_id: int,
+    data: schemas.LeadNoteCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Add a note or reminder to a lead. Reminder without a date returns 422."""
+    return service.LeadService(db).add_note(current_user.id, lead_id, data)
+
+
+@router.get("/leads/{lead_id}/notes", response_model=List[schemas.LeadNoteResponse])
+def list_notes(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """List a lead's notes and reminders, newest first."""
+    return service.LeadService(db).list_notes(current_user.id, lead_id)
+
+
+@router.delete(
+    "/leads/{lead_id}/notes/{note_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_note(
+    lead_id: int,
+    note_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Delete one of the current user's notes. Returns 404 if not owned/found."""
+    service.LeadService(db).delete_note(current_user.id, note_id)
