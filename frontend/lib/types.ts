@@ -394,6 +394,12 @@ export function transformSubscriptionUsageResponse(
   }
 }
 
+// Stripe-hosted session responses (Checkout / Billing Portal).
+// Both endpoints return the hosted URL the client redirects the user to.
+export interface BillingSessionResponse {
+  url: string
+}
+
 export interface AuthResponse {
   success: boolean
   message?: string

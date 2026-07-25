@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { LogOut, Loader2, MapPin, Plus, Search } from "lucide-react"
+import Link from "next/link"
+import { CreditCard, LogOut, Loader2, MapPin, Plus, Search } from "lucide-react"
+import { config } from "@/lib/config"
 import { authApi } from "@/features/auth/api"
 import { billingApi } from "@/features/billing/api"
 import { TrialBanner } from "@/features/billing/trial-banner"
@@ -91,6 +93,12 @@ export default function DashboardPage() {
               <span className="text-sm text-muted-foreground">
                 Welcome, <strong>{user?.name}</strong>
               </span>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href={config.routes.billing}>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Billing
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout

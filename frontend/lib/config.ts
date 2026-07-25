@@ -34,6 +34,10 @@ export const config = {
         subscription: {
           root: "/api/v1/subscription",
         },
+        billing: {
+          checkoutSession: "/api/v1/billing/checkout-session",
+          portalSession: "/api/v1/billing/portal-session",
+        },
       },
       // Frontend API routes (proxy to backend)
       auth: {
@@ -60,6 +64,10 @@ export const config = {
       subscription: {
         root: "/api/subscription",
       },
+      billing: {
+        checkoutSession: "/api/billing/checkout-session",
+        portalSession: "/api/billing/portal-session",
+      },
     },
   },
   routes: {
@@ -70,6 +78,7 @@ export const config = {
     forgotPassword: "/forgot-password",
     resetPassword: "/reset-password",
     dashboard: "/dashboard",
+    billing: "/billing",
     project: (id: string | number) => `/projects/${id}`,
     lead: (id: string | number, leadId: string | number) =>
       `/projects/${id}/leads/${leadId}`,
