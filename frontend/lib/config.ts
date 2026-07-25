@@ -58,5 +58,7 @@ export const config = {
     dashboard: "/dashboard",
     project: (id: string | number) => `/projects/${id}`,
     newSearch: (id: string | number) => `/projects/${id}/search`,
+    searchResults: (id: string | number, searchId: string | number) =>
+      `/projects/${id}/search/results?search_id=${searchId}`,
   },
 } as const
