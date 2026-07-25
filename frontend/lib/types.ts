@@ -96,6 +96,45 @@ export function transformProjectResponse(backendProject: ProjectResponse): Proje
 }
 
 // Backend API response types (snake_case)
+export interface SearchHistoryResponse {
+  id: number
+  project_id: number
+  user_id: number
+  keyword: string
+  location_type: "text" | "point"
+  params: Record<string, unknown>
+  result_count: number
+  created_at: string
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface SearchHistoryItem {
+  id: string
+  projectId: string
+  userId: string
+  keyword: string
+  locationType: "text" | "point"
+  params: Record<string, unknown>
+  resultCount: number
+  createdAt: string
+}
+
+export function transformSearchHistoryResponse(
+  backend: SearchHistoryResponse,
+): SearchHistoryItem {
+  return {
+    id: String(backend.id),
+    projectId: String(backend.project_id),
+    userId: String(backend.user_id),
+    keyword: backend.keyword,
+    locationType: backend.location_type,
+    params: backend.params ?? {},
+    resultCount: backend.result_count,
+    createdAt: backend.created_at,
+  }
+}
+
+// Backend API response types (snake_case)
 export interface SubscriptionUsageResponse {
   plan: string
   status: string
