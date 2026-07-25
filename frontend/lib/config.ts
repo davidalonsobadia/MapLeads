@@ -27,6 +27,10 @@ export const config = {
           leadsExport: (id: string | number) =>
             `/api/v1/projects/${id}/leads/export`,
         },
+        leads: {
+          byId: (id: string | number) => `/api/v1/leads/${id}`,
+          notes: (id: string | number) => `/api/v1/leads/${id}/notes`,
+        },
         subscription: {
           root: "/api/v1/subscription",
         },
@@ -48,6 +52,10 @@ export const config = {
         leads: (id: string | number) => `/api/projects/${id}/leads`,
         leadsExport: (id: string | number) =>
           `/api/projects/${id}/leads/export`,
+      },
+      leads: {
+        byId: (id: string | number) => `/api/leads/${id}`,
+        notes: (id: string | number) => `/api/leads/${id}/notes`,
       },
       subscription: {
         root: "/api/subscription",
