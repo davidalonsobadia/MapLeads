@@ -207,6 +207,101 @@ export function transformSearchRunResponse(backend: SearchRunResponse): SearchRu
   }
 }
 
+// Request payload for saving a search result as a lead (snake_case, mirrors the
+// backend LeadSaveItem schema). `name` is required by the backend.
+export interface LeadSaveItem {
+  place_id: string
+  name: string
+  address?: string | null
+  phone?: string | null
+  website?: string | null
+  category?: string | null
+}
+
+// Backend API response types (snake_case)
+export interface LeadResponse {
+  id: number
+  project_id: number
+  user_id: number
+  place_id: string
+  name: string
+  address?: string | null
+  phone?: string | null
+  website?: string | null
+  category?: string | null
+  linkedin_url?: string | null
+  status: string
+  created_at: string
+  updated_at?: string | null
+}
+
+export interface LeadSaveResultResponse {
+  saved: LeadResponse[]
+  skipped_place_ids: string[]
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface Lead {
+  id: string
+  projectId: string
+  userId: string
+  placeId: string
+  name: string
+  address?: string
+  phone?: string
+  website?: string
+  category?: string
+  linkedinUrl?: string
+  status: string
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface LeadSaveResult {
+  saved: Lead[]
+  skippedPlaceIds: string[]
+}
+
+export function transformLeadResponse(backend: LeadResponse): Lead {
+  return {
+    id: String(backend.id),
+    projectId: String(backend.project_id),
+    userId: String(backend.user_id),
+    placeId: backend.place_id,
+    name: backend.name,
+    address: backend.address || undefined,
+    phone: backend.phone || undefined,
+    website: backend.website || undefined,
+    category: backend.category || undefined,
+    linkedinUrl: backend.linkedin_url || undefined,
+    status: backend.status,
+    createdAt: backend.created_at,
+    updatedAt: backend.updated_at || undefined,
+  }
+}
+
+export function transformLeadSaveResultResponse(
+  backend: LeadSaveResultResponse,
+): LeadSaveResult {
+  return {
+    saved: (backend.saved ?? []).map(transformLeadResponse),
+    skippedPlaceIds: backend.skipped_place_ids ?? [],
+  }
+}
+
+// Build a lead-save payload item from a search result. Falls back to the
+// place_id when a result has no name, since the backend requires a non-empty one.
+export function searchResultToLeadSaveItem(result: SearchResult): LeadSaveItem {
+  return {
+    place_id: result.placeId,
+    name: result.name?.trim() || result.placeId,
+    address: result.address ?? null,
+    phone: result.phone ?? null,
+    website: result.website ?? null,
+    category: result.category ?? null,
+  }
+}
+
 // Backend API response types (snake_case)
 export interface SubscriptionUsageResponse {
   plan: string
