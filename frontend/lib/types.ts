@@ -231,6 +231,10 @@ export interface LeadResponse {
   category?: string | null
   linkedin_url?: string | null
   status: string
+  // Optional coordinates. The backend does not populate these yet; they are
+  // read when present so the saved-leads map can plot status-colored pins.
+  lat?: number | null
+  lng?: number | null
   created_at: string
   updated_at?: string | null
 }
@@ -253,6 +257,8 @@ export interface Lead {
   category?: string
   linkedinUrl?: string
   status: string
+  lat?: number
+  lng?: number
   createdAt: string
   updatedAt?: string
 }
@@ -275,6 +281,8 @@ export function transformLeadResponse(backend: LeadResponse): Lead {
     category: backend.category || undefined,
     linkedinUrl: backend.linkedin_url || undefined,
     status: backend.status,
+    lat: backend.lat ?? undefined,
+    lng: backend.lng ?? undefined,
     createdAt: backend.created_at,
     updatedAt: backend.updated_at || undefined,
   }

@@ -24,6 +24,8 @@ export const config = {
           byId: (id: string | number) => `/api/v1/projects/${id}`,
           searches: (id: string | number) => `/api/v1/projects/${id}/searches`,
           leads: (id: string | number) => `/api/v1/projects/${id}/leads`,
+          leadsExport: (id: string | number) =>
+            `/api/v1/projects/${id}/leads/export`,
         },
         subscription: {
           root: "/api/v1/subscription",
@@ -44,6 +46,8 @@ export const config = {
         byId: (id: string | number) => `/api/projects/${id}`,
         searches: (id: string | number) => `/api/projects/${id}/searches`,
         leads: (id: string | number) => `/api/projects/${id}/leads`,
+        leadsExport: (id: string | number) =>
+          `/api/projects/${id}/leads/export`,
       },
       subscription: {
         root: "/api/subscription",
@@ -59,6 +63,8 @@ export const config = {
     resetPassword: "/reset-password",
     dashboard: "/dashboard",
     project: (id: string | number) => `/projects/${id}`,
+    lead: (id: string | number, leadId: string | number) =>
+      `/projects/${id}/leads/${leadId}`,
     newSearch: (id: string | number) => `/projects/${id}/search`,
     searchResults: (id: string | number, searchId: string | number) =>
       `/projects/${id}/search/results?search_id=${searchId}`,
