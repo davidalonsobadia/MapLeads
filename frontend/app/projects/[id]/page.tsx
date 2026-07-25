@@ -17,6 +17,7 @@ import { config } from "@/lib/config"
 import { projectsApi } from "@/features/projects/api"
 import { ProjectDialog } from "@/features/projects/project-dialog"
 import { SearchHistory } from "@/features/search/search-history"
+import { LeadsTable } from "@/features/leads/leads-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -156,12 +157,7 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
                 <SearchHistory projectId={id} />
               </TabsContent>
               <TabsContent value="leads" className="mt-6">
-                <div className="rounded-lg border border-dashed py-16 text-center">
-                  <h3 className="text-lg font-semibold">Saved leads</h3>
-                  <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-                    The saved-leads table for this project will appear here.
-                  </p>
-                </div>
+                <LeadsTable projectId={id} />
               </TabsContent>
             </Tabs>
           </>
