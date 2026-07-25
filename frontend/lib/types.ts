@@ -297,6 +297,48 @@ export function transformLeadSaveResultResponse(
   }
 }
 
+// A lead timeline entry: a plain note or a follow-up reminder (with a date).
+export type LeadNoteType = "note" | "reminder"
+
+// Backend API response types (snake_case)
+export interface LeadNoteResponse {
+  id: number
+  lead_id: number
+  type: LeadNoteType
+  content: string
+  reminder_date?: string | null
+  created_at: string
+}
+
+// Request payload for adding a note/reminder (snake_case, mirrors the backend
+// LeadNoteCreate schema). `reminder_date` is required when type is "reminder".
+export interface LeadNoteCreate {
+  type: LeadNoteType
+  content: string
+  reminder_date?: string | null
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface LeadNote {
+  id: string
+  leadId: string
+  type: LeadNoteType
+  content: string
+  reminderDate?: string
+  createdAt: string
+}
+
+export function transformLeadNoteResponse(backend: LeadNoteResponse): LeadNote {
+  return {
+    id: String(backend.id),
+    leadId: String(backend.lead_id),
+    type: backend.type,
+    content: backend.content,
+    reminderDate: backend.reminder_date || undefined,
+    createdAt: backend.created_at,
+  }
+}
+
 // Build a lead-save payload item from a search result. Falls back to the
 // place_id when a result has no name, since the backend requires a non-empty one.
 export function searchResultToLeadSaveItem(result: SearchResult): LeadSaveItem {
