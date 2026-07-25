@@ -12,11 +12,13 @@
 // API key is read from `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`; when it is absent the
 // component renders a friendly message instead of crashing.
 
+import type { ReactNode } from "react"
 import { useEffect, useMemo } from "react"
 import {
   APIProvider,
   AdvancedMarker,
   Map as GoogleMap,
+  type MapMouseEvent,
   Pin,
   useMap,
 } from "@vis.gl/react-google-maps"
@@ -64,6 +66,16 @@ export interface LeadsMapProps {
    * to `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`, falling back to Google's demo id.
    */
   mapId?: string
+  /**
+   * Called with the clicked position when the map (not a marker) is clicked.
+   * Lets callers use the map as a point picker (see the new-search screen).
+   */
+  onMapClick?: (position: { lat: number; lng: number }) => void
+  /**
+   * Extra overlays rendered inside the map (e.g. a radius circle). Rendered as
+   * children of the underlying `<GoogleMap>` so they can use `useMap`.
+   */
+  children?: ReactNode
   className?: string
 }
 
@@ -145,6 +157,8 @@ export function LeadsMap({
   zoom = DEFAULT_ZOOM,
   apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID ?? "DEMO_MAP_ID",
+  onMapClick,
+  children,
   className,
 }: LeadsMapProps) {
   const defaultCenter = useMemo(() => {
@@ -173,8 +187,17 @@ export function LeadsMap({
           gestureHandling="greedy"
           disableDefaultUI={false}
           className="h-full w-full"
+          onClick={
+            onMapClick
+              ? (event: MapMouseEvent) => {
+                  const latLng = event.detail.latLng
+                  if (latLng) onMapClick({ lat: latLng.lat, lng: latLng.lng })
+                }
+              : undefined
+          }
         >
           <FitBounds markers={markers} disabled={Boolean(center)} />
+          {children}
           {markers.map((marker) => {
             const style = getLeadStatusStyle(marker.status ?? "new")
             const isActive =

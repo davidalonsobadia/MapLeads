@@ -134,6 +134,79 @@ export function transformSearchHistoryResponse(
   }
 }
 
+// Request payload for running a search (snake_case, mirrors the backend schema).
+export interface SearchRequestPayload {
+  keyword: string
+  location_type: "text" | "point"
+  location_text?: string
+  lat?: number
+  lng?: number
+  radius_km?: number
+}
+
+// Backend API response types (snake_case)
+export interface SearchResultResponse {
+  place_id: string
+  name?: string | null
+  address?: string | null
+  phone?: string | null
+  website?: string | null
+  category?: string | null
+  lat?: number | null
+  lng?: number | null
+  already_saved: boolean
+}
+
+export interface SearchRunResponse {
+  search_id: number
+  result_count: number
+  already_saved_count: number
+  results: SearchResultResponse[]
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface SearchResult {
+  placeId: string
+  name?: string
+  address?: string
+  phone?: string
+  website?: string
+  category?: string
+  lat?: number
+  lng?: number
+  alreadySaved: boolean
+}
+
+export interface SearchRun {
+  searchId: string
+  resultCount: number
+  alreadySavedCount: number
+  results: SearchResult[]
+}
+
+export function transformSearchResult(backend: SearchResultResponse): SearchResult {
+  return {
+    placeId: backend.place_id,
+    name: backend.name || undefined,
+    address: backend.address || undefined,
+    phone: backend.phone || undefined,
+    website: backend.website || undefined,
+    category: backend.category || undefined,
+    lat: backend.lat ?? undefined,
+    lng: backend.lng ?? undefined,
+    alreadySaved: backend.already_saved,
+  }
+}
+
+export function transformSearchRunResponse(backend: SearchRunResponse): SearchRun {
+  return {
+    searchId: String(backend.search_id),
+    resultCount: backend.result_count,
+    alreadySavedCount: backend.already_saved_count,
+    results: (backend.results ?? []).map(transformSearchResult),
+  }
+}
+
 // Backend API response types (snake_case)
 export interface SubscriptionUsageResponse {
   plan: string
