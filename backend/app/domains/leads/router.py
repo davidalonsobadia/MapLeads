@@ -77,6 +77,19 @@ def export_leads(
     )
 
 
+@router.get("/leads/stats", response_model=schemas.LeadStatsResponse)
+def get_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+):
+    """Return account-wide lead counts (total + per-status) for the current user.
+
+    Declared before ``GET /leads/{lead_id}`` so the item route's path param does
+    not capture the ``stats`` segment.
+    """
+    return service.LeadService(db).get_stats(current_user.id)
+
+
 @router.get("/leads/{lead_id}", response_model=schemas.LeadResponse)
 def get_lead(
     lead_id: int,

@@ -50,6 +50,20 @@ class LeadSaveResult(BaseModel):
     skipped_place_ids: List[str]
 
 
+class LeadStatsResponse(BaseModel):
+    """Account-wide lead funnel counts for the current user.
+
+    ``total`` equals the sum of the four per-status counts, and each status
+    with no leads reports ``0`` (never omitted).
+    """
+
+    total: int
+    new: int
+    contacted: int
+    interested: int
+    discarded: int
+
+
 class LeadNoteCreate(BaseModel):
     """A note or a follow-up reminder on the lead timeline.
 
