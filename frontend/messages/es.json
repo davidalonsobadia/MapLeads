@@ -4,5 +4,11 @@
     "loading": "Cargando…",
     "save": "Guardar",
     "cancel": "Cancelar"
+  },
+  "header": {
+    "welcome": "Bienvenido, <strong>{name}</strong>",
+    "billing": "Facturación",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
   }
 }

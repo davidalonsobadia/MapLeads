@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { ArrowLeft, Loader2, MapPin } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { config } from "@/lib/config"
 import { authApi } from "@/features/auth/api"
 import { billingApi } from "@/features/billing/api"
@@ -11,12 +10,13 @@ import { TrialBanner } from "@/features/billing/trial-banner"
 import { UsageCard } from "@/features/billing/usage-card"
 import { PlanSummaryCard } from "@/features/billing/plan-summary-card"
 import { ChangePlanCard } from "@/features/billing/change-plan-card"
+import { AppHeader } from "@/components/app-header"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import type { SubscriptionUsage } from "@/lib/types"
 
 export default function BillingPage() {
   const router = useRouter()
+  const [userName, setUserName] = useState<string | undefined>(undefined)
   const [subscription, setSubscription] = useState<SubscriptionUsage | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -34,6 +34,7 @@ export default function BillingPage() {
           router.push(config.routes.login)
           return
         }
+        if (active) setUserName(userResult.user?.name)
 
         const result = await billingApi.getSubscription()
         if (!active) return
@@ -95,20 +96,7 @@ export default function BillingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <Link href={config.routes.dashboard} className="flex items-center gap-2">
-            <MapPin className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">MapLeads</span>
-          </Link>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={config.routes.dashboard}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to dashboard
-            </Link>
-          </Button>
-        </div>
-      </header>
+      <AppHeader userName={userName} />
 
       <main className="container mx-auto max-w-4xl space-y-6 px-4 py-8">
         <div>

@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { CreditCard, LogOut, Loader2, MapPin, Plus, Search } from "lucide-react"
-import { config } from "@/lib/config"
+import { Loader2, Plus, Search } from "lucide-react"
 import { authApi } from "@/features/auth/api"
 import { billingApi } from "@/features/billing/api"
 import { TrialBanner } from "@/features/billing/trial-banner"
@@ -13,6 +11,7 @@ import { ProjectsList } from "@/features/projects/projects-list"
 import { ProjectDialog } from "@/features/projects/project-dialog"
 import { projectsApi } from "@/features/projects/api"
 import { DashboardStats } from "@/features/leads/dashboard-stats"
+import { AppHeader } from "@/components/app-header"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -56,11 +55,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleLogout = async () => {
-    await authApi.logout()
-    router.push("/login")
-  }
-
   const handleCreateProject = async (name: string) => {
     const result = await projectsApi.create(name)
     if (!result.success) {
@@ -83,31 +77,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">MapLeads</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                Welcome, <strong>{user?.name}</strong>
-              </span>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href={config.routes.billing}>
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Billing
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader userName={user?.name} />
 
       <main className="container mx-auto space-y-8 px-4 py-8">
         {subscription && <TrialBanner subscription={subscription} />}

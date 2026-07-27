@@ -4,5 +4,11 @@
     "loading": "Loading…",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "header": {
+    "welcome": "Welcome, <strong>{name}</strong>",
+    "billing": "Billing",
+    "settings": "Settings",
+    "logout": "Logout"
   }
 }
