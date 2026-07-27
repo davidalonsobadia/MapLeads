@@ -16,7 +16,7 @@ interface AppHeaderProps {
 /**
  * Shared authenticated header: MapLeads home link plus the account action area
  * (welcome greeting, Billing, Settings and Logout). Used by the dashboard and
- * billing pages so the header stays in a single place.
+ * settings pages so the header stays in a single place.
  */
 export function AppHeader({ userName }: AppHeaderProps) {
   const router = useRouter()

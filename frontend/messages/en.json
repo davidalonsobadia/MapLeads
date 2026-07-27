@@ -33,7 +33,13 @@
     },
     "billing": {
       "title": "Billing",
-      "placeholder": "Billing settings are coming soon."
+      "description": "Manage your plan, review this month's usage and update payment details.",
+      "trialAlertTitle": "No credit card required",
+      "trialAlertDescription": "Your free trial doesn't need a card. You only need to add one when you choose a paid plan below.",
+      "loadError": "Failed to load your subscription.",
+      "unavailable": "Subscription unavailable.",
+      "checkoutError": "Failed to start checkout.",
+      "portalError": "Failed to open the billing portal."
     },
     "preferences": {
       "title": "Preferences",

@@ -33,7 +33,13 @@
     },
     "billing": {
       "title": "Facturación",
-      "placeholder": "La configuración de facturación estará disponible pronto."
+      "description": "Gestiona tu plan, revisa el uso de este mes y actualiza los datos de pago.",
+      "trialAlertTitle": "No se requiere tarjeta de crédito",
+      "trialAlertDescription": "Tu prueba gratuita no necesita tarjeta. Solo tendrás que añadir una cuando elijas un plan de pago a continuación.",
+      "loadError": "No pudimos cargar tu suscripción.",
+      "unavailable": "Suscripción no disponible.",
+      "checkoutError": "No pudimos iniciar el proceso de pago.",
+      "portalError": "No pudimos abrir el portal de facturación."
     },
     "preferences": {
       "title": "Preferencias",
