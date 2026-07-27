@@ -56,4 +56,13 @@ export const authApi = {
     const response = await fetch("/api/auth/me")
     return response.json()
   },
+
+  async updateProfile(data: { name?: string; language?: string }) {
+    const response = await fetch("/api/auth/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  },
 }

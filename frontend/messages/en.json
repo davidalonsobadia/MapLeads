@@ -10,5 +10,34 @@
     "billing": "Billing",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and preferences.",
+    "tabs": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "preferences": "Preferences"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Update your personal information.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "success": "Your profile has been updated.",
+      "loadError": "We couldn't load your profile. Please try again.",
+      "saveError": "We couldn't save your changes. Please try again.",
+      "nameRequired": "Name is required."
+    },
+    "billing": {
+      "title": "Billing",
+      "placeholder": "Billing settings are coming soon."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "placeholder": "Preferences are coming soon."
+    }
   }
 }

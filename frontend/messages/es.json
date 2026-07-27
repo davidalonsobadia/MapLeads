@@ -10,5 +10,34 @@
     "billing": "Facturación",
     "settings": "Configuración",
     "logout": "Cerrar sesión"
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Gestiona tu cuenta y tus preferencias.",
+    "tabs": {
+      "profile": "Perfil",
+      "billing": "Facturación",
+      "preferences": "Preferencias"
+    },
+    "profile": {
+      "title": "Perfil",
+      "description": "Actualiza tu información personal.",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "save": "Guardar cambios",
+      "saving": "Guardando…",
+      "success": "Tu perfil se ha actualizado.",
+      "loadError": "No pudimos cargar tu perfil. Inténtalo de nuevo.",
+      "saveError": "No pudimos guardar tus cambios. Inténtalo de nuevo.",
+      "nameRequired": "El nombre es obligatorio."
+    },
+    "billing": {
+      "title": "Facturación",
+      "placeholder": "La configuración de facturación estará disponible pronto."
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "placeholder": "Las preferencias estarán disponibles pronto."
+    }
   }
 }
