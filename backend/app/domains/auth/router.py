@@ -56,6 +56,19 @@ def get_me(current_user: models.User = Depends(utils.get_verified_user)):
     return current_user
 
 
+@router.patch("/me", response_model=schemas.UserResponse)
+def update_me(
+    payload: schemas.ProfileUpdate,
+    current_user: models.User = Depends(utils.get_verified_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update the current authenticated user's profile (name and/or language).
+    """
+    auth_service = service.AuthService(db)
+    return auth_service.update_profile(current_user, payload)
+
+
 @router.post("/verify-email", response_model=schemas.MessageResponse)
 def verify_email(data: schemas.VerifyEmail, db: Session = Depends(get_db)):
     """
