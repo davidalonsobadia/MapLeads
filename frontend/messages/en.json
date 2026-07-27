@@ -43,7 +43,26 @@
     },
     "preferences": {
       "title": "Preferences",
-      "placeholder": "Preferences are coming soon."
+      "description": "Customize the language and appearance of MapLeads.",
+      "loadError": "We couldn't load your preferences. Please try again.",
+      "language": {
+        "label": "Language",
+        "description": "Choose the language used across the interface.",
+        "saveError": "We couldn't save your language. Please try again.",
+        "options": {
+          "en": "English",
+          "es": "Español"
+        }
+      },
+      "theme": {
+        "label": "Theme",
+        "description": "Choose a light, dark, or system-matched appearance.",
+        "options": {
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        }
+      }
     }
   }
 }

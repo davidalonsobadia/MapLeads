@@ -2,6 +2,28 @@ import { type NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { apiFetch, ApiError } from "@/lib/api-client"
 import { config } from "@/lib/config"
+import { isLocale } from "@/i18n/routing"
+
+// One year, matching next-intl's typical NEXT_LOCALE lifetime.
+const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
+
+/**
+ * Mirror the user's persisted language into the `NEXT_LOCALE` cookie so
+ * `getRequestConfig` renders returning users (or other devices) in their saved
+ * language. Not httpOnly: the Preferences language switcher also updates it
+ * client-side for a live locale change.
+ */
+async function syncLocaleCookie(user: unknown) {
+  const language = (user as { language?: unknown } | null)?.language
+  if (typeof language === "string" && isLocale(language)) {
+    const cookieStore = await cookies()
+    cookieStore.set("NEXT_LOCALE", language, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: LOCALE_COOKIE_MAX_AGE,
+    })
+  }
+}
 
 export async function GET() {
   try {
@@ -23,9 +45,12 @@ export async function GET() {
       },
     })
 
+    const user = data.user || data
+    await syncLocaleCookie(user)
+
     return NextResponse.json({
       success: true,
-      user: data.user || data,
+      user,
     })
   } catch (error) {
     console.error("[MapLeads] Get current user error:", error)
@@ -79,9 +104,12 @@ export async function PATCH(request: NextRequest) {
       body: JSON.stringify(payload),
     })
 
+    const user = data.user || data
+    await syncLocaleCookie(user)
+
     return NextResponse.json({
       success: true,
-      user: data.user || data,
+      user,
     })
   } catch (error) {
     console.error("[MapLeads] Update current user error:", error)
