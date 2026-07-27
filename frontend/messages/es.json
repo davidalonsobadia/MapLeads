@@ -1,0 +1,8 @@
+{
+  "common": {
+    "appName": "MapLeads",
+    "loading": "Cargando…",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  }
+}
