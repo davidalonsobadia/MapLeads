@@ -82,6 +82,33 @@ class AuthService:
 
         return db_user
 
+    def update_profile(
+        self, user: models.User, payload: schemas.ProfileUpdate
+    ) -> models.User:
+        """Update the current user's editable profile fields.
+
+        Only the fields explicitly provided in ``payload`` are changed, so a
+        partial update never clears the untouched fields. Operates solely on the
+        passed current user, so ownership is implicit.
+        """
+        updates = payload.model_dump(exclude_unset=True)
+
+        if "name" in updates:
+            name = updates["name"]
+            if name is None or not name.strip():
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Name cannot be empty",
+                )
+            user.name = name
+
+        if "language" in updates:
+            user.language = updates["language"]
+
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
     def login_user(self, payload: schemas.UserLogin) -> dict:
         """Login user and return JWT token"""
         user = self.db.query(models.User).filter(
