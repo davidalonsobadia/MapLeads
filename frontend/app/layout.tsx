@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Roboto, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { NextIntlClientProvider } from "next-intl"
+import { getLocale, getMessages } from "next-intl/server"
 import "./globals.css"
 
 const roboto = Roboto({
@@ -22,15 +24,21 @@ export const metadata: Metadata = {
   generator: "v0.app",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Locale + messages are resolved from the NEXT_LOCALE cookie (see i18n/request.ts).
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="en" className={`${roboto.variable} ${robotoMono.variable}`}>
+    <html lang={locale} className={`${roboto.variable} ${robotoMono.variable}`}>
       <body className={`font-sans antialiased`}>
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
         <Analytics />
       </body>
     </html>
