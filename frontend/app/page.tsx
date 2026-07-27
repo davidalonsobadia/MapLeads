@@ -1,8 +1,11 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { Button } from "@/components/ui/button"
 import { MapPin, Search, Shield, Users } from "lucide-react"
 
-export default function HomePage() {
+export default async function HomePage() {
+  const t = await getTranslations("landing")
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -13,10 +16,10 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
-              <Link href="/login">Sign in</Link>
+              <Link href="/login">{t("signIn")}</Link>
             </Button>
             <Button asChild>
-              <Link href="/register">Get started</Link>
+              <Link href="/register">{t("getStarted")}</Link>
             </Button>
           </div>
         </div>
@@ -25,18 +28,19 @@ export default function HomePage() {
       <main>
         <section className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-5xl font-bold mb-6 text-balance">
-            Find local business leads with <span className="text-primary">MapLeads</span>
+            {t.rich("hero.title", {
+              highlight: (chunks) => <span className="text-primary">{chunks}</span>,
+            })}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-            Search Google Maps by keyword and location, save the businesses that matter, and track
-            every lead for every client from one mini-CRM built for agencies.
+            {t("hero.subtitle")}
           </p>
           <div className="flex items-center justify-center gap-4">
             <Button size="lg" asChild>
-              <Link href="/register">Start for free</Link>
+              <Link href="/register">{t("hero.startFree")}</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/login">Sign in</Link>
+              <Link href="/login">{t("hero.signIn")}</Link>
             </Button>
           </div>
         </section>
@@ -45,24 +49,18 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-6 border rounded-lg bg-card">
               <Search className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Search by keyword + location</h3>
-              <p className="text-muted-foreground">
-                Find businesses on Google Maps and choose exactly which results become leads.
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{t("features.search.title")}</h3>
+              <p className="text-muted-foreground">{t("features.search.description")}</p>
             </div>
             <div className="p-6 border rounded-lg bg-card">
               <Users className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Organized by project</h3>
-              <p className="text-muted-foreground">
-                Group leads by client, track status, add notes and reminders as you follow up.
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{t("features.projects.title")}</h3>
+              <p className="text-muted-foreground">{t("features.projects.description")}</p>
             </div>
             <div className="p-6 border rounded-lg bg-card">
               <Shield className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Secure & Private</h3>
-              <p className="text-muted-foreground">
-                Your data is protected with email verification and secure authentication.
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{t("features.secure.title")}</h3>
+              <p className="text-muted-foreground">{t("features.secure.description")}</p>
             </div>
           </div>
         </section>
@@ -70,7 +68,7 @@ export default function HomePage() {
 
       <footer className="border-t mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>© 2026 MapLeads. Built with Next.js and modern web technologies.</p>
+          <p>{t("footer.copyright")}</p>
         </div>
       </footer>
     </div>

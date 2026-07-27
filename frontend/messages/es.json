@@ -5,6 +5,137 @@
     "save": "Guardar",
     "cancel": "Cancelar"
   },
+  "landing": {
+    "signIn": "Iniciar sesión",
+    "getStarted": "Comenzar",
+    "hero": {
+      "title": "Encuentra clientes potenciales locales con <highlight>MapLeads</highlight>",
+      "subtitle": "Busca en Google Maps por palabra clave y ubicación, guarda los negocios que te importan y haz seguimiento de cada cliente potencial de cada cliente desde un mini-CRM creado para agencias.",
+      "startFree": "Empieza gratis",
+      "signIn": "Iniciar sesión"
+    },
+    "features": {
+      "search": {
+        "title": "Busca por palabra clave y ubicación",
+        "description": "Encuentra negocios en Google Maps y elige exactamente qué resultados se convierten en clientes potenciales."
+      },
+      "projects": {
+        "title": "Organizado por proyecto",
+        "description": "Agrupa los clientes potenciales por cliente, controla su estado y añade notas y recordatorios a medida que haces el seguimiento."
+      },
+      "secure": {
+        "title": "Seguro y privado",
+        "description": "Tus datos están protegidos con verificación por correo electrónico y autenticación segura."
+      }
+    },
+    "footer": {
+      "copyright": "© 2026 MapLeads. Creado con Next.js y tecnologías web modernas."
+    }
+  },
+  "auth": {
+    "login": {
+      "description": "Inicia sesión en tu cuenta para continuar",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Introduce tu contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión...",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Regístrate",
+      "failed": "Error al iniciar sesión",
+      "genericError": "Se produjo un error. Inténtalo de nuevo."
+    },
+    "register": {
+      "description": "Crea una cuenta para comenzar",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Juan Pérez",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Al menos 6 caracteres",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta...",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "failed": "Error en el registro",
+      "genericError": "Se produjo un error. Inténtalo de nuevo.",
+      "success": {
+        "title": "Revisa tu correo electrónico",
+        "description": "Hemos enviado un enlace de verificación a <strong>{email}</strong>",
+        "instructions": "Haz clic en el enlace del correo para verificar tu cuenta. Una vez verificada, podrás iniciar sesión.",
+        "demoNote": "Para fines de demostración, revisa la consola para ver el token de verificación.",
+        "backToLogin": "Volver al inicio de sesión"
+      }
+    },
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verificando tu correo electrónico...",
+        "description": "Espera mientras verificamos tu dirección de correo electrónico"
+      },
+      "success": {
+        "title": "¡Correo verificado!",
+        "description": "Redirigiéndote al inicio de sesión..."
+      },
+      "error": {
+        "title": "Error de verificación",
+        "hint": "El enlace de verificación puede ser inválido o haber caducado.",
+        "backToLogin": "Volver al inicio de sesión"
+      },
+      "noToken": "No se proporcionó ningún token de verificación",
+      "failed": "Error de verificación",
+      "genericError": "Se produjo un error. Inténtalo de nuevo."
+    },
+    "forgotPassword": {
+      "title": "¿Olvidaste tu contraseña?",
+      "description": "Introduce tu correo electrónico y te enviaremos un enlace de restablecimiento",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "submit": "Enviar enlace de restablecimiento",
+      "submitting": "Enviando...",
+      "backToLogin": "Volver al inicio de sesión",
+      "success": {
+        "title": "Revisa tu correo electrónico",
+        "description": "Si existe una cuenta con <strong>{email}</strong>, te hemos enviado un enlace para restablecer la contraseña.",
+        "instructions": "Haz clic en el enlace del correo para restablecer tu contraseña.",
+        "demoNote": "Para fines de demostración, revisa la consola para ver el token de restablecimiento.",
+        "backToLogin": "Volver al inicio de sesión"
+      }
+    },
+    "resetPassword": {
+      "title": "Restablece tu contraseña",
+      "description": "Introduce tu nueva contraseña",
+      "passwordLabel": "Nueva contraseña",
+      "passwordPlaceholder": "Al menos 6 caracteres",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "submit": "Restablecer contraseña",
+      "submitting": "Restableciendo...",
+      "backToLogin": "Volver al inicio de sesión",
+      "loading": {
+        "title": "Cargando...",
+        "description": "Espera un momento"
+      },
+      "success": {
+        "title": "¡Contraseña restablecida!",
+        "description": "Redirigiéndote al inicio de sesión..."
+      },
+      "invalidLink": {
+        "title": "Enlace de restablecimiento inválido",
+        "hint": "Solicita un nuevo enlace para restablecer la contraseña.",
+        "requestNew": "Solicitar un nuevo enlace"
+      },
+      "noToken": "No se proporcionó ningún token de restablecimiento. Usa el enlace de tu correo electrónico.",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+      "failed": "Error al restablecer la contraseña",
+      "genericError": "Se produjo un error. Inténtalo de nuevo."
+    }
+  },
   "header": {
     "welcome": "Bienvenido, <strong>{name}</strong>",
     "billing": "Facturación",

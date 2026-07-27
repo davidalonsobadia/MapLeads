@@ -11,9 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
 import { CheckCircle2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const t = useTranslations("auth.register")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -28,7 +30,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError(t("passwordMismatch"))
       setLoading(false)
       return
     }
@@ -39,10 +41,10 @@ export default function RegisterPage() {
       if (result.success) {
         setSuccess(true)
       } else {
-        setError(result.message || "Registration failed")
+        setError(result.message || t("failed"))
       }
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError(t("genericError"))
     } finally {
       setLoading(false)
     }
@@ -53,24 +55,23 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Check your email</CardTitle>
+            <CardTitle className="text-2xl">{t("success.title")}</CardTitle>
             <CardDescription>
-              We've sent a verification link to <strong>{email}</strong>
+              {t.rich("success.description", {
+                email,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Click the link in the email to verify your account. Once verified, you can sign in.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("success.instructions")}</p>
             <div className="p-4 bg-muted rounded-md">
-              <p className="text-xs text-muted-foreground mb-2">
-                For demo purposes, check the console for the verification token.
-              </p>
+              <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
             </div>
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/login">Back to login</Link>
+              <Link href="/login">{t("success.backToLogin")}</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -86,7 +87,7 @@ export default function RegisterPage() {
             <CheckCircle2 className="h-6 w-6 text-primary" />
             <CardTitle className="text-2xl font-bold">MapLeads</CardTitle>
           </div>
-          <CardDescription>Create an account to get started</CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -96,44 +97,44 @@ export default function RegisterPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("nameLabel")}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder={t("namePlaceholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("emailLabel")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("passwordLabel")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="At least 6 characters"
+                placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t("confirmPasswordLabel")}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                placeholder={t("confirmPasswordPlaceholder")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -142,12 +143,12 @@ export default function RegisterPage() {
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? t("submitting") : t("submit")}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
+              {t("haveAccount")}{" "}
               <Link href="/login" className="text-primary hover:underline">
-                Sign in
+                {t("signIn")}
               </Link>
             </p>
           </CardFooter>

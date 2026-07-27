@@ -11,9 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
 import { CheckCircle2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function LoginPage() {
   const router = useRouter()
+  const t = useTranslations("auth.login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -30,10 +32,10 @@ export default function LoginPage() {
       if (result.success) {
         router.push("/dashboard")
       } else {
-        setError(result.message || "Login failed")
+        setError(result.message || t("failed"))
       }
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError(t("genericError"))
     } finally {
       setLoading(false)
     }
@@ -47,7 +49,7 @@ export default function LoginPage() {
             <CheckCircle2 className="h-6 w-6 text-primary" />
             <CardTitle className="text-2xl font-bold">MapLeads</CardTitle>
           </div>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -57,22 +59,22 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("emailLabel")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("passwordLabel")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -80,18 +82,18 @@ export default function LoginPage() {
             </div>
             <div className="flex justify-end">
               <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                Forgot password?
+                {t("forgotPassword")}
               </Link>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? t("submitting") : t("submit")}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
+              {t("noAccount")}{" "}
               <Link href="/register" className="text-primary hover:underline">
-                Sign up
+                {t("signUp")}
               </Link>
             </p>
           </CardFooter>

@@ -5,6 +5,137 @@
     "save": "Save",
     "cancel": "Cancel"
   },
+  "landing": {
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "hero": {
+      "title": "Find local business leads with <highlight>MapLeads</highlight>",
+      "subtitle": "Search Google Maps by keyword and location, save the businesses that matter, and track every lead for every client from one mini-CRM built for agencies.",
+      "startFree": "Start for free",
+      "signIn": "Sign in"
+    },
+    "features": {
+      "search": {
+        "title": "Search by keyword + location",
+        "description": "Find businesses on Google Maps and choose exactly which results become leads."
+      },
+      "projects": {
+        "title": "Organized by project",
+        "description": "Group leads by client, track status, add notes and reminders as you follow up."
+      },
+      "secure": {
+        "title": "Secure & Private",
+        "description": "Your data is protected with email verification and secure authentication."
+      }
+    },
+    "footer": {
+      "copyright": "© 2026 MapLeads. Built with Next.js and modern web technologies."
+    }
+  },
+  "auth": {
+    "login": {
+      "description": "Sign in to your account to continue",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "failed": "Login failed",
+      "genericError": "An error occurred. Please try again."
+    },
+    "register": {
+      "description": "Create an account to get started",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "passwordMismatch": "Passwords do not match",
+      "failed": "Registration failed",
+      "genericError": "An error occurred. Please try again.",
+      "success": {
+        "title": "Check your email",
+        "description": "We've sent a verification link to <strong>{email}</strong>",
+        "instructions": "Click the link in the email to verify your account. Once verified, you can sign in.",
+        "demoNote": "For demo purposes, check the console for the verification token.",
+        "backToLogin": "Back to login"
+      }
+    },
+    "verifyEmail": {
+      "verifying": {
+        "title": "Verifying your email...",
+        "description": "Please wait while we verify your email address"
+      },
+      "success": {
+        "title": "Email verified!",
+        "description": "Redirecting you to login..."
+      },
+      "error": {
+        "title": "Verification failed",
+        "hint": "The verification link may be invalid or expired.",
+        "backToLogin": "Back to login"
+      },
+      "noToken": "No verification token provided",
+      "failed": "Verification failed",
+      "genericError": "An error occurred. Please try again."
+    },
+    "forgotPassword": {
+      "title": "Forgot password?",
+      "description": "Enter your email and we'll send you a reset link",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to login",
+      "success": {
+        "title": "Check your email",
+        "description": "If an account exists with <strong>{email}</strong>, we've sent a password reset link.",
+        "instructions": "Click the link in the email to reset your password.",
+        "demoNote": "For demo purposes, check the console for the reset token.",
+        "backToLogin": "Back to login"
+      }
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "description": "Enter your new password",
+      "passwordLabel": "New Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "backToLogin": "Back to login",
+      "loading": {
+        "title": "Loading...",
+        "description": "Please wait"
+      },
+      "success": {
+        "title": "Password reset!",
+        "description": "Redirecting you to login..."
+      },
+      "invalidLink": {
+        "title": "Invalid Reset Link",
+        "hint": "Please request a new password reset link.",
+        "requestNew": "Request New Link"
+      },
+      "noToken": "No reset token provided. Please use the link from your email.",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Password reset failed",
+      "genericError": "An error occurred. Please try again."
+    }
+  },
   "header": {
     "welcome": "Welcome, <strong>{name}</strong>",
     "billing": "Billing",

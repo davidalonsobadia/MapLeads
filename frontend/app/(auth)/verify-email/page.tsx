@@ -8,10 +8,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
+import { useTranslations } from "next-intl"
 
 function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations("auth.verifyEmail")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -21,7 +23,7 @@ function VerifyEmailContent() {
       const token = searchParams.get("token")
 
       if (!token) {
-        setError("No verification token provided")
+        setError(t("noToken"))
         setLoading(false)
         return
       }
@@ -35,25 +37,25 @@ function VerifyEmailContent() {
             router.push("/login")
           }, 2000)
         } else {
-          setError(result.message || "Verification failed")
+          setError(result.message || t("failed"))
         }
       } catch (err) {
-        setError("An error occurred. Please try again.")
+        setError(t("genericError"))
       } finally {
         setLoading(false)
       }
     }
 
     verifyToken()
-  }, [searchParams, router])
+  }, [searchParams, router, t])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Verifying your email...</CardTitle>
-            <CardDescription className="text-center">Please wait while we verify your email address</CardDescription>
+            <CardTitle className="text-2xl text-center">{t("verifying.title")}</CardTitle>
+            <CardDescription className="text-center">{t("verifying.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -65,8 +67,8 @@ function VerifyEmailContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Email verified!</CardTitle>
-            <CardDescription className="text-center">Redirecting you to login...</CardDescription>
+            <CardTitle className="text-2xl text-center">{t("success.title")}</CardTitle>
+            <CardDescription className="text-center">{t("success.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -78,15 +80,13 @@ function VerifyEmailContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Verification failed</CardTitle>
+            <CardTitle className="text-2xl text-center">{t("error.title")}</CardTitle>
             <CardDescription className="text-center text-destructive">{error}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <p className="text-sm text-center text-muted-foreground">
-              The verification link may be invalid or expired.
-            </p>
+            <p className="text-sm text-center text-muted-foreground">{t("error.hint")}</p>
             <Button asChild className="w-full">
-              <Link href="/login">Back to login</Link>
+              <Link href="/login">{t("error.backToLogin")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -98,12 +98,14 @@ function VerifyEmailContent() {
 }
 
 function VerifyEmailFallback() {
+  const t = useTranslations("auth.verifyEmail")
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Verifying your email...</CardTitle>
-          <CardDescription className="text-center">Please wait while we verify your email address</CardDescription>
+          <CardTitle className="text-2xl text-center">{t("verifying.title")}</CardTitle>
+          <CardDescription className="text-center">{t("verifying.description")}</CardDescription>
         </CardHeader>
       </Card>
     </div>
