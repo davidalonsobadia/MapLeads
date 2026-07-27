@@ -4,6 +4,7 @@ import { Roboto, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
+import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 const roboto = Roboto({
@@ -34,11 +35,22 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className={`${roboto.variable} ${robotoMono.variable}`}>
+    <html
+      lang={locale}
+      className={`${roboto.variable} ${robotoMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className={`font-sans antialiased`}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
