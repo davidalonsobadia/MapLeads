@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
+import { useTranslations } from "next-intl"
 
 function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations("auth.resetPassword")
   const [token, setToken] = useState<string | null>(null)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -24,28 +26,28 @@ function ResetPasswordContent() {
   useEffect(() => {
     const tokenFromUrl = searchParams.get("token")
     if (!tokenFromUrl) {
-      setError("No reset token provided. Please use the link from your email.")
+      setError(t("noToken"))
     } else {
       setToken(tokenFromUrl)
     }
-  }, [searchParams])
+  }, [searchParams, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
     if (!token) {
-      setError("No reset token provided. Please use the link from your email.")
+      setError(t("noToken"))
       return
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError(t("passwordMismatch"))
       return
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters")
+      setError(t("passwordTooShort"))
       return
     }
 
@@ -60,10 +62,10 @@ function ResetPasswordContent() {
           router.push("/login")
         }, 2000)
       } else {
-        setError(result.message || "Password reset failed")
+        setError(result.message || t("failed"))
       }
     } catch (err) {
-      setError("An error occurred. Please try again.")
+      setError(t("genericError"))
     } finally {
       setLoading(false)
     }
@@ -74,8 +76,8 @@ function ResetPasswordContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Password reset!</CardTitle>
-            <CardDescription className="text-center">Redirecting you to login...</CardDescription>
+            <CardTitle className="text-2xl text-center">{t("success.title")}</CardTitle>
+            <CardDescription className="text-center">{t("success.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -87,8 +89,8 @@ function ResetPasswordContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Loading...</CardTitle>
-            <CardDescription className="text-center">Please wait</CardDescription>
+            <CardTitle className="text-2xl text-center">{t("loading.title")}</CardTitle>
+            <CardDescription className="text-center">{t("loading.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -100,15 +102,13 @@ function ResetPasswordContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Invalid Reset Link</CardTitle>
+            <CardTitle className="text-2xl text-center">{t("invalidLink.title")}</CardTitle>
             <CardDescription className="text-center text-destructive">{error}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <p className="text-sm text-center text-muted-foreground">
-              Please request a new password reset link.
-            </p>
+            <p className="text-sm text-center text-muted-foreground">{t("invalidLink.hint")}</p>
             <Button asChild className="w-full">
-              <Link href="/forgot-password">Request New Link</Link>
+              <Link href="/forgot-password">{t("invalidLink.requestNew")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -120,8 +120,8 @@ function ResetPasswordContent() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Reset your password</CardTitle>
-          <CardDescription>Enter your new password</CardDescription>
+          <CardTitle className="text-2xl">{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -131,22 +131,22 @@ function ResetPasswordContent() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="password">New Password</Label>
+              <Label htmlFor="password">{t("passwordLabel")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="At least 6 characters"
+                placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t("confirmPasswordLabel")}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                placeholder={t("confirmPasswordPlaceholder")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -155,11 +155,11 @@ function ResetPasswordContent() {
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Resetting..." : "Reset password"}
+              {loading ? t("submitting") : t("submit")}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               <Link href="/login" className="text-primary hover:underline">
-                Back to login
+                {t("backToLogin")}
               </Link>
             </p>
           </CardFooter>
@@ -170,12 +170,14 @@ function ResetPasswordContent() {
 }
 
 function ResetPasswordFallback() {
+  const t = useTranslations("auth.resetPassword")
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Loading...</CardTitle>
-          <CardDescription className="text-center">Please wait</CardDescription>
+          <CardTitle className="text-2xl text-center">{t("loading.title")}</CardTitle>
+          <CardDescription className="text-center">{t("loading.description")}</CardDescription>
         </CardHeader>
       </Card>
     </div>

@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
+import { useTranslations } from "next-intl"
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("auth.forgotPassword")
   const [email, setEmail] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -34,22 +36,23 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Check your email</CardTitle>
+            <CardTitle className="text-2xl">{t("success.title")}</CardTitle>
             <CardDescription>
-              If an account exists with <strong>{email}</strong>, we've sent a password reset link.
+              {t.rich("success.description", {
+                email,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">Click the link in the email to reset your password.</p>
+            <p className="text-sm text-muted-foreground">{t("success.instructions")}</p>
             <div className="p-4 bg-muted rounded-md">
-              <p className="text-xs text-muted-foreground mb-2">
-                For demo purposes, check the console for the reset token.
-              </p>
+              <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
             <Button asChild className="w-full">
-              <Link href="/login">Back to login</Link>
+              <Link href="/login">{t("success.backToLogin")}</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -61,17 +64,17 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Forgot password?</CardTitle>
-          <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
+          <CardTitle className="text-2xl">{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("emailLabel")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,11 +83,11 @@ export default function ForgotPasswordPage() {
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Sending..." : "Send reset link"}
+              {loading ? t("submitting") : t("submit")}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               <Link href="/login" className="text-primary hover:underline">
-                Back to login
+                {t("backToLogin")}
               </Link>
             </p>
           </CardFooter>
