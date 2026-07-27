@@ -30,6 +30,7 @@ export const config = {
         leads: {
           byId: (id: string | number) => `/api/v1/leads/${id}`,
           notes: (id: string | number) => `/api/v1/leads/${id}/notes`,
+          stats: "/api/v1/leads/stats",
         },
         subscription: {
           root: "/api/v1/subscription",
@@ -60,6 +61,7 @@ export const config = {
       leads: {
         byId: (id: string | number) => `/api/leads/${id}`,
         notes: (id: string | number) => `/api/leads/${id}/notes`,
+        stats: "/api/leads/stats",
       },
       subscription: {
         root: "/api/subscription",

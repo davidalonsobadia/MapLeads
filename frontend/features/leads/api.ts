@@ -8,6 +8,7 @@ import type {
   LeadNoteType,
   LeadSaveItem,
   LeadSaveResult,
+  LeadStats,
 } from "@/lib/types"
 
 interface LeadSaveApiResult {
@@ -42,6 +43,12 @@ interface LeadNotesResult {
 interface LeadNoteResult {
   success: boolean
   note?: LeadNote
+  message?: string
+}
+
+interface LeadStatsResult {
+  success: boolean
+  stats?: LeadStats
   message?: string
 }
 
@@ -158,6 +165,12 @@ export const leadsApi = {
         reminder_date: input.reminderDate ?? null,
       }),
     })
+    return response.json()
+  },
+
+  /** Get the current user's account-wide lead funnel counts. */
+  async stats(): Promise<LeadStatsResult> {
+    const response = await fetch(config.api.endpoints.leads.stats)
     return response.json()
   },
 }
