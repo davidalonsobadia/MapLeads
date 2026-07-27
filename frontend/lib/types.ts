@@ -297,6 +297,36 @@ export function transformLeadSaveResultResponse(
   }
 }
 
+// Backend API response types (snake_case). Account-wide lead funnel counts.
+// The payload is already flat integers; every status is present (never omitted).
+export interface LeadStatsResponse {
+  total: number
+  new: number
+  contacted: number
+  interested: number
+  discarded: number
+}
+
+// Frontend type. Same flat shape — kept as its own type for consistency with
+// the other domain types and so components import from @/lib/types.
+export interface LeadStats {
+  total: number
+  new: number
+  contacted: number
+  interested: number
+  discarded: number
+}
+
+export function transformLeadStatsResponse(backend: LeadStatsResponse): LeadStats {
+  return {
+    total: backend.total,
+    new: backend.new,
+    contacted: backend.contacted,
+    interested: backend.interested,
+    discarded: backend.discarded,
+  }
+}
+
 // A lead timeline entry: a plain note or a follow-up reminder (with a date).
 export type LeadNoteType = "note" | "reminder"
 

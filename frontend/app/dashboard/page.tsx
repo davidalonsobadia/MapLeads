@@ -12,6 +12,7 @@ import { UsageCard } from "@/features/billing/usage-card"
 import { ProjectsList } from "@/features/projects/projects-list"
 import { ProjectDialog } from "@/features/projects/project-dialog"
 import { projectsApi } from "@/features/projects/api"
+import { DashboardStats } from "@/features/leads/dashboard-stats"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -110,6 +111,8 @@ export default function DashboardPage() {
 
       <main className="container mx-auto space-y-8 px-4 py-8">
         {subscription && <TrialBanner subscription={subscription} />}
+
+        <DashboardStats />
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
