@@ -80,7 +80,7 @@ export const config = {
     forgotPassword: "/forgot-password",
     resetPassword: "/reset-password",
     dashboard: "/dashboard",
-    billing: "/billing",
+    billing: "/settings/billing",
     settings: "/settings",
     project: (id: string | number) => `/projects/${id}`,
     lead: (id: string | number, leadId: string | number) =>
