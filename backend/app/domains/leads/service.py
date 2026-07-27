@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Query, Session
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -193,6 +194,30 @@ class LeadService:
             .all()
         )
         return [row[0] for row in rows]
+
+    def get_stats(self, user_id: int) -> schemas.LeadStatsResponse:
+        """Return account-wide lead funnel counts for the user.
+
+        Counts span all of the user's projects (regardless of the parent
+        project's ``archived`` flag) using a single grouped count query. Any
+        status with no rows is filled with ``0``; ``total`` is the sum of the
+        four per-status counts.
+        """
+        rows = (
+            self.db.query(models.Lead.status, func.count(models.Lead.id))
+            .filter(models.Lead.user_id == user_id)
+            .group_by(models.Lead.status)
+            .all()
+        )
+        counts = {status_value: count for status_value, count in rows}
+        by_status = {
+            status_value: counts.get(status_value, 0)
+            for status_value in schemas.ALLOWED_STATUSES
+        }
+        return schemas.LeadStatsResponse(
+            total=sum(by_status.values()),
+            **by_status,
+        )
 
     def get_lead(self, user_id: int, lead_id: int) -> models.Lead:
         """Get a single lead owned by the user or raise 404."""
