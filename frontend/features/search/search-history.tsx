@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 import { Loader2, SearchX } from "lucide-react"
 import type { SearchHistoryItem } from "@/lib/types"
 import {
@@ -28,6 +29,8 @@ function formatDate(iso: string) {
 }
 
 export function SearchHistory({ projectId }: SearchHistoryProps) {
+  const t = useTranslations("search.history")
+
   const [searches, setSearches] = useState<SearchHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -38,16 +41,16 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
     try {
       const result = await searchApi.history(projectId)
       if (!result.success) {
-        setError(result.message || "Failed to load search history.")
+        setError(result.message || t("loadFailed"))
         return
       }
       setSearches(result.searches ?? [])
     } catch {
-      setError("Failed to load search history.")
+      setError(t("loadFailed"))
     } finally {
       setLoading(false)
     }
-  }, [projectId])
+  }, [projectId, t])
 
   useEffect(() => {
     load()
@@ -73,9 +76,9 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
     return (
       <div className="rounded-lg border border-dashed py-16 text-center">
         <SearchX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">No searches yet</h3>
+        <h3 className="text-lg font-semibold">{t("empty.title")}</h3>
         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-          Run your first search to start building this project&apos;s history.
+          {t("empty.description")}
         </p>
       </div>
     )
@@ -86,10 +89,10 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Keyword</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead className="text-right">Results</TableHead>
+            <TableHead>{t("columns.keyword")}</TableHead>
+            <TableHead>{t("columns.location")}</TableHead>
+            <TableHead>{t("columns.date")}</TableHead>
+            <TableHead className="text-right">{t("columns.results")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

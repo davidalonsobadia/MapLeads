@@ -295,6 +295,48 @@
       "radiusLabel": "Radius",
       "radiusValue": "{km} km",
       "radiusAria": "Search radius in kilometers"
+    },
+    "results": {
+      "headerNewSearch": "New search",
+      "unavailable": {
+        "title": "Results are no longer available",
+        "description": "Search results are not kept after you leave this screen. Run the search again to view and save its results.",
+        "newSearch": "New search"
+      },
+      "title": "Search results",
+      "count": "{count, plural, one {# result} other {# results}}",
+      "savedSuffix": "{count} already in your list",
+      "saveSelected": "Save selected ({count})",
+      "readOnlyBanner": "Your plan is read-only right now (quota exhausted or trial ended), so saving is disabled. You can still search and view results — upgrade or wait for your quota to reset to keep saving leads.",
+      "selectAllAria": "Select all savable results",
+      "selectAll": "Select all ({count})",
+      "errors": {
+        "readOnly": "Your plan is read-only right now, so saving is disabled. Upgrade or wait for your quota to reset to keep saving leads.",
+        "saveFailed": "Failed to save the selected leads."
+      },
+      "success": {
+        "saved": "{count, plural, one {Saved # lead to this project.} other {Saved # leads to this project.}}",
+        "allSaved": "Those results were already in your list."
+      }
+    },
+    "item": {
+      "alreadyInList": "Already in your list",
+      "selectAria": "Select {name}",
+      "unnamed": "Unnamed place",
+      "defaultName": "result"
+    },
+    "history": {
+      "loadFailed": "Failed to load search history.",
+      "empty": {
+        "title": "No searches yet",
+        "description": "Run your first search to start building this project's history."
+      },
+      "columns": {
+        "keyword": "Keyword",
+        "location": "Location",
+        "date": "Date",
+        "results": "Results"
+      }
     }
   }
 }

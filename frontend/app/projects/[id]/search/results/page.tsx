@@ -3,6 +3,7 @@
 import { Suspense, use } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { ArrowLeft, Loader2, MapPin } from "lucide-react"
 
 import { config } from "@/lib/config"
@@ -22,6 +23,7 @@ function SearchResultsContent({ projectId }: { projectId: string }) {
 
 export default function SearchResultsPage({ params }: SearchResultsPageProps) {
   const { id } = use(params)
+  const t = useTranslations("search.results")
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,7 +36,7 @@ export default function SearchResultsPage({ params }: SearchResultsPageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href={config.routes.newSearch(id)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              New search
+              {t("headerNewSearch")}
             </Link>
           </Button>
         </div>

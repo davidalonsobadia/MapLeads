@@ -8,6 +8,7 @@
 // active state are controlled by the parent so the row and its map pin stay in
 // sync both ways.
 
+import { useTranslations } from "next-intl"
 import { Check, Globe, MapPin, Phone, Tag } from "lucide-react"
 
 import type { SearchResult } from "@/lib/types"
@@ -40,6 +41,8 @@ export function SearchResultItem({
   onHover,
   onActivate,
 }: SearchResultItemProps) {
+  const t = useTranslations("search.item")
+
   // Only treat http(s) URLs as linkable. A `javascript:` (or other) URI coming
   // from the external data source would execute in this origin if rendered as
   // an href, so anything else is shown as plain text instead.
@@ -76,7 +79,7 @@ export function SearchResultItem({
         {saved ? (
           <span
             className="flex h-4 w-4 items-center justify-center rounded-sm bg-success text-white"
-            aria-label="Already in your list"
+            aria-label={t("alreadyInList")}
           >
             <Check className="h-3 w-3" />
           </span>
@@ -84,7 +87,7 @@ export function SearchResultItem({
           <Checkbox
             checked={selected}
             onCheckedChange={(value) => onSelectedChange(value === true)}
-            aria-label={`Select ${result.name ?? "result"}`}
+            aria-label={t("selectAria", { name: result.name ?? t("defaultName") })}
           />
         )}
       </div>
@@ -92,14 +95,14 @@ export function SearchResultItem({
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-start justify-between gap-2">
           <h3 className="truncate font-medium leading-tight">
-            {result.name ?? "Unnamed place"}
+            {result.name ?? t("unnamed")}
           </h3>
           {saved && (
             <Badge
               variant="secondary"
               className="shrink-0 bg-success/15 text-success"
             >
-              Already in your list
+              {t("alreadyInList")}
             </Badge>
           )}
         </div>
