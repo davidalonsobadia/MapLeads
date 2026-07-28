@@ -35,9 +35,12 @@ export default async function HomePage() {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
             {t("hero.subtitle")}
           </p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Button size="lg" asChild>
               <Link href="/register">{t("hero.startFree")}</Link>
+            </Button>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/try">{t("hero.tryFree")}</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/login">{t("hero.signIn")}</Link>

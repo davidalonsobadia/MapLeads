@@ -12,6 +12,7 @@
       "title": "Encuentra clientes potenciales locales con <highlight>MapLeads</highlight>",
       "subtitle": "Busca en Google Maps por palabra clave y ubicación, guarda los negocios que te importan y haz seguimiento de cada cliente potencial de cada cliente desde un mini-CRM creado para agencias.",
       "startFree": "Empieza gratis",
+      "tryFree": "Prueba una búsqueda gratis",
       "signIn": "Iniciar sesión"
     },
     "features": {
@@ -287,6 +288,48 @@
       "notFound": "Proyecto no encontrado.",
       "rename": "No se pudo renombrar el proyecto.",
       "update": "No se pudo actualizar el proyecto."
+    }
+  },
+  "anonymousSearch": {
+    "title": "Prueba una búsqueda gratis",
+    "subtitle": "Ejecuta una búsqueda gratuita de negocios locales. Regístrate para desbloquear todos los resultados y los datos de contacto completos.",
+    "form": {
+      "title": "Busca negocios locales",
+      "description": "Busca negocios en Google Maps por palabra clave y ubicación.",
+      "keywordLabel": "Palabra clave",
+      "keywordPlaceholder": "p. ej. clínica dental",
+      "locationLabel": "Ubicación",
+      "locationPlaceholder": "p. ej. Chamberí, Madrid",
+      "locationHint": "Escribe una ciudad, región o zona.",
+      "submit": "Buscar"
+    },
+    "results": {
+      "title": "Resultados de búsqueda",
+      "count": "{count, plural, one {# resultado} other {# resultados}}",
+      "maskedNotice": "Esta es una vista previa limitada: los datos de contacto están ocultos.",
+      "empty": {
+        "title": "No se encontraron resultados",
+        "description": "No encontramos ningún negocio para esa búsqueda. Prueba con otra palabra clave o ubicación."
+      }
+    },
+    "item": {
+      "unnamed": "Lugar sin nombre",
+      "contactHidden": "Datos de contacto ocultos"
+    },
+    "cta": {
+      "title": "Consulta todos los resultados y los datos de contacto completos",
+      "hiddenResults": "{count, plural, =0 {Crea una cuenta gratis para desbloquear los teléfonos y sitios web de cada negocio.} one {Hay # resultado más oculto. Regístrate para desbloquearlo, junto con teléfonos y sitios web.} other {Hay # resultados más ocultos. Regístrate para desbloquearlos, junto con teléfonos y sitios web.}}",
+      "register": "Crear cuenta gratis",
+      "login": "Ya tengo una cuenta"
+    },
+    "blocked": {
+      "title": "Ya has usado tu búsqueda gratis",
+      "description": "Regístrate para seguir buscando: incluye todos los resultados y los datos de contacto completos.",
+      "register": "Crear cuenta gratis",
+      "login": "Iniciar sesión"
+    },
+    "errors": {
+      "runFailed": "No se pudo ejecutar la búsqueda. Inténtalo de nuevo."
     }
   },
   "search": {
