@@ -88,7 +88,13 @@ class AuthService:
             models.User.email == payload.email
         ).first()
 
-        if not user or not utils.verify_password(payload.password, user.hashed_password):
+        # ``hashed_password`` is nullable (OAuth-only users). Guard against None
+        # so password login returns 401 rather than crashing verify_password.
+        if (
+            not user
+            or not user.hashed_password
+            or not utils.verify_password(payload.password, user.hashed_password)
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect email or password"
@@ -136,6 +142,12 @@ class AuthService:
 
         if not user:
             # Don't reveal if email exists
+            return
+
+        # OAuth-only users have no local password to reset. Return silently so
+        # forgot-password cannot bootstrap a parallel password credential (and
+        # doesn't leak that the address is registered).
+        if not user.hashed_password:
             return
 
         reset_token = utils.generate_reset_token()
