@@ -338,5 +338,56 @@
         "results": "Results"
       }
     }
+  },
+  "leads": {
+    "backToProject": "Back to project",
+    "loadFailed": "Failed to load the lead.",
+    "notFound": "Lead not found.",
+    "businessDetails": {
+      "title": "Business details",
+      "name": "Name",
+      "category": "Category",
+      "address": "Address",
+      "phone": "Phone",
+      "website": "Website"
+    },
+    "tracking": {
+      "title": "Tracking",
+      "statusLabel": "Status",
+      "linkedinLabel": "LinkedIn URL",
+      "linkedinPlaceholder": "https://www.linkedin.com/in/…",
+      "save": "Save",
+      "openProfile": "Open profile"
+    },
+    "status": {
+      "new": "New",
+      "contacted": "Contacted",
+      "interested": "Interested",
+      "discarded": "Discarded"
+    },
+    "notes": {
+      "title": "Notes & reminders",
+      "entryTypeAria": "Entry type",
+      "type": {
+        "note": "Note",
+        "reminder": "Reminder"
+      },
+      "notePlaceholder": "Add a note about this lead…",
+      "reminderPlaceholder": "What do you need to follow up on?",
+      "reminderDateLabel": "Reminder date",
+      "addNote": "Add note",
+      "addReminder": "Add reminder",
+      "empty": "No notes or reminders yet.",
+      "overdue": "Overdue {relative}",
+      "due": "Due {relative}"
+    },
+    "errors": {
+      "updateStatus": "Failed to update status.",
+      "saveLinkedin": "Failed to save LinkedIn URL.",
+      "network": "Network error — please try again.",
+      "addNote": "Failed to add the note.",
+      "emptyNote": "Please write something first.",
+      "missingReminderDate": "Pick a date for the reminder."
+    }
   }
 }

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { ArrowLeft, MapPin } from "lucide-react"
 
 import { config } from "@/lib/config"
@@ -11,6 +12,7 @@ interface LeadDetailPageProps {
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const { id, leadId } = await params
+  const t = await getTranslations("leads")
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,7 +25,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href={config.routes.project(id)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to project
+              {t("backToProject")}
             </Link>
           </Button>
         </div>
