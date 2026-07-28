@@ -364,6 +364,11 @@
         "description": "Search results are not kept after you leave this screen. Run the search again to view and save its results.",
         "newSearch": "New search"
       },
+      "empty": {
+        "title": "No places found",
+        "description": "This search didn't return any places. Try a different keyword or location."
+      },
+      "loading": "Loading results…",
       "title": "Search results",
       "count": "{count, plural, one {# result} other {# results}}",
       "savedSuffix": "{count} already in your list",
@@ -388,6 +393,7 @@
     },
     "history": {
       "loadFailed": "Failed to load search history.",
+      "viewResultsAria": "View results for {keyword}",
       "empty": {
         "title": "No searches yet",
         "description": "Run your first search to start building this project's history."

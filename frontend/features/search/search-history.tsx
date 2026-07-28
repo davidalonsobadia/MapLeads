@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Loader2, SearchX } from "lucide-react"
 import type { SearchHistoryItem } from "@/lib/types"
+import { config } from "@/lib/config"
 import {
   Table,
   TableBody,
@@ -30,6 +32,7 @@ function formatDate(iso: string) {
 
 export function SearchHistory({ projectId }: SearchHistoryProps) {
   const t = useTranslations("search.history")
+  const router = useRouter()
 
   const [searches, setSearches] = useState<SearchHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,20 +99,37 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {searches.map((search) => (
-            <TableRow key={search.id}>
-              <TableCell className="font-medium">{search.keyword}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {formatSearchLocation(search)}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {formatDate(search.createdAt)}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {search.resultCount}
-              </TableCell>
-            </TableRow>
-          ))}
+          {searches.map((search) => {
+            const open = () =>
+              router.push(config.routes.searchResults(projectId, search.id))
+            return (
+              <TableRow
+                key={search.id}
+                role="button"
+                tabIndex={0}
+                aria-label={t("viewResultsAria", { keyword: search.keyword })}
+                onClick={open}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    open()
+                  }
+                }}
+                className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+              >
+                <TableCell className="font-medium">{search.keyword}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatSearchLocation(search)}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(search.createdAt)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {search.resultCount}
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>

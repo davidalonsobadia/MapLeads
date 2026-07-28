@@ -39,7 +39,7 @@ import { LeadsMap, type LeadMarker } from "@/components/map"
 import { billingApi } from "@/features/billing/api"
 import { leadsApi } from "@/features/leads/api"
 
-import { readSearchRun } from "./api"
+import { readSearchRun, searchApi } from "./api"
 import { SearchResultItem } from "./search-result-item"
 
 interface SearchResultsProps {
@@ -56,7 +56,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
   const t = useTranslations("search.results")
 
   const [run, setRun] = useState<SearchRun | null>(null)
-  const [loaded, setLoaded] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -69,17 +69,45 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
 
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  // Load the stashed run for this search id (client-only; survives a reload).
+  // Populate the run for this search id. The backend is the source of truth so
+  // older / other-device searches work; the sessionStorage stash (from a search
+  // just run in this session) is only an optional fast-path to paint instantly.
+  const applyRun = useCallback((next: SearchRun) => {
+    setRun(next)
+    setSavedIds(
+      new Set(next.results.filter((r) => r.alreadySaved).map((r) => r.placeId)),
+    )
+  }, [])
+
   useEffect(() => {
+    let cancelled = false
+
     const stored = readSearchRun(searchId)
     if (stored) {
-      setRun(stored)
-      setSavedIds(
-        new Set(stored.results.filter((r) => r.alreadySaved).map((r) => r.placeId)),
-      )
+      applyRun(stored)
+      setLoading(false)
     }
-    setLoaded(true)
-  }, [searchId])
+
+    searchApi
+      .get(projectId, searchId)
+      .then((result) => {
+        if (cancelled) return
+        if (result.success && result.run) {
+          applyRun(result.run)
+        }
+      })
+      .catch(() => {
+        // Non-fatal: fall back to the stashed run (if any) or the unavailable
+        // state. Viewing must not error out on a transient fetch failure.
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId, searchId, applyRun])
 
   // Load the subscription snapshot to know whether the account is read-only.
   useEffect(() => {
@@ -215,21 +243,45 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
     }
   }, [saving, selectedCount, readOnly, results, selectedIds, projectId, t])
 
-  if (!loaded) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2
+          className="h-6 w-6 animate-spin text-primary"
+          aria-label={t("loading")}
+        />
       </div>
     )
   }
 
-  if (!run) {
+  // Legacy row without a stored snapshot (#106): the search recorded results but
+  // none can be replayed. Show the "not available" state rather than an error.
+  const unavailable = !run || (run.resultCount > 0 && results.length === 0)
+  if (unavailable) {
     return (
       <div className="rounded-lg border border-dashed py-16 text-center">
         <SearchX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
         <h3 className="text-lg font-semibold">{t("unavailable.title")}</h3>
         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
           {t("unavailable.description")}
+        </p>
+        <Button asChild className="mt-4">
+          <Link href={config.routes.newSearch(projectId)}>
+            {t("unavailable.newSearch")}
+          </Link>
+        </Button>
+      </div>
+    )
+  }
+
+  // A genuinely empty search (0 results) — distinct from the legacy case above.
+  if (results.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed py-16 text-center">
+        <SearchX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+        <h3 className="text-lg font-semibold">{t("empty.title")}</h3>
+        <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+          {t("empty.description")}
         </p>
         <Button asChild className="mt-4">
           <Link href={config.routes.newSearch(projectId)}>
