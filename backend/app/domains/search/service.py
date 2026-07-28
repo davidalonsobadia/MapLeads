@@ -132,6 +132,73 @@ class SearchService:
             .all()
         )
 
+    def _get_owned_search(
+        self, user_id: int, project_id: int, search_id: int
+    ) -> models.Search:
+        """Return the search under an owned project, else raise 404.
+
+        Ownership is enforced through the parent project first, then the search
+        is loaded by ``id`` + ``project_id`` + ``user_id`` so a search that is
+        not the caller's (or not under this project) is indistinguishable from a
+        missing one — no leak.
+        """
+        self._get_owned_project(user_id, project_id)
+        search = (
+            self.db.query(models.Search)
+            .filter(
+                models.Search.id == search_id,
+                models.Search.project_id == project_id,
+                models.Search.user_id == user_id,
+            )
+            .first()
+        )
+        if search is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Search not found",
+            )
+        return search
+
+    def get_search(
+        self, user_id: int, project_id: int, search_id: int
+    ) -> schemas.SearchRunResponse:
+        """Return a stored search's snapshot with freshly-recomputed saved flags.
+
+        Served entirely from the persisted snapshot — the Places API is never
+        re-queried. ``already_saved`` is recomputed against the project's current
+        leads, so a place saved after the search ran is flagged on view. Legacy
+        rows (``results IS NULL``, written before snapshots) return an empty list
+        with their stored ``result_count``.
+        """
+        search = self._get_owned_search(user_id, project_id, search_id)
+
+        raw_results = search.results or []
+        saved_place_ids = self._existing_place_ids(project_id)
+        results: List[schemas.SearchResultItem] = []
+        already_saved_count = 0
+        for place in raw_results:
+            already_saved = place.get("place_id") in saved_place_ids
+            if already_saved:
+                already_saved_count += 1
+            results.append(
+                schemas.SearchResultItem(**place, already_saved=already_saved)
+            )
+
+        return schemas.SearchRunResponse(
+            search_id=search.id,
+            result_count=search.result_count,
+            already_saved_count=already_saved_count,
+            results=results,
+        )
+
+    def delete_search(
+        self, user_id: int, project_id: int, search_id: int
+    ) -> None:
+        """Delete an owned search. Raises 404 if not under the owned project."""
+        search = self._get_owned_search(user_id, project_id, search_id)
+        self.db.delete(search)
+        self.db.commit()
+
     def _dispatch(
         self, req: schemas.SearchRequest
     ) -> tuple[Dict[str, Any], List[Dict[str, Any]]]:
