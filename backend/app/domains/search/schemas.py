@@ -68,6 +68,27 @@ class SearchRunResponse(BaseModel):
     results: List[SearchResultItem]
 
 
+class AnonymousSearchResultItem(BaseModel):
+    """A masked place for the unauthenticated funnel.
+
+    Only non-contact identity fields are exposed: no phone, website or
+    coordinates, and no ``already_saved`` flag (there is no user to save for).
+    """
+
+    place_id: str
+    name: Optional[str] = None
+    address: Optional[str] = None
+    category: Optional[str] = None
+
+
+class AnonymousSearchResponse(BaseModel):
+    """A capped, contact-masked search result for anonymous visitors."""
+
+    result_count: int
+    total_available: int
+    results: List[AnonymousSearchResultItem]
+
+
 class SearchHistoryItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

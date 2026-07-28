@@ -21,6 +21,23 @@ def get_places_client() -> PlacesClient:
 
 
 @router.post(
+    "/search/anonymous",
+    response_model=schemas.AnonymousSearchResponse,
+)
+def run_anonymous_search(
+    data: schemas.SearchRequest,
+    db: Session = Depends(get_db),
+    places_client: PlacesClient = Depends(get_places_client),
+):
+    """Run a search for an anonymous visitor: capped, contact-masked, persists nothing.
+
+    No user authentication and no project — the endpoint still sits behind the
+    ``x-api-key`` gateway like every other ``/api`` route.
+    """
+    return service.AnonymousSearchService(db, places_client).run_search(data)
+
+
+@router.post(
     "/projects/{project_id}/searches",
     response_model=schemas.SearchRunResponse,
     status_code=status.HTTP_201_CREATED,
