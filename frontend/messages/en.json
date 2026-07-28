@@ -539,6 +539,15 @@
           "description": "Unlimited active projects."
         }
       }
+    },
+    "redeem": {
+      "title": "Redeem a code",
+      "description": "Have a promo code? Enter it to unlock its benefit on your account.",
+      "label": "Promo code",
+      "placeholder": "Enter your code",
+      "submit": "Redeem",
+      "success": "Your code was redeemed successfully.",
+      "error": "We couldn't redeem that code."
     }
   }
 }

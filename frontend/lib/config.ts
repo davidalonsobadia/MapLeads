@@ -48,6 +48,9 @@ export const config = {
           checkoutSession: "/api/v1/billing/checkout-session",
           portalSession: "/api/v1/billing/portal-session",
         },
+        promotions: {
+          redeem: "/api/v1/promotions/redeem",
+        },
       },
       // Frontend API routes (proxy to backend)
       auth: {
@@ -84,6 +87,9 @@ export const config = {
       billing: {
         checkoutSession: "/api/billing/checkout-session",
         portalSession: "/api/billing/portal-session",
+      },
+      promotions: {
+        redeem: "/api/promotions/redeem",
       },
     },
   },
