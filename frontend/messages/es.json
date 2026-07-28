@@ -402,8 +402,18 @@
         "keyword": "Palabra clave",
         "location": "Ubicación",
         "date": "Fecha",
-        "results": "Resultados"
-      }
+        "results": "Resultados",
+        "actions": "Acciones"
+      },
+      "delete": "Eliminar",
+      "rowActionsAria": "Acciones para {keyword}"
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar la búsqueda «{keyword}»?",
+      "description": "Esto elimina permanentemente esta búsqueda y sus resultados guardados. Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "error": "No se pudo eliminar la búsqueda."
     }
   },
   "leads": {

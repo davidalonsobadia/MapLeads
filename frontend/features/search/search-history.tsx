@@ -3,9 +3,16 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Loader2, SearchX } from "lucide-react"
+import { Loader2, MoreVertical, SearchX, Trash2 } from "lucide-react"
 import type { SearchHistoryItem } from "@/lib/types"
 import { config } from "@/lib/config"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -15,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { searchApi, formatSearchLocation } from "./api"
+import { DeleteSearchDialog } from "./delete-search-dialog"
 
 interface SearchHistoryProps {
   projectId: string
@@ -32,11 +40,15 @@ function formatDate(iso: string) {
 
 export function SearchHistory({ projectId }: SearchHistoryProps) {
   const t = useTranslations("search.history")
+  const tDialog = useTranslations("search.deleteDialog")
   const router = useRouter()
 
   const [searches, setSearches] = useState<SearchHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<SearchHistoryItem | null>(
+    null,
+  )
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -58,6 +70,17 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
   useEffect(() => {
     load()
   }, [load])
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!pendingDelete) return
+    const searchId = pendingDelete.id
+    const result = await searchApi.remove(projectId, searchId)
+    if (!result.success) {
+      throw new Error(result.message || tDialog("error"))
+    }
+    // Remove the row locally so the table updates without a full-page reload.
+    setSearches((current) => current.filter((search) => search.id !== searchId))
+  }, [pendingDelete, projectId, tDialog])
 
   if (loading) {
     return (
@@ -96,6 +119,9 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
             <TableHead>{t("columns.location")}</TableHead>
             <TableHead>{t("columns.date")}</TableHead>
             <TableHead className="text-right">{t("columns.results")}</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">{t("columns.actions")}</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -127,11 +153,48 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
                 <TableCell className="text-right tabular-nums">
                   {search.resultCount}
                 </TableCell>
+                <TableCell className="text-right">
+                  {/* Stop propagation so the action never triggers row navigation. */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t("rowActionsAria", { keyword: search.keyword })}
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => event.stopPropagation()}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setPendingDelete(search)
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t("delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
               </TableRow>
             )
           })}
         </TableBody>
       </Table>
+
+      <DeleteSearchDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null)
+        }}
+        keyword={pendingDelete?.keyword ?? ""}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }
