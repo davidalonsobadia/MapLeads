@@ -40,6 +40,37 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
+class OAuthAuthorizeResponse(BaseModel):
+    """Payload returned when starting the OAuth flow.
+
+    ``authorization_url`` is where the browser is sent; ``state`` is the signed,
+    short-TTL token the caller replays on the callback.
+    """
+
+    authorization_url: str
+    state: str
+
+
+class OAuthCallbackRequest(BaseModel):
+    """Body of the OAuth callback: the provider ``code`` and the ``state`` echoed back.
+
+    ``state`` is required: the authorize endpoint always issues one, and the
+    callback verifies it to protect against CSRF.
+    """
+
+    code: str
+    state: str
+
+
+class OAuthTokenResponse(BaseModel):
+    """Session issued after a successful OAuth login: our JWT plus the user."""
+
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+
 class VerifyEmail(BaseModel):
     token: str
 
