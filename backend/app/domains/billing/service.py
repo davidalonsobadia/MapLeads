@@ -278,7 +278,7 @@ class StripeBillingService:
         subscription = SubscriptionService(self.db).get_for_user(user_id)
         customer_id = self._ensure_customer(user_id, subscription)
 
-        session = stripe.checkout.Session.create(
+        session_kwargs = dict(
             mode="subscription",
             customer=customer_id,
             line_items=[{"price": price_id, "quantity": 1}],
@@ -287,7 +287,118 @@ class StripeBillingService:
             success_url=f"{settings.FRONTEND_URL}/billing?checkout=success",
             cancel_url=f"{settings.FRONTEND_URL}/billing?checkout=cancel",
         )
+        coupon_id = self._pending_checkout_coupon(subscription)
+        if coupon_id:
+            # A trial user redeemed a promo before paying: carry the granted
+            # coupon onto their first paid invoice.
+            session_kwargs["discounts"] = [{"coupon": coupon_id}]
+
+        session = stripe.checkout.Session.create(**session_kwargs)
         return session["url"]
+
+    def coupon_for_promo(self, promo_code) -> str:
+        """Create a Stripe ``Coupon`` mirroring ``promo_code`` and return its id.
+
+        Maps the local ``discount_type`` onto Stripe's coupon parameters:
+
+        - ``percentage``    → ``percent_off`` forever
+        - ``fixed_amount``  → ``amount_off`` (cents) in EUR forever
+        - ``free_months``   → 100% off, repeating for ``value`` months
+        - ``lifetime_free`` → 100% off forever
+
+        Requires Stripe to be configured (raises 503 otherwise).
+        """
+        self._require_configured()
+
+        discount_type = promo_code.discount_type
+        if discount_type == "percentage":
+            coupon = stripe.Coupon.create(
+                percent_off=promo_code.value, duration="forever"
+            )
+        elif discount_type == "fixed_amount":
+            coupon = stripe.Coupon.create(
+                amount_off=promo_code.value * 100,
+                currency="eur",
+                duration="forever",
+            )
+        elif discount_type == "free_months":
+            coupon = stripe.Coupon.create(
+                percent_off=100,
+                duration="repeating",
+                duration_in_months=promo_code.value,
+            )
+        elif discount_type == "lifetime_free":
+            coupon = stripe.Coupon.create(percent_off=100, duration="forever")
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported discount type '{discount_type}'.",
+            )
+        return coupon["id"]
+
+    def apply_promo_to_subscription(self, user_id: int, promo_code, redemption) -> None:
+        """Mirror a redeemed promo code into Stripe for ``user_id``.
+
+        Creates the coupon and stores its id on ``redemption.stripe_coupon_id``.
+        When the user has a live ``stripe_subscription_id`` the coupon is applied
+        to that subscription immediately; a trial user (no Stripe subscription)
+        only gets the coupon stored, to be carried into their first checkout by
+        :meth:`create_checkout_session`.
+
+        Does not commit — the caller (``PromoCodeService.redeem``) owns the
+        transaction so the local effects and the coupon id persist atomically.
+        """
+        self._require_configured()
+
+        subscription = SubscriptionService(self.db).get_for_user(user_id)
+        coupon_id = self.coupon_for_promo(promo_code)
+        redemption.stripe_coupon_id = coupon_id
+
+        if subscription.stripe_subscription_id:
+            self._apply_coupon_to_stripe_subscription(
+                subscription.stripe_subscription_id, coupon_id
+            )
+
+    def _apply_coupon_to_stripe_subscription(
+        self, stripe_subscription_id: str, coupon_id: str
+    ) -> None:
+        """Attach ``coupon_id`` to a live Stripe subscription.
+
+        Newer API versions take ``discounts=[{"coupon": ...}]``; older SDK/API
+        versions only accept the legacy ``coupon=`` param, so fall back to it.
+        """
+        try:
+            stripe.Subscription.modify(
+                stripe_subscription_id, discounts=[{"coupon": coupon_id}]
+            )
+        except (TypeError, stripe.error.InvalidRequestError):
+            stripe.Subscription.modify(stripe_subscription_id, coupon=coupon_id)
+
+    def _pending_checkout_coupon(self, subscription: Subscription) -> Optional[str]:
+        """Return a granted coupon to carry into checkout, if any.
+
+        Only a user without a live paid subscription carries a coupon into
+        checkout; a paid user's coupon was already applied to their subscription
+        at redeem time (guarding against double-application). Picks the most
+        recent redemption that stored a ``stripe_coupon_id``.
+        """
+        if subscription.stripe_subscription_id:
+            return None
+
+        # Local import avoids a module-load cycle (promotions.service imports
+        # billing.service).
+        from app.domains.promotions.models import PromoCodeRedemption
+
+        redemption = (
+            self.db.query(PromoCodeRedemption)
+            .filter(
+                PromoCodeRedemption.user_id == subscription.user_id,
+                PromoCodeRedemption.stripe_coupon_id.isnot(None),
+            )
+            .order_by(PromoCodeRedemption.id.desc())
+            .first()
+        )
+        return redemption.stripe_coupon_id if redemption else None
 
     def create_portal_session(self, user_id: int) -> str:
         """Create a Stripe Billing Portal session and return its URL."""
