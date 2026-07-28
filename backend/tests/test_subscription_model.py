@@ -59,6 +59,9 @@ def test_register_creates_single_trial_subscription(db_session):
     assert sub.read_only is False
     assert sub.stripe_customer_id is None
     assert sub.stripe_subscription_id is None
+    # Comp fields default to "no free access granted".
+    assert sub.comp_until is None
+    assert sub.comp_lifetime is False
 
     # trial_ends_at is 15 days out and the period spans the trial window.
     expected_end_lo = before + timedelta(days=plans.TRIAL_PERIOD_DAYS)

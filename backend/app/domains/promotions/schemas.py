@@ -78,6 +78,40 @@ class PromoCodeCreate(BaseModel):
         return self
 
 
+class RedeemRequest(BaseModel):
+    """Customer payload to redeem a promo code against their own subscription.
+
+    The code is normalized (trimmed, upper-cased) to match how codes are stored,
+    so redemption is case-insensitive. An empty code raises a plain ``ValueError``
+    so FastAPI returns 422.
+    """
+
+    code: str
+
+    @field_validator("code")
+    @classmethod
+    def _normalize_code(cls, v: str) -> str:
+        normalized = v.strip().upper()
+        if not normalized:
+            raise ValueError("code must not be empty")
+        return normalized
+
+
+class RedeemResponse(BaseModel):
+    """What a successful redemption applied to the user's subscription.
+
+    ``plan`` is the subscription plan after redemption (unchanged for
+    money-only discounts). ``comp_until`` / ``comp_lifetime`` reflect any
+    locally-granted free access; ``message`` is a human-readable summary.
+    """
+
+    discount_type: str
+    plan: str
+    comp_until: datetime | None = None
+    comp_lifetime: bool = False
+    message: str
+
+
 class PromoCodeResponse(BaseModel):
     """Serialized promo code returned to staff callers."""
 

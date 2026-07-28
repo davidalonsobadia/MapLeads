@@ -178,6 +178,54 @@ def test_archiving_frees_a_project_slot(client, test_user, db_session):
     assert client.post(PROJECTS, json={"name": "Second"}).status_code == 201
 
 
+def test_comp_lifetime_not_read_only_past_trial(client, test_user, db_session):
+    """A comp_lifetime subscription is exempt from the trial-expiry read-only
+    rule (the quota still applies)."""
+    sub = _get_subscription(db_session, test_user.id)
+    sub.trial_ends_at = datetime.utcnow() - timedelta(days=1)
+    sub.period_end = sub.trial_ends_at
+    sub.comp_lifetime = True
+    db_session.commit()
+
+    usage = SubscriptionService(db_session).usage(test_user.id)
+    assert usage.read_only is False
+
+
+def test_comp_until_future_not_read_only_past_trial(client, test_user, db_session):
+    """An active comp_until window keeps an expired-trial account writable."""
+    sub = _get_subscription(db_session, test_user.id)
+    sub.trial_ends_at = datetime.utcnow() - timedelta(days=1)
+    sub.period_end = sub.trial_ends_at
+    sub.comp_until = datetime.utcnow() + timedelta(days=30)
+    db_session.commit()
+
+    assert SubscriptionService(db_session).usage(test_user.id).read_only is False
+
+
+def test_expired_comp_until_is_read_only_past_trial(client, test_user, db_session):
+    """A comp_until in the past does not grant free access; the expired trial
+    still makes the account read-only."""
+    sub = _get_subscription(db_session, test_user.id)
+    sub.trial_ends_at = datetime.utcnow() - timedelta(days=1)
+    sub.period_end = sub.trial_ends_at
+    sub.comp_until = datetime.utcnow() - timedelta(days=1)
+    db_session.commit()
+
+    assert SubscriptionService(db_session).usage(test_user.id).read_only is True
+
+
+def test_comp_still_read_only_when_quota_exhausted(client, test_user, db_session):
+    """Free access exempts trial expiry only; an exhausted quota is still
+    read-only for a comped account."""
+    sub = _get_subscription(db_session, test_user.id)
+    sub.comp_lifetime = True
+    sub.monthly_lead_quota = 2
+    sub.leads_used_this_period = 2
+    db_session.commit()
+
+    assert SubscriptionService(db_session).usage(test_user.id).read_only is True
+
+
 def test_unlimited_plan_allows_many_projects(client, test_user, db_session):
     """A plan with no project limit (Pro) never blocks project creation."""
     sub = _get_subscription(db_session, test_user.id)
