@@ -48,4 +48,8 @@ class Search(Base):
     # location_text for text searches, or lat/lng/radius_km for point searches.
     params = Column(JSON, nullable=False)
     result_count = Column(Integer, nullable=False)
+    # Snapshot of the normalized place dicts this search returned (the raw
+    # Places-client output, without the time-varying already_saved flag).
+    # Nullable: pre-existing rows keep results = NULL.
+    results = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

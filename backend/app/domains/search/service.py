@@ -92,6 +92,7 @@ class SearchService:
             location_type=req.location_type,
             params=params,
             result_count=len(raw_results),
+            results=raw_results,
         )
         self.db.add(search)
         self.db.commit()

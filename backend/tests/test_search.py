@@ -103,6 +103,12 @@ def test_text_search_records_row_and_returns_results(client, use_places_client, 
     assert row.params == {"location_text": "Berlin"}
     assert row.id == body["search_id"]
 
+    # The raw normalized results are snapshotted verbatim (no already_saved flag),
+    # and result_count matches the stored list length.
+    assert row.results == [_place("p1"), _place("p2")]
+    assert row.result_count == len(row.results)
+    assert all("already_saved" not in place for place in row.results)
+
 
 def test_point_search_converts_radius_and_records_row(client, use_places_client, db_session):
     fake = use_places_client(results=[_place("p1")])
@@ -130,6 +136,10 @@ def test_point_search_converts_radius_and_records_row(client, use_places_client,
     row = db_session.query(Search).filter(Search.project_id == project_id).one()
     assert row.location_type == "point"
     assert row.params == {"lat": 40.4, "lng": -3.7, "radius_km": 2}
+
+    # A point search likewise snapshots its raw results.
+    assert row.results == [_place("p1")]
+    assert row.result_count == len(row.results)
 
 
 def test_already_saved_marks_results_saved_as_leads(client, use_places_client, test_user, db_session):
