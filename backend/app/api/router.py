@@ -6,6 +6,7 @@ from app.domains.billing.router import billing_router
 from app.domains.billing.router import router as subscription_router
 from app.domains.leads.router import router as leads_router
 from app.domains.projects.router import router as projects_router
+from app.domains.promotions.router import router as promotions_router
 from app.domains.search.router import router as search_router
 
 router = APIRouter(prefix="/api/v1")
@@ -16,3 +17,4 @@ router.include_router(leads_router)
 router.include_router(search_router)
 router.include_router(subscription_router)
 router.include_router(billing_router)
+router.include_router(promotions_router)

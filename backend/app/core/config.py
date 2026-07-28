@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     STRIPE_PRICE_PRO: str = ""
     STRIPE_PRICE_ENTERPRISE: str = ""
 
+    # Internal-only secret that gates staff/machine endpoints (e.g. promo-code
+    # creation). Separate from the customer-facing ``x-api-key`` gateway. Empty
+    # default means the gated endpoints return 503 (never open by default);
+    # provision via env, never hardcode.
+    INTERNAL_API_KEY: str = ""
+
     # The actual key should be in the environment variable or .env file
     SECRET_KEY: str = "fallback-secret-c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
 
