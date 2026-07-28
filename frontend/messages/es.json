@@ -388,6 +388,80 @@
       "addNote": "No se pudo añadir la nota.",
       "emptyNote": "Escribe algo primero.",
       "missingReminderDate": "Elige una fecha para el recordatorio."
+    },
+    "table": {
+      "filterByStatus": "Filtrar por estado",
+      "allStatuses": "Todos los estados",
+      "searchPlaceholder": "Buscar por nombre…",
+      "searchAria": "Buscar leads por nombre",
+      "viewToggleAria": "Alternar vista de lista o mapa",
+      "listView": "Vista de lista",
+      "mapView": "Vista de mapa",
+      "export": "Exportar",
+      "exportCsv": "Exportar como CSV",
+      "exportXlsx": "Exportar como Excel (XLSX)",
+      "loadFailed": "No se pudieron cargar los leads guardados.",
+      "emptyFilteredTitle": "Ningún lead coincide con tus filtros",
+      "emptyTitle": "Aún no hay leads guardados",
+      "emptyFilteredDescription": "Prueba con otro estado o término de búsqueda.",
+      "emptyDescription": "Guarda resultados de una búsqueda para empezar a crear la lista de este proyecto.",
+      "mapMissingLocation": "{missing} de {total} leads no tienen ubicación y no se muestran en el mapa.",
+      "columns": {
+        "name": "Nombre",
+        "address": "Dirección",
+        "phone": "Teléfono",
+        "website": "Sitio web",
+        "category": "Categoría",
+        "status": "Estado",
+        "dateSaved": "Fecha de guardado"
+      }
+    }
+  },
+  "billing": {
+    "trial": {
+      "endsToday": "Tu prueba gratuita termina hoy",
+      "daysLeft": "{days, plural, one {# día restante de tu prueba gratuita} other {# días restantes de tu prueba gratuita}}",
+      "description": "Disfruta de acceso completo durante tu prueba. Mejora tu plan en cualquier momento para seguir guardando leads sin interrupciones."
+    },
+    "plan": {
+      "title": "Plan actual",
+      "status": {
+        "trialing": "Prueba",
+        "active": "Activo",
+        "past_due": "Pago vencido",
+        "canceled": "Cancelado"
+      },
+      "trialEndsOn": "La prueba termina el",
+      "accessEndsOn": "El acceso termina el",
+      "renewsOn": "Se renueva el",
+      "noRenewalDate": "No hay fecha de renovación disponible.",
+      "manage": "Gestionar / cancelar"
+    },
+    "usage": {
+      "title": "Leads este mes",
+      "used": "{used} de {quota} leads usados",
+      "progressAria": "{percentage}% de la cuota mensual de leads usada",
+      "remaining": "{remaining, plural, one {# lead restante} other {# leads restantes}}"
+    },
+    "changePlan": {
+      "title": "Cambiar de plan",
+      "description": "Elige un plan para continuar en el pago seguro de Stripe. Solo se necesita una tarjeta para pasar a un plan de pago.",
+      "current": "Actual",
+      "perMonth": "/mes",
+      "quota": "{quota} leads / mes",
+      "currentPlan": "Plan actual",
+      "choosePlan": "Elegir plan",
+      "plans": {
+        "basic": {
+          "description": "1 proyecto activo."
+        },
+        "pro": {
+          "description": "Proyectos activos ilimitados."
+        },
+        "enterprise": {
+          "description": "Proyectos activos ilimitados."
+        }
+      }
     }
   }
 }

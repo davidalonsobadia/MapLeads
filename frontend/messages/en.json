@@ -388,6 +388,80 @@
       "addNote": "Failed to add the note.",
       "emptyNote": "Please write something first.",
       "missingReminderDate": "Pick a date for the reminder."
+    },
+    "table": {
+      "filterByStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "searchPlaceholder": "Search by name…",
+      "searchAria": "Search leads by name",
+      "viewToggleAria": "Toggle list or map view",
+      "listView": "List view",
+      "mapView": "Map view",
+      "export": "Export",
+      "exportCsv": "Export as CSV",
+      "exportXlsx": "Export as Excel (XLSX)",
+      "loadFailed": "Failed to load saved leads.",
+      "emptyFilteredTitle": "No leads match your filters",
+      "emptyTitle": "No saved leads yet",
+      "emptyFilteredDescription": "Try a different status or search term.",
+      "emptyDescription": "Save results from a search to start building this project's list.",
+      "mapMissingLocation": "{missing} of {total} leads have no location and are not shown on the map.",
+      "columns": {
+        "name": "Name",
+        "address": "Address",
+        "phone": "Phone",
+        "website": "Website",
+        "category": "Category",
+        "status": "Status",
+        "dateSaved": "Date saved"
+      }
+    }
+  },
+  "billing": {
+    "trial": {
+      "endsToday": "Your free trial ends today",
+      "daysLeft": "{days, plural, one {# day left in your free trial} other {# days left in your free trial}}",
+      "description": "Enjoy full access during your trial. Upgrade any time to keep saving leads without interruption."
+    },
+    "plan": {
+      "title": "Current plan",
+      "status": {
+        "trialing": "Trial",
+        "active": "Active",
+        "past_due": "Past due",
+        "canceled": "Canceled"
+      },
+      "trialEndsOn": "Trial ends on",
+      "accessEndsOn": "Access ends on",
+      "renewsOn": "Renews on",
+      "noRenewalDate": "No renewal date available.",
+      "manage": "Manage / cancel"
+    },
+    "usage": {
+      "title": "Leads this month",
+      "used": "{used} of {quota} leads used",
+      "progressAria": "{percentage}% of the monthly lead quota used",
+      "remaining": "{remaining, plural, one {# lead remaining} other {# leads remaining}}"
+    },
+    "changePlan": {
+      "title": "Change plan",
+      "description": "Pick a plan to continue on Stripe's secure checkout. A card is only required to move onto a paid plan.",
+      "current": "Current",
+      "perMonth": "/mo",
+      "quota": "{quota} leads / month",
+      "currentPlan": "Current plan",
+      "choosePlan": "Choose plan",
+      "plans": {
+        "basic": {
+          "description": "1 active project."
+        },
+        "pro": {
+          "description": "Unlimited active projects."
+        },
+        "enterprise": {
+          "description": "Unlimited active projects."
+        }
+      }
     }
   }
 }

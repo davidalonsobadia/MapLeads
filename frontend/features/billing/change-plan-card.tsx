@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Check, Loader2 } from "lucide-react"
 import type { SubscriptionUsage } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -28,14 +29,13 @@ export function ChangePlanCard({
   onChoosePlan,
   pendingPlan,
 }: ChangePlanCardProps) {
+  const t = useTranslations("billing.changePlan")
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Change plan</CardTitle>
-        <CardDescription>
-          Pick a plan to continue on Stripe&apos;s secure checkout. A card is only
-          required to move onto a paid plan.
-        </CardDescription>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-3">
         {BILLING_PLANS.map((plan) => {
@@ -53,7 +53,7 @@ export function ChangePlanCard({
                   {isCurrent && (
                     <span className="flex items-center gap-1 text-xs font-medium text-primary">
                       <Check className="h-3 w-3" />
-                      Current
+                      {t("current")}
                     </span>
                   )}
                 </div>
@@ -61,13 +61,15 @@ export function ChangePlanCard({
                   €{plan.priceEur}
                   <span className="text-sm font-normal text-muted-foreground">
                     {" "}
-                    /mo
+                    {t("perMonth")}
                   </span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {plan.monthlyLeadQuota.toLocaleString()} leads / month
+                  {t("quota", { quota: plan.monthlyLeadQuota.toLocaleString() })}
                 </p>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t(`plans.${plan.id}.description`)}
+                </p>
               </div>
               <Button
                 className="mt-auto"
@@ -76,7 +78,7 @@ export function ChangePlanCard({
                 onClick={() => onChoosePlan(plan.id)}
               >
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isCurrent ? "Current plan" : "Choose plan"}
+                {isCurrent ? t("currentPlan") : t("choosePlan")}
               </Button>
             </div>
           )
