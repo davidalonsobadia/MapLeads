@@ -32,6 +32,9 @@ export const config = {
           notes: (id: string | number) => `/api/v1/leads/${id}/notes`,
           stats: "/api/v1/leads/stats",
         },
+        search: {
+          anonymous: "/api/v1/search/anonymous",
+        },
         subscription: {
           root: "/api/v1/subscription",
         },
@@ -62,6 +65,9 @@ export const config = {
         byId: (id: string | number) => `/api/leads/${id}`,
         notes: (id: string | number) => `/api/leads/${id}/notes`,
         stats: "/api/leads/stats",
+      },
+      search: {
+        anonymous: "/api/search/anonymous",
       },
       subscription: {
         root: "/api/subscription",
