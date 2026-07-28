@@ -82,11 +82,17 @@ class AnonymousSearchResultItem(BaseModel):
 
 
 class AnonymousSearchResponse(BaseModel):
-    """A capped, contact-masked search result for anonymous visitors."""
+    """A capped, contact-masked search result for anonymous visitors.
+
+    ``visitor_token`` is a freshly issued signed token the caller must persist
+    and replay in the ``X-Anonymous-Search-Token`` header on the next request;
+    its presence marks the single free search as already used.
+    """
 
     result_count: int
     total_available: int
     results: List[AnonymousSearchResultItem]
+    visitor_token: str
 
 
 class SearchHistoryItem(BaseModel):

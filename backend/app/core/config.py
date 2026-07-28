@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     # unauthenticated search endpoint (results beyond this are masked out).
     ANONYMOUS_SEARCH_RESULT_LIMIT: int = 3
 
+    # Anonymous "try a search" funnel: TTL of the signed visitor token that
+    # marks the single free search as used. Stateless by design (no DB); a
+    # visitor who clears the token gets a fresh allowance.
+    ANONYMOUS_SEARCH_TOKEN_TTL_DAYS: int = 30
+
     # Social login (OAuth) credentials. Provisioned via env; never hardcode
     # secrets. Empty defaults mean the provider is unconfigured (the OAuth client
     # raises ``OAuthUnconfiguredError``) so the app still boots and tests run

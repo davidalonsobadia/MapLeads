@@ -10,6 +10,7 @@ required, so tests POST to the endpoint directly.
 import pytest
 
 from app.core.config import settings
+from app.domains.auth.utils import get_verified_user
 from app.domains.leads.models import Lead
 from app.domains.search.models import Search
 from app.domains.search.router import get_places_client
@@ -134,3 +135,71 @@ def test_anonymous_search_client_error_502(client, use_places_client):
         json={"keyword": "coffee", "location_type": "text", "location_text": "Berlin"},
     )
     assert response.status_code == 502
+
+
+_QUERY = {"keyword": "coffee", "location_type": "text", "location_text": "Berlin"}
+
+
+def test_first_anonymous_search_issues_token(client, use_places_client):
+    use_places_client(results=[_place("p1")])
+
+    response = client.post(ANONYMOUS, json=_QUERY)
+
+    assert response.status_code == 200
+    assert response.json()["visitor_token"]
+
+
+def test_second_anonymous_search_blocked(client, use_places_client):
+    fake = use_places_client(results=[_place("p1")])
+
+    first = client.post(ANONYMOUS, json=_QUERY)
+    token = first.json()["visitor_token"]
+    assert fake.text_calls == [("coffee", "Berlin")]
+
+    second = client.post(
+        ANONYMOUS, json=_QUERY, headers={"X-Anonymous-Search-Token": token}
+    )
+
+    assert second.status_code == 403
+    assert second.json()["detail"]
+    # The Places client was not called a second time on the blocked request.
+    assert fake.text_calls == [("coffee", "Berlin")]
+
+
+def test_invalid_token_treated_as_first_time(client, use_places_client):
+    use_places_client(results=[_place("p1")])
+
+    response = client.post(
+        ANONYMOUS,
+        json=_QUERY,
+        headers={"X-Anonymous-Search-Token": "not-a-real-token"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["visitor_token"]
+
+
+def test_anon_token_not_accepted_as_auth(client, use_places_client):
+    use_places_client(results=[_place("p1")])
+    token = client.post(ANONYMOUS, json=_QUERY).json()["visitor_token"]
+
+    # The conftest ``client`` short-circuits ``get_verified_user``; drop that
+    # override so the real auth chain (which decodes the bearer token) runs and
+    # we exercise that the anon-search token is genuinely rejected.
+    app.dependency_overrides.pop(get_verified_user, None)
+    response = client.get(
+        "/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"}
+    )
+
+    # No ``sub`` claim and a disjoint scope: the authenticated flow rejects it.
+    assert response.status_code == 401
+
+
+def test_blocked_search_persists_nothing(client, use_places_client, db_session):
+    use_places_client(results=[_place("p1"), _place("p2")])
+
+    token = client.post(ANONYMOUS, json=_QUERY).json()["visitor_token"]
+    client.post(ANONYMOUS, json=_QUERY, headers={"X-Anonymous-Search-Token": token})
+
+    assert db_session.query(Search).count() == 0
+    assert db_session.query(Lead).count() == 0
