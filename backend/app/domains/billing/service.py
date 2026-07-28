@@ -99,7 +99,9 @@ class SubscriptionService:
         subscription = self.get_for_user(user_id)
         now = datetime.utcnow()
 
-        if self._is_trial_expired(subscription, now):
+        if not self._has_free_access(subscription, now) and self._is_trial_expired(
+            subscription, now
+        ):
             return False, (
                 "Your free trial has ended. Upgrade to a paid plan to save new "
                 "leads. Your account is read-only; searches and existing data "
@@ -175,9 +177,26 @@ class SubscriptionService:
             and now > subscription.trial_ends_at
         )
 
+    def _has_free_access(self, subscription: Subscription, now: datetime) -> bool:
+        """True when the account has locally-granted free access from a comp.
+
+        ``comp_lifetime`` is permanent; ``comp_until`` is active while it lies in
+        the future. A comped account is never read-only from trial expiry; the
+        lead quota still applies.
+        """
+        if subscription.comp_lifetime:
+            return True
+        return subscription.comp_until is not None and now < subscription.comp_until
+
     def _is_read_only(self, subscription: Subscription, now: datetime) -> bool:
-        """Effective read-only state: quota exhausted or trial expired."""
-        if self._is_trial_expired(subscription, now):
+        """Effective read-only state: quota exhausted or trial expired.
+
+        A comped account (see :meth:`_has_free_access`) is exempt from the
+        trial-expiry rule but still subject to the quota.
+        """
+        if not self._has_free_access(subscription, now) and self._is_trial_expired(
+            subscription, now
+        ):
             return True
         return subscription.leads_used_this_period >= subscription.monthly_lead_quota
 

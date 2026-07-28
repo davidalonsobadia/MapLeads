@@ -59,6 +59,14 @@ class Subscription(Base):
     period_start = Column(DateTime, nullable=False)
     period_end = Column(DateTime, nullable=False)  # renewal date
     trial_ends_at = Column(DateTime, nullable=True)
+    # Locally-granted free access from a redeemed promo code (promotions domain,
+    # epic #90). ``comp_until`` grants time-boxed free access while
+    # ``now < comp_until``; ``comp_lifetime`` grants permanent free access. Both
+    # are honored by the read path so a comped account is never read-only from
+    # trial expiry (the lead quota still applies). Making Stripe stop billing is
+    # a later task; these fields are the local effect only.
+    comp_until = Column(DateTime, nullable=True)
+    comp_lifetime = Column(Boolean, default=False, nullable=False)
     read_only = Column(Boolean, default=False, nullable=False)
     stripe_customer_id = Column(String, nullable=True)
     stripe_subscription_id = Column(String, nullable=True)
