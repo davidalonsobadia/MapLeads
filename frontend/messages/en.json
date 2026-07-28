@@ -206,6 +206,24 @@
       "description": "Start something new.",
       "newProject": "New project",
       "newSearch": "New search"
+    },
+    "roadmap": {
+      "title": "What's coming next",
+      "description": "A preview of the capabilities we're building for MapLeads. Nothing to do right now — we'll let you know as each one ships.",
+      "items": {
+        "linkedin": {
+          "title": "LinkedIn integration",
+          "description": "Connect saved leads to their LinkedIn profiles and reach decision-makers directly."
+        },
+        "enrichment": {
+          "title": "Richer lead data",
+          "description": "More contact and company details added automatically to every lead you save."
+        },
+        "outreach": {
+          "title": "Guided outreach",
+          "description": "Tools to help you follow up and turn saved leads into conversations."
+        }
+      }
     }
   },
   "projects": {

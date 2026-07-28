@@ -12,6 +12,7 @@ import { ProjectsList } from "@/features/projects/projects-list"
 import { ProjectDialog } from "@/features/projects/project-dialog"
 import { projectsApi } from "@/features/projects/api"
 import { DashboardStats } from "@/features/leads/dashboard-stats"
+import { RoadmapNotice } from "@/features/dashboard/roadmap-notice"
 import { AppHeader } from "@/components/app-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -118,6 +119,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        <RoadmapNotice />
 
         <section id="projects">
           <ProjectsList refreshKey={refreshKey} />
