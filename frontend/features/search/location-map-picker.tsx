@@ -8,6 +8,7 @@
 // single control.
 
 import { useEffect, useMemo } from "react"
+import { useTranslations } from "next-intl"
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps"
 
 import { LeadsMap, type LeadMarker } from "@/components/map"
@@ -70,12 +71,13 @@ export function LocationMapPicker({
   onRadiusChange,
   disabled,
 }: LocationMapPickerProps) {
+  const t = useTranslations("search.mapPicker")
   const markers: LeadMarker[] = useMemo(
     () =>
       point
-        ? [{ id: "search-point", lat: point.lat, lng: point.lng, label: "Search center" }]
+        ? [{ id: "search-point", lat: point.lat, lng: point.lng, label: t("centerMarker") }]
         : [],
-    [point],
+    [point, t],
   )
 
   return (
@@ -91,15 +93,18 @@ export function LocationMapPicker({
 
       <p className="text-sm text-muted-foreground">
         {point
-          ? `Center: ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`
-          : "Click the map to drop a search point."}
+          ? t("center", {
+              lat: point.lat.toFixed(4),
+              lng: point.lng.toFixed(4),
+            })
+          : t("clickHint")}
       </p>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="search-radius">Radius</Label>
+          <Label htmlFor="search-radius">{t("radiusLabel")}</Label>
           <span className="text-sm tabular-nums text-muted-foreground">
-            {radiusKm} km
+            {t("radiusValue", { km: radiusKm })}
           </span>
         </div>
         <Slider
@@ -110,7 +115,7 @@ export function LocationMapPicker({
           value={[radiusKm]}
           onValueChange={(values) => onRadiusChange(values[0])}
           disabled={disabled || !point}
-          aria-label="Search radius in kilometers"
+          aria-label={t("radiusAria")}
         />
       </div>
     </div>

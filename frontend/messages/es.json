@@ -270,5 +270,31 @@
       "rename": "No se pudo renombrar el proyecto.",
       "update": "No se pudo actualizar el proyecto."
     }
+  },
+  "search": {
+    "backToProject": "Volver al proyecto",
+    "title": "Nueva búsqueda",
+    "description": "Busca negocios en Google Maps por palabra clave y ubicación.",
+    "keywordLabel": "Palabra clave",
+    "keywordPlaceholder": "p. ej. clínica dental",
+    "locationLabel": "Ubicación",
+    "tabs": {
+      "text": "Texto libre",
+      "point": "Punto + radio"
+    },
+    "locationTextPlaceholder": "p. ej. Chamberí, Madrid",
+    "locationTextHint": "Escribe una ciudad, región o zona.",
+    "submit": "Buscar",
+    "errors": {
+      "runFailed": "No se pudo ejecutar la búsqueda. Inténtalo de nuevo."
+    },
+    "mapPicker": {
+      "centerMarker": "Centro de búsqueda",
+      "center": "Centro: {lat}, {lng}",
+      "clickHint": "Haz clic en el mapa para colocar un punto de búsqueda.",
+      "radiusLabel": "Radio",
+      "radiusValue": "{km} km",
+      "radiusAria": "Radio de búsqueda en kilómetros"
+    }
   }
 }

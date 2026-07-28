@@ -10,6 +10,7 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Loader2, Search } from "lucide-react"
 
 import type { SearchRequestPayload } from "@/lib/types"
@@ -40,6 +41,7 @@ interface NewSearchFormProps {
 
 export function NewSearchForm({ projectId }: NewSearchFormProps) {
   const router = useRouter()
+  const t = useTranslations("search")
 
   const [keyword, setKeyword] = useState("")
   const [mode, setMode] = useState<LocationMode>("text")
@@ -82,13 +84,13 @@ export function NewSearchForm({ projectId }: NewSearchFormProps) {
     try {
       const result = await searchApi.run(projectId, buildPayload())
       if (!result.success || !result.run) {
-        setError(result.message || "Failed to run the search. Please try again.")
+        setError(result.message || t("errors.runFailed"))
         return
       }
       stashSearchRun(result.run)
       router.push(config.routes.searchResults(projectId, result.run.searchId))
     } catch {
-      setError("Failed to run the search. Please try again.")
+      setError(t("errors.runFailed"))
     } finally {
       setSubmitting(false)
     }
@@ -98,36 +100,36 @@ export function NewSearchForm({ projectId }: NewSearchFormProps) {
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader>
-          <CardTitle>New search</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
           <CardDescription>
-            Search Google Maps for businesses by keyword and location.
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="search-keyword">Keyword</Label>
+            <Label htmlFor="search-keyword">{t("keywordLabel")}</Label>
             <Input
               id="search-keyword"
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="e.g. dental clinic"
+              placeholder={t("keywordPlaceholder")}
               disabled={submitting}
               autoFocus
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Location</Label>
+            <Label>{t("locationLabel")}</Label>
             <Tabs
               value={mode}
               onValueChange={(value) => setMode(value as LocationMode)}
             >
               <TabsList>
                 <TabsTrigger value="text" disabled={submitting}>
-                  Free text
+                  {t("tabs.text")}
                 </TabsTrigger>
                 <TabsTrigger value="point" disabled={submitting}>
-                  Point + radius
+                  {t("tabs.point")}
                 </TabsTrigger>
               </TabsList>
 
@@ -137,11 +139,11 @@ export function NewSearchForm({ projectId }: NewSearchFormProps) {
                   value={locationText}
                   onChange={setLocationText}
                   onPlaceSelect={(place) => setLocationText(place.text)}
-                  placeholder="e.g. Chamberí, Madrid"
+                  placeholder={t("locationTextPlaceholder")}
                   disabled={submitting}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Type a city, region or area.
+                  {t("locationTextHint")}
                 </p>
               </TabsContent>
 
@@ -166,7 +168,7 @@ export function NewSearchForm({ projectId }: NewSearchFormProps) {
               ) : (
                 <Search className="mr-2 h-4 w-4" />
               )}
-              Search
+              {t("submit")}
             </Button>
           </div>
         </CardContent>
