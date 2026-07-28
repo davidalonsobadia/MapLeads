@@ -15,6 +15,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import {
   AlertTriangle,
   CheckCircle2,
@@ -52,6 +53,8 @@ type SaveState =
   | { type: "success"; message: string }
 
 export function SearchResults({ projectId, searchId }: SearchResultsProps) {
+  const t = useTranslations("search.results")
+
   const [run, setRun] = useState<SearchRun | null>(null)
   const [loaded, setLoaded] = useState(false)
 
@@ -172,10 +175,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
       if (response.status === 403) {
         setSaveState({
           type: "error",
-          message:
-            response.message ||
-            "Your plan is read-only right now, so saving is disabled. " +
-              "Upgrade or wait for your quota to reset to keep saving leads.",
+          message: response.message || t("errors.readOnly"),
         })
         // Reflect the read-only state so the button stays disabled, even if the
         // initial subscription fetch never landed (prev is still null).
@@ -189,7 +189,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
       if (!response.success || !response.result) {
         setSaveState({
           type: "error",
-          message: response.message || "Failed to save the selected leads.",
+          message: response.message || t("errors.saveFailed"),
         })
         return
       }
@@ -205,15 +205,15 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
         type: "success",
         message:
           savedCount > 0
-            ? `Saved ${savedCount} ${savedCount === 1 ? "lead" : "leads"} to this project.`
-            : "Those results were already in your list.",
+            ? t("success.saved", { count: savedCount })
+            : t("success.allSaved"),
       })
     } catch {
-      setSaveState({ type: "error", message: "Failed to save the selected leads." })
+      setSaveState({ type: "error", message: t("errors.saveFailed") })
     } finally {
       setSaving(false)
     }
-  }, [saving, selectedCount, readOnly, results, selectedIds, projectId])
+  }, [saving, selectedCount, readOnly, results, selectedIds, projectId, t])
 
   if (!loaded) {
     return (
@@ -227,13 +227,14 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
     return (
       <div className="rounded-lg border border-dashed py-16 text-center">
         <SearchX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">Results are no longer available</h3>
+        <h3 className="text-lg font-semibold">{t("unavailable.title")}</h3>
         <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-          Search results are not kept after you leave this screen. Run the search
-          again to view and save its results.
+          {t("unavailable.description")}
         </p>
         <Button asChild className="mt-4">
-          <Link href={config.routes.newSearch(projectId)}>New search</Link>
+          <Link href={config.routes.newSearch(projectId)}>
+            {t("unavailable.newSearch")}
+          </Link>
         </Button>
       </div>
     )
@@ -245,10 +246,11 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Search results</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            {results.length} {results.length === 1 ? "result" : "results"}
-            {savedTotal > 0 && ` · ${savedTotal} already in your list`}
+            {t("count", { count: results.length })}
+            {savedTotal > 0 &&
+              ` · ${t("savedSuffix", { count: savedTotal })}`}
           </p>
         </div>
         <Button
@@ -260,7 +262,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}
-          Save selected ({selectedCount})
+          {t("saveSelected", { count: selectedCount })}
         </Button>
       </div>
 
@@ -270,11 +272,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
           role="status"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-          <p>
-            Your plan is read-only right now (quota exhausted or trial ended), so
-            saving is disabled. You can still search and view results — upgrade or
-            wait for your quota to reset to keep saving leads.
-          </p>
+          <p>{t("readOnlyBanner")}</p>
         </div>
       )}
 
@@ -306,13 +304,13 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
               checked={allSelectableSelected}
               disabled={selectableIds.length === 0}
               onCheckedChange={(value) => toggleSelectAll(value === true)}
-              aria-label="Select all savable results"
+              aria-label={t("selectAllAria")}
             />
             <label
               htmlFor="select-all-results"
               className="text-sm text-muted-foreground"
             >
-              Select all ({selectableIds.length})
+              {t("selectAll", { count: selectableIds.length })}
             </label>
           </div>
           <ScrollArea className="h-[280px] rounded-lg border lg:h-[560px]">

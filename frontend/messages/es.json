@@ -295,6 +295,48 @@
       "radiusLabel": "Radio",
       "radiusValue": "{km} km",
       "radiusAria": "Radio de búsqueda en kilómetros"
+    },
+    "results": {
+      "headerNewSearch": "Nueva búsqueda",
+      "unavailable": {
+        "title": "Los resultados ya no están disponibles",
+        "description": "Los resultados de búsqueda no se conservan después de salir de esta pantalla. Ejecuta la búsqueda de nuevo para ver y guardar sus resultados.",
+        "newSearch": "Nueva búsqueda"
+      },
+      "title": "Resultados de búsqueda",
+      "count": "{count, plural, one {# resultado} other {# resultados}}",
+      "savedSuffix": "{count} ya en tu lista",
+      "saveSelected": "Guardar seleccionados ({count})",
+      "readOnlyBanner": "Tu plan es de solo lectura en este momento (cuota agotada o prueba finalizada), por lo que guardar está deshabilitado. Aún puedes buscar y ver resultados: mejora tu plan o espera a que se restablezca tu cuota para seguir guardando leads.",
+      "selectAllAria": "Seleccionar todos los resultados guardables",
+      "selectAll": "Seleccionar todos ({count})",
+      "errors": {
+        "readOnly": "Tu plan es de solo lectura en este momento, por lo que guardar está deshabilitado. Mejora tu plan o espera a que se restablezca tu cuota para seguir guardando leads.",
+        "saveFailed": "No se pudieron guardar los leads seleccionados."
+      },
+      "success": {
+        "saved": "{count, plural, one {Se guardó # lead en este proyecto.} other {Se guardaron # leads en este proyecto.}}",
+        "allSaved": "Esos resultados ya estaban en tu lista."
+      }
+    },
+    "item": {
+      "alreadyInList": "Ya en tu lista",
+      "selectAria": "Seleccionar {name}",
+      "unnamed": "Lugar sin nombre",
+      "defaultName": "resultado"
+    },
+    "history": {
+      "loadFailed": "No se pudo cargar el historial de búsqueda.",
+      "empty": {
+        "title": "Aún no hay búsquedas",
+        "description": "Ejecuta tu primera búsqueda para empezar a crear el historial de este proyecto."
+      },
+      "columns": {
+        "keyword": "Palabra clave",
+        "location": "Ubicación",
+        "date": "Fecha",
+        "results": "Resultados"
+      }
     }
   }
 }
