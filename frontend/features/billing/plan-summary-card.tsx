@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { CreditCard, Loader2 } from "lucide-react"
 import type { SubscriptionUsage } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
@@ -30,12 +31,7 @@ function formatDate(iso: string) {
   })
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  trialing: "Trial",
-  active: "Active",
-  past_due: "Past due",
-  canceled: "Canceled",
-}
+const KNOWN_STATUSES = ["trialing", "active", "past_due", "canceled"]
 
 /**
  * Current subscription summary: plan name, status and the renewal (or trial
@@ -47,23 +43,26 @@ export function PlanSummaryCard({
   onManage,
   managing,
 }: PlanSummaryCardProps) {
+  const t = useTranslations("billing.plan")
   const { plan, status, periodEnd } = subscription
   const renewsOn = formatDate(periodEnd)
-  const statusLabel = STATUS_LABELS[status] ?? status
+  const statusLabel = KNOWN_STATUSES.includes(status)
+    ? t(`status.${status}`)
+    : status
 
   const dateLabel =
     status === "trialing"
-      ? "Trial ends on"
+      ? t("trialEndsOn")
       : status === "canceled"
-        ? "Access ends on"
-        : "Renews on"
+        ? t("accessEndsOn")
+        : t("renewsOn")
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <CreditCard className="h-4 w-4 text-primary" />
-          Current plan
+          {t("title")}
         </CardTitle>
         <CardDescription className="text-lg font-semibold capitalize text-foreground">
           {plan}
@@ -82,9 +81,7 @@ export function PlanSummaryCard({
             {dateLabel} <span className="font-medium text-foreground">{renewsOn}</span>
           </p>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No renewal date available.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noRenewalDate")}</p>
         )}
       </CardContent>
       <CardFooter>
@@ -94,7 +91,7 @@ export function PlanSummaryCard({
           ) : (
             <CreditCard className="mr-2 h-4 w-4" />
           )}
-          Manage / cancel
+          {t("manage")}
         </Button>
       </CardFooter>
     </Card>

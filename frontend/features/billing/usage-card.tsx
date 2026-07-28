@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Gauge } from "lucide-react"
 import type { SubscriptionUsage } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +19,7 @@ interface UsageCardProps {
 }
 
 export function UsageCard({ subscription }: UsageCardProps) {
+  const t = useTranslations("billing.usage")
   const { leadsUsed, monthlyLeadQuota, remaining, plan } = subscription
   const percentage =
     monthlyLeadQuota > 0
@@ -29,10 +31,13 @@ export function UsageCard({ subscription }: UsageCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Gauge className="h-4 w-4 text-primary" />
-          Leads this month
+          {t("title")}
         </CardTitle>
         <CardDescription>
-          {leadsUsed.toLocaleString()} of {monthlyLeadQuota.toLocaleString()} leads used
+          {t("used", {
+            used: leadsUsed.toLocaleString(),
+            quota: monthlyLeadQuota.toLocaleString(),
+          })}
         </CardDescription>
         <CardAction>
           <Badge variant="secondary" className="capitalize">
@@ -43,10 +48,10 @@ export function UsageCard({ subscription }: UsageCardProps) {
       <CardContent className="space-y-2">
         <Progress
           value={percentage}
-          aria-label={`${percentage}% of the monthly lead quota used`}
+          aria-label={t("progressAria", { percentage })}
         />
         <p className="text-sm text-muted-foreground">
-          {remaining.toLocaleString()} {remaining === 1 ? "lead" : "leads"} remaining
+          {t("remaining", { remaining })}
         </p>
       </CardContent>
     </Card>

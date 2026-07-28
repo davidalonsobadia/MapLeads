@@ -12,12 +12,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Download, List, Loader2, MapPin, Users } from "lucide-react"
 
 import type { Lead } from "@/lib/types"
 import { config } from "@/lib/config"
 import {
   getLeadStatusStyle,
+  LEAD_STATUS_STYLES,
   LEAD_STATUSES,
   type LeadStatus,
 } from "@/lib/lead-status"
@@ -68,6 +70,7 @@ function formatDate(iso: string) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations("leads.status")
   const style = getLeadStatusStyle(status)
   return (
     <Badge variant="secondary" className={cn("gap-1.5", style.badgeClass)}>
@@ -75,7 +78,7 @@ function StatusBadge({ status }: { status: string }) {
         className={cn("h-1.5 w-1.5 rounded-full", style.dotClass)}
         aria-hidden="true"
       />
-      {style.label}
+      {t(status in LEAD_STATUS_STYLES ? status : "new")}
     </Badge>
   )
 }
@@ -88,6 +91,8 @@ function safeHref(website?: string) {
 
 export function LeadsTable({ projectId }: LeadsTableProps) {
   const router = useRouter()
+  const t = useTranslations("leads.table")
+  const tStatus = useTranslations("leads.status")
 
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
@@ -124,17 +129,17 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
       const result = await leadsApi.list(projectId, filters)
       if (current !== requestId.current) return
       if (!result.success) {
-        setError(result.message || "Failed to load saved leads.")
+        setError(result.message || t("loadFailed"))
         return
       }
       setLeads(result.leads ?? [])
     } catch {
       if (current !== requestId.current) return
-      setError("Failed to load saved leads.")
+      setError(t("loadFailed"))
     } finally {
       if (current === requestId.current) setLoading(false)
     }
-  }, [projectId, filters])
+  }, [projectId, filters, t])
 
   useEffect(() => {
     load()
@@ -185,14 +190,14 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]" aria-label="Filter by status">
-            <SelectValue placeholder="All statuses" />
+          <SelectTrigger className="w-[180px]" aria-label={t("filterByStatus")}>
+            <SelectValue placeholder={t("allStatuses")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_STATUSES}>All statuses</SelectItem>
+            <SelectItem value={ALL_STATUSES}>{t("allStatuses")}</SelectItem>
             {LEAD_STATUSES.map((status: LeadStatus) => (
               <SelectItem key={status} value={status}>
-                {getLeadStatusStyle(status).label}
+                {tStatus(status)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -201,9 +206,9 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
         <Input
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
-          placeholder="Search by name…"
+          placeholder={t("searchPlaceholder")}
           className="h-10 max-w-xs flex-1"
-          aria-label="Search leads by name"
+          aria-label={t("searchAria")}
         />
 
         <div className="ml-auto flex items-center gap-2">
@@ -214,12 +219,12 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
             onValueChange={(value) => {
               if (value === "list" || value === "map") setView(value)
             }}
-            aria-label="Toggle list or map view"
+            aria-label={t("viewToggleAria")}
           >
-            <ToggleGroupItem value="list" aria-label="List view">
+            <ToggleGroupItem value="list" aria-label={t("listView")}>
               <List className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem value="map" aria-label="Map view">
+            <ToggleGroupItem value="map" aria-label={t("mapView")}>
               <MapPin className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>
@@ -228,15 +233,15 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" disabled={leads.length === 0}>
                 <Download className="mr-2 h-4 w-4" />
-                Export
+                {t("export")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleExport("csv")}>
-                Export as CSV
+                {t("exportCsv")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                Export as Excel (XLSX)
+                {t("exportXlsx")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -255,12 +260,12 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
         <div className="rounded-lg border border-dashed py-16 text-center">
           <Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <h3 className="text-lg font-semibold">
-            {hasFilters ? "No leads match your filters" : "No saved leads yet"}
+            {hasFilters ? t("emptyFilteredTitle") : t("emptyTitle")}
           </h3>
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
             {hasFilters
-              ? "Try a different status or search term."
-              : "Save results from a search to start building this project's list."}
+              ? t("emptyFilteredDescription")
+              : t("emptyDescription")}
           </p>
         </div>
       ) : view === "map" ? (
@@ -274,8 +279,10 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
           </div>
           {markers.length < leads.length && (
             <p className="text-xs text-muted-foreground">
-              {leads.length - markers.length} of {leads.length} leads have no
-              location and are not shown on the map.
+              {t("mapMissingLocation", {
+                missing: leads.length - markers.length,
+                total: leads.length,
+              })}
             </p>
           )}
         </div>
@@ -284,13 +291,15 @@ export function LeadsTable({ projectId }: LeadsTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Website</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Date saved</TableHead>
+                <TableHead>{t("columns.name")}</TableHead>
+                <TableHead>{t("columns.address")}</TableHead>
+                <TableHead>{t("columns.phone")}</TableHead>
+                <TableHead>{t("columns.website")}</TableHead>
+                <TableHead>{t("columns.category")}</TableHead>
+                <TableHead>{t("columns.status")}</TableHead>
+                <TableHead className="text-right">
+                  {t("columns.dateSaved")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

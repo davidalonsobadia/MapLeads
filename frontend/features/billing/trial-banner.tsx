@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Clock } from "lucide-react"
 import type { SubscriptionUsage } from "@/lib/types"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -13,6 +14,8 @@ interface TrialBannerProps {
  * Renders nothing for any other status.
  */
 export function TrialBanner({ subscription }: TrialBannerProps) {
+  const t = useTranslations("billing.trial")
+
   if (subscription.status !== "trialing") {
     return null
   }
@@ -23,14 +26,9 @@ export function TrialBanner({ subscription }: TrialBannerProps) {
     <Alert>
       <Clock className="h-4 w-4" />
       <AlertTitle>
-        {daysLeft === 0
-          ? "Your free trial ends today"
-          : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left in your free trial`}
+        {daysLeft === 0 ? t("endsToday") : t("daysLeft", { days: daysLeft })}
       </AlertTitle>
-      <AlertDescription>
-        Enjoy full access during your trial. Upgrade any time to keep saving leads without
-        interruption.
-      </AlertDescription>
+      <AlertDescription>{t("description")}</AlertDescription>
     </Alert>
   )
 }
