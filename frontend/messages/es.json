@@ -338,5 +338,56 @@
         "results": "Resultados"
       }
     }
+  },
+  "leads": {
+    "backToProject": "Volver al proyecto",
+    "loadFailed": "No se pudo cargar el lead.",
+    "notFound": "Lead no encontrado.",
+    "businessDetails": {
+      "title": "Detalles del negocio",
+      "name": "Nombre",
+      "category": "Categoría",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "website": "Sitio web"
+    },
+    "tracking": {
+      "title": "Seguimiento",
+      "statusLabel": "Estado",
+      "linkedinLabel": "URL de LinkedIn",
+      "linkedinPlaceholder": "https://www.linkedin.com/in/…",
+      "save": "Guardar",
+      "openProfile": "Abrir perfil"
+    },
+    "status": {
+      "new": "Nuevo",
+      "contacted": "Contactado",
+      "interested": "Interesado",
+      "discarded": "Descartado"
+    },
+    "notes": {
+      "title": "Notas y recordatorios",
+      "entryTypeAria": "Tipo de entrada",
+      "type": {
+        "note": "Nota",
+        "reminder": "Recordatorio"
+      },
+      "notePlaceholder": "Añade una nota sobre este lead…",
+      "reminderPlaceholder": "¿De qué necesitas hacer seguimiento?",
+      "reminderDateLabel": "Fecha del recordatorio",
+      "addNote": "Añadir nota",
+      "addReminder": "Añadir recordatorio",
+      "empty": "Aún no hay notas ni recordatorios.",
+      "overdue": "Vencido {relative}",
+      "due": "Vence {relative}"
+    },
+    "errors": {
+      "updateStatus": "No se pudo actualizar el estado.",
+      "saveLinkedin": "No se pudo guardar la URL de LinkedIn.",
+      "network": "Error de red: inténtalo de nuevo.",
+      "addNote": "No se pudo añadir la nota.",
+      "emptyNote": "Escribe algo primero.",
+      "missingReminderDate": "Elige una fecha para el recordatorio."
+    }
   }
 }

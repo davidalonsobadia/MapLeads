@@ -9,6 +9,7 @@
 // overdue/upcoming visual warning computed with `date-fns`.
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useTranslations } from "next-intl"
 import {
   differenceInCalendarDays,
   format,
@@ -30,6 +31,7 @@ import {
 import type { Lead, LeadNote } from "@/lib/types"
 import {
   getLeadStatusStyle,
+  LEAD_STATUS_STYLES,
   LEAD_STATUSES,
   type LeadStatus,
 } from "@/lib/lead-status"
@@ -66,6 +68,7 @@ function safeHref(url?: string) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations("leads.status")
   const style = getLeadStatusStyle(status)
   return (
     <Badge variant="secondary" className={cn("gap-1.5", style.badgeClass)}>
@@ -73,7 +76,7 @@ function StatusBadge({ status }: { status: string }) {
         className={cn("h-1.5 w-1.5 rounded-full", style.dotClass)}
         aria-hidden="true"
       />
-      {style.label}
+      {t(status in LEAD_STATUS_STYLES ? status : "new")}
     </Badge>
   )
 }
@@ -111,6 +114,7 @@ function DataRow({
 }
 
 function ReminderWarning({ date }: { date: Date }) {
+  const t = useTranslations("leads.notes")
   const state = reminderState(date)
   if (state === "future") return null
 
@@ -126,12 +130,13 @@ function ReminderWarning({ date }: { date: Date }) {
       )}
     >
       <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-      {overdue ? `Overdue ${relative}` : `Due ${relative}`}
+      {overdue ? t("overdue", { relative }) : t("due", { relative })}
     </span>
   )
 }
 
 function TimelineEntry({ note }: { note: LeadNote }) {
+  const t = useTranslations("leads.notes")
   const isReminder = note.type === "reminder"
   const reminderDate = note.reminderDate ? parseISO(note.reminderDate) : null
 
@@ -148,7 +153,7 @@ function TimelineEntry({ note }: { note: LeadNote }) {
       </span>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium">
-          {isReminder ? "Reminder" : "Note"}
+          {isReminder ? t("type.reminder") : t("type.note")}
         </span>
         {isReminder && reminderDate && (
           <>
@@ -168,6 +173,7 @@ function TimelineEntry({ note }: { note: LeadNote }) {
 }
 
 export function LeadDetail({ leadId }: LeadDetailProps) {
+  const t = useTranslations("leads")
   const [lead, setLead] = useState<Lead | null>(null)
   const [notes, setNotes] = useState<LeadNote[]>([])
   const [loading, setLoading] = useState(true)
@@ -195,18 +201,18 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
         leadsApi.listNotes(leadId),
       ])
       if (!leadResult.success || !leadResult.lead) {
-        setError(leadResult.message || "Failed to load the lead.")
+        setError(leadResult.message || t("loadFailed"))
         return
       }
       setLead(leadResult.lead)
       setLinkedin(leadResult.lead.linkedinUrl ?? "")
       if (notesResult.success) setNotes(notesResult.notes ?? [])
     } catch {
-      setError("Failed to load the lead.")
+      setError(t("loadFailed"))
     } finally {
       setLoading(false)
     }
-  }, [leadId])
+  }, [leadId, t])
 
   useEffect(() => {
     load()
@@ -220,17 +226,17 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
       try {
         const result = await leadsApi.update(leadId, { status })
         if (!result.success || !result.lead) {
-          setFieldError(result.message || "Failed to update status.")
+          setFieldError(result.message || t("errors.updateStatus"))
           return
         }
         setLead(result.lead)
       } catch {
-        setFieldError("Network error — please try again.")
+        setFieldError(t("errors.network"))
       } finally {
         setSavingStatus(false)
       }
     },
-    [lead, leadId],
+    [lead, leadId, t],
   )
 
   const handleSaveLinkedin = useCallback(async () => {
@@ -241,28 +247,28 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
     try {
       const result = await leadsApi.update(leadId, { linkedinUrl: trimmed })
       if (!result.success || !result.lead) {
-        setFieldError(result.message || "Failed to save LinkedIn URL.")
+        setFieldError(result.message || t("errors.saveLinkedin"))
         return
       }
       setLead(result.lead)
       setLinkedin(result.lead.linkedinUrl ?? "")
     } catch {
-      setFieldError("Network error — please try again.")
+      setFieldError(t("errors.network"))
     } finally {
       setSavingLinkedin(false)
     }
-  }, [lead, leadId, linkedin])
+  }, [lead, leadId, linkedin, t])
 
   const handleAddNote = useCallback(
     async (event: React.FormEvent) => {
       event.preventDefault()
       const content = noteContent.trim()
       if (!content) {
-        setNoteError("Please write something first.")
+        setNoteError(t("errors.emptyNote"))
         return
       }
       if (noteType === "reminder" && !reminderDate) {
-        setNoteError("Pick a date for the reminder.")
+        setNoteError(t("errors.missingReminderDate"))
         return
       }
       setAddingNote(true)
@@ -278,7 +284,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
           reminderDate: noteType === "reminder" ? reminderDate : null,
         })
         if (!result.success || !result.note) {
-          setNoteError(result.message || "Failed to add the note.")
+          setNoteError(result.message || t("errors.addNote"))
           return
         }
         // Backend returns notes newest-first; prepend the new one to match.
@@ -287,12 +293,12 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
         setReminderDate("")
         setNoteType("note")
       } catch {
-        setNoteError("Network error — please try again.")
+        setNoteError(t("errors.network"))
       } finally {
         setAddingNote(false)
       }
     },
-    [leadId, noteType, noteContent, reminderDate],
+    [leadId, noteType, noteContent, reminderDate, t],
   )
 
   const linkedinDirty = useMemo(
@@ -311,7 +317,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
   if (error || !lead) {
     return (
       <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-        {error || "Lead not found."}
+        {error || t("notFound")}
       </div>
     )
   }
@@ -331,22 +337,33 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Business details</CardTitle>
+              <CardTitle className="text-base">
+                {t("businessDetails.title")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <DataRow label="Name">{lead.name}</DataRow>
-              <DataRow icon={<Tag className="h-3 w-3" />} label="Category">
+              <DataRow label={t("businessDetails.name")}>{lead.name}</DataRow>
+              <DataRow
+                icon={<Tag className="h-3 w-3" />}
+                label={t("businessDetails.category")}
+              >
                 {lead.category ?? "—"}
               </DataRow>
-              <DataRow label="Address" icon={<MapPin className="h-3 w-3" />}>
+              <DataRow
+                label={t("businessDetails.address")}
+                icon={<MapPin className="h-3 w-3" />}
+              >
                 {lead.address ?? "—"}
               </DataRow>
-              <DataRow icon={<Phone className="h-3 w-3" />} label="Phone">
+              <DataRow
+                icon={<Phone className="h-3 w-3" />}
+                label={t("businessDetails.phone")}
+              >
                 {lead.phone ?? "—"}
               </DataRow>
               <DataRow
                 icon={<ExternalLink className="h-3 w-3" />}
-                label="Website"
+                label={t("businessDetails.website")}
               >
                 {lead.website ? (
                   websiteHref ? (
@@ -370,11 +387,11 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tracking</CardTitle>
+              <CardTitle className="text-base">{t("tracking.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-2">
-                <Label htmlFor="lead-status">Status</Label>
+                <Label htmlFor="lead-status">{t("tracking.statusLabel")}</Label>
                 <div className="flex items-center gap-2">
                   <Select
                     value={lead.status}
@@ -387,7 +404,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                     <SelectContent>
                       {LEAD_STATUSES.map((status: LeadStatus) => (
                         <SelectItem key={status} value={status}>
-                          {getLeadStatusStyle(status).label}
+                          {t(`status.${status}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -399,7 +416,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="lead-linkedin">LinkedIn URL</Label>
+                <Label htmlFor="lead-linkedin">{t("tracking.linkedinLabel")}</Label>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="relative flex-1">
                     <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -407,7 +424,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                       id="lead-linkedin"
                       type="url"
                       inputMode="url"
-                      placeholder="https://www.linkedin.com/in/…"
+                      placeholder={t("tracking.linkedinPlaceholder")}
                       value={linkedin}
                       onChange={(event) => setLinkedin(event.target.value)}
                       className="pl-9"
@@ -421,7 +438,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                     {savingLinkedin && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Save
+                    {t("tracking.save")}
                   </Button>
                 </div>
                 {linkedinHref && (
@@ -431,7 +448,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                     rel="noopener noreferrer"
                     className="inline-flex w-fit items-center gap-1 text-xs text-primary hover:underline"
                   >
-                    Open profile
+                    {t("tracking.openProfile")}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
@@ -447,7 +464,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
         {/* Notes & reminders timeline */}
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle className="text-base">Notes &amp; reminders</CardTitle>
+            <CardTitle className="text-base">{t("notes.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleAddNote} className="space-y-3">
@@ -459,10 +476,14 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                   if (value === "note" || value === "reminder") setNoteType(value)
                 }}
                 className="justify-start"
-                aria-label="Entry type"
+                aria-label={t("notes.entryTypeAria")}
               >
-                <ToggleGroupItem value="note">Note</ToggleGroupItem>
-                <ToggleGroupItem value="reminder">Reminder</ToggleGroupItem>
+                <ToggleGroupItem value="note">
+                  {t("notes.type.note")}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="reminder">
+                  {t("notes.type.reminder")}
+                </ToggleGroupItem>
               </ToggleGroup>
 
               <Textarea
@@ -470,8 +491,8 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                 onChange={(event) => setNoteContent(event.target.value)}
                 placeholder={
                   noteType === "reminder"
-                    ? "What do you need to follow up on?"
-                    : "Add a note about this lead…"
+                    ? t("notes.reminderPlaceholder")
+                    : t("notes.notePlaceholder")
                 }
                 rows={3}
               />
@@ -479,7 +500,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
               {noteType === "reminder" && (
                 <div className="grid gap-1.5">
                   <Label htmlFor="reminder-date" className="text-xs">
-                    Reminder date
+                    {t("notes.reminderDateLabel")}
                   </Label>
                   <Input
                     id="reminder-date"
@@ -501,7 +522,9 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                 ) : (
                   <MessageSquarePlus className="mr-2 h-4 w-4" />
                 )}
-                Add {noteType === "reminder" ? "reminder" : "note"}
+                {noteType === "reminder"
+                  ? t("notes.addReminder")
+                  : t("notes.addNote")}
               </Button>
             </form>
 
@@ -509,7 +532,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
 
             {notes.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
-                No notes or reminders yet.
+                {t("notes.empty")}
               </p>
             ) : (
               <ul className="space-y-4">
