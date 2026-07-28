@@ -27,6 +27,8 @@ export const config = {
           root: "/api/v1/projects",
           byId: (id: string | number) => `/api/v1/projects/${id}`,
           searches: (id: string | number) => `/api/v1/projects/${id}/searches`,
+          searchById: (id: string | number, searchId: string | number) =>
+            `/api/v1/projects/${id}/searches/${searchId}`,
           leads: (id: string | number) => `/api/v1/projects/${id}/leads`,
           leadsExport: (id: string | number) =>
             `/api/v1/projects/${id}/leads/export`,
@@ -62,6 +64,8 @@ export const config = {
         root: "/api/projects",
         byId: (id: string | number) => `/api/projects/${id}`,
         searches: (id: string | number) => `/api/projects/${id}/searches`,
+        searchById: (id: string | number, searchId: string | number) =>
+          `/api/projects/${id}/searches/${searchId}`,
         leads: (id: string | number) => `/api/projects/${id}/leads`,
         leadsExport: (id: string | number) =>
           `/api/projects/${id}/leads/export`,
