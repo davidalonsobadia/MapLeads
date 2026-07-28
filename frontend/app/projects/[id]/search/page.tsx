@@ -2,6 +2,7 @@
 
 import { use } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { ArrowLeft, MapPin } from "lucide-react"
 
 import { config } from "@/lib/config"
@@ -14,6 +15,7 @@ interface NewSearchPageProps {
 
 export default function NewSearchPage({ params }: NewSearchPageProps) {
   const { id } = use(params)
+  const t = useTranslations("search")
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,7 +28,7 @@ export default function NewSearchPage({ params }: NewSearchPageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href={config.routes.project(id)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to project
+              {t("backToProject")}
             </Link>
           </Button>
         </div>

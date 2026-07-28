@@ -270,5 +270,31 @@
       "rename": "Failed to rename the project.",
       "update": "Failed to update the project."
     }
+  },
+  "search": {
+    "backToProject": "Back to project",
+    "title": "New search",
+    "description": "Search Google Maps for businesses by keyword and location.",
+    "keywordLabel": "Keyword",
+    "keywordPlaceholder": "e.g. dental clinic",
+    "locationLabel": "Location",
+    "tabs": {
+      "text": "Free text",
+      "point": "Point + radius"
+    },
+    "locationTextPlaceholder": "e.g. Chamberí, Madrid",
+    "locationTextHint": "Type a city, region or area.",
+    "submit": "Search",
+    "errors": {
+      "runFailed": "Failed to run the search. Please try again."
+    },
+    "mapPicker": {
+      "centerMarker": "Search center",
+      "center": "Center: {lat}, {lng}",
+      "clickHint": "Click the map to drop a search point.",
+      "radiusLabel": "Radius",
+      "radiusValue": "{km} km",
+      "radiusAria": "Search radius in kilometers"
+    }
   }
 }
