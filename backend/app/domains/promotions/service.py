@@ -10,9 +10,10 @@ from datetime import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.domains.billing import plans
 from app.domains.billing.models import Subscription
-from app.domains.billing.service import SubscriptionService
+from app.domains.billing.service import StripeBillingService, SubscriptionService
 
 from .models import PromoCode, PromoCodeRedemption
 from .schemas import PromoCodeCreate, RedeemResponse
@@ -74,7 +75,9 @@ class PromoCodeService:
         cap-reached → 400; ``target_plan`` mismatch → 400; a repeat redemption by
         the same user → 409. On success a :class:`PromoCodeRedemption` row is
         created, ``used_count`` is incremented, and the local effects are applied
-        per ``discount_type``. No Stripe calls happen here (Task 4).
+        per ``discount_type``. When Stripe is configured the redemption is also
+        mirrored into Stripe (coupon created and applied) so billing actually
+        changes; when unconfigured only the local effects apply.
         """
         normalized = code.strip().upper()
         promo = (
@@ -127,12 +130,19 @@ class PromoCodeService:
                 detail="You have already redeemed this promo code.",
             )
 
-        self.db.add(
-            PromoCodeRedemption(promo_code_id=promo.id, user_id=user_id)
-        )
+        redemption = PromoCodeRedemption(promo_code_id=promo.id, user_id=user_id)
+        self.db.add(redemption)
         promo.used_count += 1
 
         message = self._apply_effects(promo, subscription, now)
+
+        # Mirror the redemption into Stripe so it actually changes what the
+        # customer is billed. Skipped cleanly when Stripe is unconfigured, so
+        # local-only environments and tests still redeem with local effects.
+        if settings.STRIPE_SECRET_KEY:
+            StripeBillingService(self.db).apply_promo_to_subscription(
+                user_id, promo, redemption
+            )
 
         self.db.commit()
         self.db.refresh(subscription)
