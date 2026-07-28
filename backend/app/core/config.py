@@ -23,6 +23,16 @@ class Settings(BaseSettings):
     # Google Maps Platform: Places API (New). Provisioned via env; never hardcode.
     GOOGLE_PLACES_API_KEY: str = ""
 
+    # Social login (OAuth) credentials. Provisioned via env; never hardcode
+    # secrets. Empty defaults mean the provider is unconfigured (the OAuth client
+    # raises ``OAuthUnconfiguredError``) so the app still boots and tests run
+    # without any OAuth credentials. The redirect URI is derived from
+    # ``FRONTEND_URL`` by callers, so no extra setting is needed for it.
+    GOOGLE_OAUTH_CLIENT_ID: str = ""
+    GOOGLE_OAUTH_CLIENT_SECRET: str = ""
+    GITHUB_OAUTH_CLIENT_ID: str = ""
+    GITHUB_OAUTH_CLIENT_SECRET: str = ""
+
     # Stripe billing. Provisioned via env; never hardcode secrets. Empty
     # defaults mean billing is unconfigured (the endpoints return 503) so the
     # app still boots and tests run without any Stripe credentials.
