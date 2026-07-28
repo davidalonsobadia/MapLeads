@@ -402,8 +402,18 @@
         "keyword": "Keyword",
         "location": "Location",
         "date": "Date",
-        "results": "Results"
-      }
+        "results": "Results",
+        "actions": "Actions"
+      },
+      "delete": "Delete",
+      "rowActionsAria": "Actions for {keyword}"
+    },
+    "deleteDialog": {
+      "title": "Delete search “{keyword}”?",
+      "description": "This permanently deletes this search and its saved results. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "error": "Failed to delete the search."
     }
   },
   "leads": {
