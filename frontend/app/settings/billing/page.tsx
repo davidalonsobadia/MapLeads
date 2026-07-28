@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { billingApi } from "@/features/billing/api"
@@ -8,6 +8,7 @@ import { TrialBanner } from "@/features/billing/trial-banner"
 import { UsageCard } from "@/features/billing/usage-card"
 import { PlanSummaryCard } from "@/features/billing/plan-summary-card"
 import { ChangePlanCard } from "@/features/billing/change-plan-card"
+import { RedeemCodeCard } from "@/features/billing/redeem-code-card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { SubscriptionUsage } from "@/lib/types"
 
@@ -27,32 +28,35 @@ export default function BillingSettingsPage() {
   const [pendingPlan, setPendingPlan] = useState<string | null>(null)
   const [managing, setManaging] = useState(false)
 
+  const loadSubscription = useCallback(async () => {
+    try {
+      const result = await billingApi.getSubscription()
+      if (result.success && result.subscription) {
+        setSubscription(result.subscription)
+        setLoadError(null)
+      } else {
+        setLoadError(result.message || t("loadError"))
+      }
+    } catch (error) {
+      console.error("[MapLeads] Load billing error:", error)
+      setLoadError(t("loadError"))
+    }
+  }, [t])
+
   useEffect(() => {
     let active = true
 
     const load = async () => {
-      try {
-        const result = await billingApi.getSubscription()
-        if (!active) return
-
-        if (result.success && result.subscription) {
-          setSubscription(result.subscription)
-        } else {
-          setLoadError(result.message || t("loadError"))
-        }
-      } catch (error) {
-        console.error("[MapLeads] Load billing error:", error)
-        if (active) setLoadError(t("loadError"))
-      } finally {
-        if (active) setLoading(false)
-      }
+      if (!active) return
+      await loadSubscription()
+      if (active) setLoading(false)
     }
 
     load()
     return () => {
       active = false
     }
-  }, [t])
+  }, [loadSubscription])
 
   const handleChoosePlan = async (plan: string) => {
     setActionError(null)
@@ -136,6 +140,8 @@ export default function BillingSettingsPage() {
             onChoosePlan={handleChoosePlan}
             pendingPlan={pendingPlan}
           />
+
+          <RedeemCodeCard onRedeemed={loadSubscription} />
         </>
       )}
     </div>

@@ -15,6 +15,12 @@ interface BillingSessionResult {
   message?: string
 }
 
+interface RedeemResult {
+  success: boolean
+  subscription?: SubscriptionUsage
+  message?: string
+}
+
 export const billingApi = {
   async getSubscription(): Promise<SubscriptionResult> {
     const response = await fetch("/api/subscription")
@@ -33,6 +39,15 @@ export const billingApi = {
   async createPortalSession(): Promise<BillingSessionResult> {
     const response = await fetch("/api/billing/portal-session", {
       method: "POST",
+    })
+    return response.json()
+  },
+
+  async redeemCode(code: string): Promise<RedeemResult> {
+    const response = await fetch("/api/promotions/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
     })
     return response.json()
   },

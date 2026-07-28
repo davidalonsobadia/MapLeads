@@ -539,6 +539,15 @@
           "description": "Proyectos activos ilimitados."
         }
       }
+    },
+    "redeem": {
+      "title": "Canjear un código",
+      "description": "¿Tienes un código promocional? Introdúcelo para activar su beneficio en tu cuenta.",
+      "label": "Código promocional",
+      "placeholder": "Introduce tu código",
+      "submit": "Canjear",
+      "success": "Tu código se canjeó correctamente.",
+      "error": "No pudimos canjear ese código."
     }
   }
 }
