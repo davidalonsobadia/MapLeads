@@ -8,6 +8,7 @@ from app.domains.billing import plans
 from app.domains.billing.models import Subscription
 
 from . import models, schemas, utils
+from .oauth import OAuthUserInfo
 from .tasks import (
     send_password_reset_email_task,
     send_verification_email_task,
@@ -51,13 +52,33 @@ class AuthService:
         self.db.flush()
         self.db.refresh(db_user)
 
-        # Provision a 15-day, no-credit-card trial subscription for the new
-        # user. Exactly one subscription per user; the trial spans the full
-        # trial window.
+        # Provision the shared trial subscription, then commit user + trial
+        # together (single commit: both persist or neither does).
+        self._provision_trial(db_user.id)
+        self.db.commit()
+        self.db.refresh(db_user)
+
+        # Send verification email asynchronously via Celery
+        send_verification_email_task.delay(
+            email=payload.email,
+            name=payload.name,
+            verification_token=verification_token
+        )
+
+        return db_user
+
+    def _provision_trial(self, user_id: int) -> Subscription:
+        """Add a 15-day, no-credit-card trial subscription for ``user_id``.
+
+        The subscription is added to the session but **not** committed, so the
+        caller controls the transaction boundary and can persist the user and
+        its trial in a single atomic commit. Exactly one subscription per user;
+        the trial spans the full trial window.
+        """
         now = datetime.utcnow()
         trial_ends_at = now + timedelta(days=plans.TRIAL_PERIOD_DAYS)
         subscription = Subscription(
-            user_id=db_user.id,
+            user_id=user_id,
             plan=plans.PLAN_TRIAL,
             status=plans.STATUS_TRIALING,
             monthly_lead_quota=plans.TRIAL_LEAD_QUOTA,
@@ -68,17 +89,85 @@ class AuthService:
             read_only=False,
         )
         self.db.add(subscription)
-        # Single commit: the user and its subscription are persisted together
-        # or not at all.
-        self.db.commit()
+        return subscription
+
+    def login_or_create_oauth_user(
+        self, provider: str, info: OAuthUserInfo
+    ) -> models.User:
+        """Resolve a normalized provider identity to a MapLeads user.
+
+        Implements the epic's link-or-create rules:
+
+        1. An existing ``OAuthAccount`` for ``(provider, provider_account_id)``
+           logs the linked user straight in.
+        2. A verified provider email that matches an existing user links a new
+           ``OAuthAccount`` to that user (no duplicate user).
+        3. A verified provider email with no matching user creates a new
+           OAuth-only user (``hashed_password=None``, ``is_verified=True``), its
+           ``OAuthAccount`` and a trial subscription, all in one commit.
+        4. An unverified (or missing) provider email is rejected with 400; no
+           user/account/subscription is written.
+
+        This method is HTTP-free apart from that 400: the router mints the JWT.
+        """
+        # 1. Existing link -> straight login.
+        existing_account = self.db.query(models.OAuthAccount).filter(
+            models.OAuthAccount.provider == provider,
+            models.OAuthAccount.provider_account_id == info.provider_account_id,
+        ).first()
+        if existing_account:
+            return self.db.query(models.User).filter(
+                models.User.id == existing_account.user_id
+            ).first()
+
+        # The provider must vouch for the email before we link or create; an
+        # unverified email could be attacker-controlled and hijack an account.
+        if not info.email_verified or not info.email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Your {provider} email is not verified; verify it with "
+                    f"{provider} and try again."
+                ),
+            )
+
+        # 2. Verified email matching an existing user -> link that user.
+        existing_user = self.db.query(models.User).filter(
+            models.User.email == info.email
+        ).first()
+        if existing_user:
+            oauth_account = models.OAuthAccount(
+                user_id=existing_user.id,
+                provider=provider,
+                provider_account_id=info.provider_account_id,
+            )
+            self.db.add(oauth_account)
+            self.db.commit()
+            self.db.refresh(existing_user)
+            return existing_user
+
+        # 3. Verified email, no existing user -> create user + link + trial.
+        db_user = models.User(
+            name=info.name,
+            email=info.email,
+            hashed_password=None,
+            is_verified=True,
+        )
+        self.db.add(db_user)
+        # Flush so the generated id is available for the OAuthAccount and the
+        # trial subscription; the single commit below keeps them atomic.
+        self.db.flush()
         self.db.refresh(db_user)
 
-        # Send verification email asynchronously via Celery
-        send_verification_email_task.delay(
-            email=payload.email,
-            name=payload.name,
-            verification_token=verification_token
+        oauth_account = models.OAuthAccount(
+            user_id=db_user.id,
+            provider=provider,
+            provider_account_id=info.provider_account_id,
         )
+        self.db.add(oauth_account)
+        self._provision_trial(db_user.id)
+        self.db.commit()
+        self.db.refresh(db_user)
 
         return db_user
 
