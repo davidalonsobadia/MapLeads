@@ -19,6 +19,11 @@ interface SearchRunResult {
   message?: string
 }
 
+interface SearchDeleteResult {
+  success: boolean
+  message?: string
+}
+
 export const searchApi = {
   async history(projectId: string): Promise<SearchHistoryResult> {
     const response = await fetch(`/api/projects/${projectId}/searches`)
@@ -34,6 +39,24 @@ export const searchApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
+    return response.json()
+  },
+
+  async get(projectId: string, searchId: string): Promise<SearchRunResult> {
+    const response = await fetch(
+      `/api/projects/${projectId}/searches/${searchId}`,
+    )
+    return response.json()
+  },
+
+  async remove(
+    projectId: string,
+    searchId: string,
+  ): Promise<SearchDeleteResult> {
+    const response = await fetch(
+      `/api/projects/${projectId}/searches/${searchId}`,
+      { method: "DELETE" },
+    )
     return response.json()
   },
 }
