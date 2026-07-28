@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { FolderPlus, Loader2, Plus } from "lucide-react"
+import { useTranslations } from "next-intl"
 import type { Project } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -18,6 +19,7 @@ interface ProjectsListProps {
 }
 
 export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
+  const t = useTranslations("projects")
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,16 +35,16 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
     try {
       const result = await projectsApi.list(includeArchived)
       if (!result.success) {
-        setError(result.message || "Failed to load projects.")
+        setError(result.message || t("errors.load"))
         return
       }
       setProjects(result.projects ?? [])
     } catch {
-      setError("Failed to load projects.")
+      setError(t("errors.load"))
     } finally {
       setLoading(false)
     }
-  }, [includeArchived])
+  }, [includeArchived, t])
 
   useEffect(() => {
     load()
@@ -51,7 +53,7 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
   const handleCreate = async (name: string) => {
     const result = await projectsApi.create(name)
     if (!result.success) {
-      throw new Error(result.message || "Failed to create the project.")
+      throw new Error(result.message || t("errors.create"))
     }
     await load()
   }
@@ -60,7 +62,7 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
     if (!renameTarget) return
     const result = await projectsApi.update(renameTarget.id, { name })
     if (!result.success) {
-      throw new Error(result.message || "Failed to rename the project.")
+      throw new Error(result.message || t("errors.rename"))
     }
     await load()
   }
@@ -68,7 +70,7 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
   const handleToggleArchive = async (project: Project) => {
     const result = await projectsApi.update(project.id, { archived: !project.archived })
     if (!result.success) {
-      setError(result.message || "Failed to update the project.")
+      setError(result.message || t("errors.update"))
       return
     }
     await load()
@@ -78,7 +80,7 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
     if (!deleteTarget) return
     const result = await projectsApi.remove(deleteTarget.id)
     if (!result.success) {
-      throw new Error(result.message || "Failed to delete the project.")
+      throw new Error(result.message || t("errors.delete"))
     }
     await load()
   }
@@ -87,9 +89,9 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
     <section>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Projects</h1>
+          <h1 className="text-2xl font-semibold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Group your searches and leads by client.
+            {t("subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -100,12 +102,12 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
               onCheckedChange={setIncludeArchived}
             />
             <Label htmlFor="show-archived" className="text-sm text-muted-foreground">
-              Show archived
+              {t("showArchived")}
             </Label>
           </div>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            New project
+            {t("newProject")}
           </Button>
         </div>
       </div>
@@ -123,13 +125,13 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
       ) : projects.length === 0 ? (
         <div className="rounded-lg border border-dashed py-16 text-center">
           <FolderPlus className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">No projects yet</h2>
+          <h2 className="text-lg font-semibold">{t("empty.title")}</h2>
           <p className="mx-auto mt-1 mb-6 max-w-sm text-sm text-muted-foreground">
-            Create your first project to start organizing lead searches by client.
+            {t("empty.description")}
           </p>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            New project
+            {t("newProject")}
           </Button>
         </div>
       ) : (

@@ -195,5 +195,80 @@
         }
       }
     }
+  },
+  "dashboard": {
+    "usage": {
+      "title": "Leads this month",
+      "unavailable": "Usage is unavailable right now."
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "description": "Start something new.",
+      "newProject": "New project",
+      "newSearch": "New search"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Group your searches and leads by client.",
+    "showArchived": "Show archived",
+    "newProject": "New project",
+    "archivedBadge": "Archived",
+    "createdAt": "Created {date}",
+    "empty": {
+      "title": "No projects yet",
+      "description": "Create your first project to start organizing lead searches by client."
+    },
+    "actionsFor": "Actions for {name}",
+    "rename": "Rename",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "delete": "Delete",
+    "errors": {
+      "load": "Failed to load projects.",
+      "create": "Failed to create the project.",
+      "rename": "Failed to rename the project.",
+      "update": "Failed to update the project.",
+      "delete": "Failed to delete the project."
+    },
+    "dialog": {
+      "createTitle": "New project",
+      "renameTitle": "Rename project",
+      "createDescription": "Create a project to group its searches and leads.",
+      "renameDescription": "Give this project a new name.",
+      "nameLabel": "Project name",
+      "namePlaceholder": "e.g. Dental clinics — Madrid",
+      "cancel": "Cancel",
+      "create": "Create",
+      "save": "Save",
+      "nameRequired": "Project name is required.",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "deleteDialog": {
+      "title": "Delete “{name}”?",
+      "description": "This permanently deletes the project along with its searches and saved leads. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "error": "Failed to delete the project."
+    }
+  },
+  "projectView": {
+    "backToDashboard": "Back to dashboard",
+    "archivedBadge": "Archived",
+    "newSearch": "New search",
+    "actions": "Project actions",
+    "rename": "Rename",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "tabs": {
+      "searches": "Searches",
+      "leads": "Saved leads"
+    },
+    "errors": {
+      "load": "Failed to load the project.",
+      "notFound": "Project not found.",
+      "rename": "Failed to rename the project.",
+      "update": "Failed to update the project."
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 import { use, useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import {
   Archive,
   ArchiveRestore,
@@ -34,6 +35,7 @@ interface ProjectViewPageProps {
 
 export default function ProjectViewPage({ params }: ProjectViewPageProps) {
   const { id } = use(params)
+  const t = useTranslations("projectView")
 
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
@@ -46,16 +48,16 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
     try {
       const result = await projectsApi.get(id)
       if (!result.success || !result.project) {
-        setError(result.message || "Failed to load the project.")
+        setError(result.message || t("errors.load"))
         return
       }
       setProject(result.project)
     } catch {
-      setError("Failed to load the project.")
+      setError(t("errors.load"))
     } finally {
       setLoading(false)
     }
-  }, [id])
+  }, [id, t])
 
   useEffect(() => {
     load()
@@ -64,7 +66,7 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
   const handleRename = async (name: string) => {
     const result = await projectsApi.update(id, { name })
     if (!result.success || !result.project) {
-      throw new Error(result.message || "Failed to rename the project.")
+      throw new Error(result.message || t("errors.rename"))
     }
     setProject(result.project)
   }
@@ -73,7 +75,7 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
     if (!project) return
     const result = await projectsApi.update(id, { archived: !project.archived })
     if (!result.success || !result.project) {
-      setError(result.message || "Failed to update the project.")
+      setError(result.message || t("errors.update"))
       return
     }
     setProject(result.project)
@@ -90,7 +92,7 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href={config.routes.dashboard}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to dashboard
+              {t("backToDashboard")}
             </Link>
           </Button>
         </div>
@@ -103,43 +105,43 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
           </div>
         ) : error || !project ? (
           <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error || "Project not found."}
+            {error || t("errors.notFound")}
           </div>
         ) : (
           <>
             <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-semibold">{project.name}</h1>
-                {project.archived && <Badge variant="secondary">Archived</Badge>}
+                {project.archived && <Badge variant="secondary">{t("archivedBadge")}</Badge>}
               </div>
               <div className="flex items-center gap-2">
                 <Button asChild>
                   <Link href={config.routes.newSearch(id)}>
                     <Search className="mr-2 h-4 w-4" />
-                    New search
+                    {t("newSearch")}
                   </Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" aria-label="Project actions">
+                    <Button variant="outline" size="icon" aria-label={t("actions")}>
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setRenameOpen(true)}>
                       <Pencil className="mr-2 h-4 w-4" />
-                      Rename
+                      {t("rename")}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleToggleArchive}>
                       {project.archived ? (
                         <>
                           <ArchiveRestore className="mr-2 h-4 w-4" />
-                          Unarchive
+                          {t("unarchive")}
                         </>
                       ) : (
                         <>
                           <Archive className="mr-2 h-4 w-4" />
-                          Archive
+                          {t("archive")}
                         </>
                       )}
                     </DropdownMenuItem>
@@ -150,8 +152,8 @@ export default function ProjectViewPage({ params }: ProjectViewPageProps) {
 
             <Tabs defaultValue="searches">
               <TabsList>
-                <TabsTrigger value="searches">Searches</TabsTrigger>
-                <TabsTrigger value="leads">Saved leads</TabsTrigger>
+                <TabsTrigger value="searches">{t("tabs.searches")}</TabsTrigger>
+                <TabsTrigger value="leads">{t("tabs.leads")}</TabsTrigger>
               </TabsList>
               <TabsContent value="searches" className="mt-6">
                 <SearchHistory projectId={id} />
