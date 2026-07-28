@@ -206,6 +206,24 @@
       "description": "Empieza algo nuevo.",
       "newProject": "Nuevo proyecto",
       "newSearch": "Nueva búsqueda"
+    },
+    "roadmap": {
+      "title": "Novedades en camino",
+      "description": "Un adelanto de las funcionalidades que estamos construyendo para MapLeads. No tienes que hacer nada ahora: te avisaremos cuando cada una esté lista.",
+      "items": {
+        "linkedin": {
+          "title": "Integración con LinkedIn",
+          "description": "Conecta los clientes potenciales guardados con sus perfiles de LinkedIn y llega directamente a quienes deciden."
+        },
+        "enrichment": {
+          "title": "Datos más completos",
+          "description": "Más información de contacto y de empresa añadida automáticamente a cada cliente potencial que guardes."
+        },
+        "outreach": {
+          "title": "Seguimiento guiado",
+          "description": "Herramientas para ayudarte a hacer seguimiento y convertir tus clientes potenciales en conversaciones."
+        }
+      }
     }
   },
   "projects": {
