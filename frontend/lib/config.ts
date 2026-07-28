@@ -18,6 +18,10 @@ export const config = {
           forgotPassword: "/api/v1/auth/forgot-password",
           resetPassword: "/api/v1/auth/reset-password",
           me: "/api/v1/auth/me",
+          oauthAuthorize: (provider: string) =>
+            `/api/v1/auth/oauth/${provider}/authorize`,
+          oauthCallback: (provider: string) =>
+            `/api/v1/auth/oauth/${provider}/callback`,
         },
         projects: {
           root: "/api/v1/projects",
@@ -52,6 +56,7 @@ export const config = {
         forgotPassword: "/api/auth/forgot-password",
         resetPassword: "/api/auth/reset-password",
         me: "/api/auth/me",
+        oauthStart: (provider: string) => `/api/auth/oauth/${provider}/start`,
       },
       projects: {
         root: "/api/projects",
