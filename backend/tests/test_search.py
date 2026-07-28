@@ -197,6 +197,185 @@ def test_history_newest_first_and_ownership(client, use_places_client, test_user
     )
 
 
+def test_get_search_returns_stored_snapshot_and_recomputes_saved(
+    client, use_places_client, test_user, db_session
+):
+    use_places_client(results=[_place("p1"), _place("p2")])
+    project_id = _create_project(client)
+
+    run = client.post(
+        f"{PROJECTS}/{project_id}/searches",
+        json={"keyword": "coffee", "location_type": "text", "location_text": "Berlin"},
+    ).json()
+    search_id = run["search_id"]
+
+    # Viewing the stored search returns the snapshotted results and counts.
+    response = client.get(f"{PROJECTS}/{project_id}/searches/{search_id}")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["search_id"] == search_id
+    assert body["result_count"] == 2
+    assert body["already_saved_count"] == 0
+    assert [r["place_id"] for r in body["results"]] == ["p1", "p2"]
+    assert all(r["already_saved"] is False for r in body["results"])
+
+    # Save p1 as a lead *after* the search ran, then re-view: it flips to saved.
+    db_session.add(
+        Lead(project_id=project_id, user_id=test_user.id, place_id="p1", name="Alpha")
+    )
+    db_session.commit()
+
+    body = client.get(f"{PROJECTS}/{project_id}/searches/{search_id}").json()
+    assert body["already_saved_count"] == 1
+    saved_flags = {r["place_id"]: r["already_saved"] for r in body["results"]}
+    assert saved_flags == {"p1": True, "p2": False}
+
+
+def test_get_search_legacy_row_returns_empty_results(
+    client, use_places_client, test_user, db_session
+):
+    use_places_client(results=[])
+    project_id = _create_project(client)
+
+    # A legacy row written before snapshots: results NULL, result_count > 0.
+    from app.domains.search.models import Search
+
+    legacy = Search(
+        project_id=project_id,
+        user_id=test_user.id,
+        keyword="old",
+        location_type="text",
+        params={"location_text": "Berlin"},
+        result_count=5,
+        results=None,
+    )
+    db_session.add(legacy)
+    db_session.commit()
+
+    body = client.get(f"{PROJECTS}/{project_id}/searches/{legacy.id}").json()
+    assert body["result_count"] == 5
+    assert body["results"] == []
+    assert body["already_saved_count"] == 0
+
+
+def test_get_search_ownership_returns_404(client, use_places_client, db_session):
+    use_places_client(results=[_place("p1")])
+    project_id = _create_project(client)
+    run = client.post(
+        f"{PROJECTS}/{project_id}/searches",
+        json={"keyword": "coffee", "location_type": "text", "location_text": "Berlin"},
+    ).json()
+    search_id = run["search_id"]
+
+    # Another user's project holding its own search.
+    other = User(
+        name="Other",
+        email="other@example.com",
+        hashed_password="x",
+        is_verified=True,
+    )
+    db_session.add(other)
+    db_session.commit()
+    other_project = Project(user_id=other.id, name="Theirs")
+    db_session.add(other_project)
+    db_session.commit()
+
+    from app.domains.search.models import Search
+
+    other_search = Search(
+        project_id=other_project.id,
+        user_id=other.id,
+        keyword="secret",
+        location_type="text",
+        params={"location_text": "Z"},
+        result_count=1,
+        results=[_place("s1")],
+    )
+    db_session.add(other_search)
+    db_session.commit()
+
+    # The owned search is not reachable under someone else's project.
+    assert (
+        client.get(f"{PROJECTS}/{other_project.id}/searches/{search_id}").status_code
+        == 404
+    )
+    # Another user's search is not reachable at all.
+    assert (
+        client.get(
+            f"{PROJECTS}/{other_project.id}/searches/{other_search.id}"
+        ).status_code
+        == 404
+    )
+    # A non-existent search id under an owned project is a 404.
+    assert client.get(f"{PROJECTS}/{project_id}/searches/999999").status_code == 404
+
+
+def test_delete_search_removes_row_and_is_idempotent_404(
+    client, use_places_client, db_session
+):
+    use_places_client(results=[_place("p1")])
+    project_id = _create_project(client)
+    base = f"{PROJECTS}/{project_id}/searches"
+    run = client.post(
+        base,
+        json={"keyword": "coffee", "location_type": "text", "location_text": "Berlin"},
+    ).json()
+    search_id = run["search_id"]
+
+    # Delete the owned search: 204, row gone, no longer in history.
+    assert client.delete(f"{base}/{search_id}").status_code == 204
+
+    from app.domains.search.models import Search
+
+    assert db_session.query(Search).filter(Search.id == search_id).first() is None
+    assert client.get(base).json() == []
+
+    # Deleting the same id again is a 404.
+    assert client.delete(f"{base}/{search_id}").status_code == 404
+
+
+def test_delete_search_ownership_keeps_row(client, use_places_client, db_session):
+    use_places_client(results=[_place("p1")])
+
+    other = User(
+        name="Other",
+        email="other@example.com",
+        hashed_password="x",
+        is_verified=True,
+    )
+    db_session.add(other)
+    db_session.commit()
+    other_project = Project(user_id=other.id, name="Theirs")
+    db_session.add(other_project)
+    db_session.commit()
+
+    from app.domains.search.models import Search
+
+    other_search = Search(
+        project_id=other_project.id,
+        user_id=other.id,
+        keyword="secret",
+        location_type="text",
+        params={"location_text": "Z"},
+        result_count=1,
+        results=[_place("s1")],
+    )
+    db_session.add(other_search)
+    db_session.commit()
+
+    # Deleting another user's search is a 404 and the row remains.
+    assert (
+        client.delete(
+            f"{PROJECTS}/{other_project.id}/searches/{other_search.id}"
+        ).status_code
+        == 404
+    )
+    assert (
+        db_session.query(Search).filter(Search.id == other_search.id).first()
+        is not None
+    )
+
+
 def test_invalid_location_fields_rejected(client, use_places_client):
     use_places_client(results=[])
     project_id = _create_project(client)

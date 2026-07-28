@@ -74,3 +74,39 @@ def list_searches(
     return service.SearchService(db, places_client).list_searches(
         current_user.id, project_id
     )
+
+
+# Item routes are declared after the collection routes above so the fixed
+# "/searches" path is matched before the "{search_id}" parameter route.
+@router.get(
+    "/projects/{project_id}/searches/{search_id}",
+    response_model=schemas.SearchRunResponse,
+)
+def get_search(
+    project_id: int,
+    search_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+    places_client: PlacesClient = Depends(get_places_client),
+):
+    """Return a stored search's snapshot. Served from history, no Places re-query."""
+    return service.SearchService(db, places_client).get_search(
+        current_user.id, project_id, search_id
+    )
+
+
+@router.delete(
+    "/projects/{project_id}/searches/{search_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_search(
+    project_id: int,
+    search_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_verified_user),
+    places_client: PlacesClient = Depends(get_places_client),
+):
+    """Delete a stored search from a project's history. Ownership enforced."""
+    service.SearchService(db, places_client).delete_search(
+        current_user.id, project_id, search_id
+    )
