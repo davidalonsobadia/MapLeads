@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Header, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -28,13 +28,18 @@ def run_anonymous_search(
     data: schemas.SearchRequest,
     db: Session = Depends(get_db),
     places_client: PlacesClient = Depends(get_places_client),
+    x_anonymous_search_token: Optional[str] = Header(default=None),
 ):
     """Run a search for an anonymous visitor: capped, contact-masked, persists nothing.
 
     No user authentication and no project — the endpoint still sits behind the
-    ``x-api-key`` gateway like every other ``/api`` route.
+    ``x-api-key`` gateway like every other ``/api`` route. A visitor replays the
+    ``X-Anonymous-Search-Token`` from a previous response; a valid one means the
+    single free search is spent and the request is rejected with 403.
     """
-    return service.AnonymousSearchService(db, places_client).run_search(data)
+    return service.AnonymousSearchService(db, places_client).run_search(
+        data, x_anonymous_search_token
+    )
 
 
 @router.post(

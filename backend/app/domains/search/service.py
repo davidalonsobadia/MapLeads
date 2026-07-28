@@ -8,7 +8,7 @@ from app.domains.leads.models import Lead
 from app.domains.projects.models import Project
 from app.domains.search.places_client import PlacesClient, PlacesClientError
 
-from . import models, schemas
+from . import anonymous_token, models, schemas
 
 # Metres per kilometre, used to translate the request's radius_km into the
 # radius_m the Places client expects.
@@ -162,9 +162,21 @@ class AnonymousSearchService:
         self.places_client = places_client
 
     def run_search(
-        self, req: schemas.SearchRequest
+        self, req: schemas.SearchRequest, visitor_token: str | None = None
     ) -> schemas.AnonymousSearchResponse:
-        """Run a text or point+radius search and return capped, masked results."""
+        """Run a text or point+radius search and return capped, masked results.
+
+        ``visitor_token`` is the value the caller replayed from a previous
+        response. A valid, unexpired token means the free search is already
+        spent: reject with 403 and never call the Places client. Otherwise run
+        the search and hand back a freshly issued token to persist.
+        """
+        if anonymous_token.verify_token(visitor_token):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You've used your free search. Sign up to keep searching.",
+            )
+
         _, raw_results = dispatch_search(self.places_client, req)
 
         limit = settings.ANONYMOUS_SEARCH_RESULT_LIMIT
@@ -182,4 +194,5 @@ class AnonymousSearchService:
             result_count=len(results),
             total_available=len(raw_results),
             results=results,
+            visitor_token=anonymous_token.issue_token(),
         )
