@@ -364,6 +364,11 @@
         "description": "Los resultados de búsqueda no se conservan después de salir de esta pantalla. Ejecuta la búsqueda de nuevo para ver y guardar sus resultados.",
         "newSearch": "Nueva búsqueda"
       },
+      "empty": {
+        "title": "No se encontraron lugares",
+        "description": "Esta búsqueda no devolvió ningún lugar. Prueba con otra palabra clave o ubicación."
+      },
+      "loading": "Cargando resultados…",
       "title": "Resultados de búsqueda",
       "count": "{count, plural, one {# resultado} other {# resultados}}",
       "savedSuffix": "{count} ya en tu lista",
@@ -388,6 +393,7 @@
     },
     "history": {
       "loadFailed": "No se pudo cargar el historial de búsqueda.",
+      "viewResultsAria": "Ver resultados de {keyword}",
       "empty": {
         "title": "Aún no hay búsquedas",
         "description": "Ejecuta tu primera búsqueda para empezar a crear el historial de este proyecto."
