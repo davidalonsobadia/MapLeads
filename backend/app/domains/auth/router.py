@@ -1,11 +1,45 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
 
-from . import models, schemas, service, utils
+from . import models, oauth, schemas, service, utils
+from .oauth import OAuthClient, OAuthError, OAuthUnconfiguredError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def get_oauth_client(provider: str) -> OAuthClient:
+    """Resolve the real OAuth client for ``provider``.
+
+    This is the seam tests override (mirrors ``get_places_client`` in the search
+    domain): tests install a fake via ``app.dependency_overrides``. The library's
+    errors are mapped to HTTP here so both OAuth endpoints share the behavior —
+    an unknown provider is a 400 and an unconfigured one a 503 (mirroring the
+    Stripe-unconfigured response).
+    """
+    try:
+        return oauth.get_oauth_client(provider)
+    except OAuthUnconfiguredError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"OAuth provider '{provider}' is not configured.",
+        ) from exc
+    except OAuthError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown OAuth provider '{provider}'.",
+        ) from exc
+
+
+def _oauth_redirect_uri(provider: str) -> str:
+    """Derive the callback URL server-side.
+
+    Never trust a client-supplied redirect (open-redirect risk); it is always
+    ``{FRONTEND_URL}/api/auth/oauth/{provider}/callback``.
+    """
+    return f"{settings.FRONTEND_URL}/api/auth/oauth/{provider}/callback"
 
 
 @router.post("/register", response_model=schemas.MessageResponse, status_code=status.HTTP_201_CREATED)
@@ -97,3 +131,59 @@ def reset_password(data: schemas.ResetPassword, db: Session = Depends(get_db)):
     auth_service = service.AuthService(db)
     auth_service.reset_password(data.token, data.new_password)
     return {"message": "Password reset successfully. You can now log in with your new password."}
+
+
+@router.get(
+    "/oauth/{provider}/authorize",
+    response_model=schemas.OAuthAuthorizeResponse,
+)
+def oauth_authorize(
+    provider: str,
+    oauth_client: OAuthClient = Depends(get_oauth_client),
+):
+    """Start the OAuth flow: build the provider authorization URL and signed state.
+
+    ``provider`` is validated (and its client resolved) by ``get_oauth_client``:
+    unknown -> 400, unconfigured -> 503. The redirect URI is derived server-side.
+    """
+    redirect_uri = _oauth_redirect_uri(provider)
+    state = utils.create_oauth_state(provider)
+    authorization_url = oauth_client.build_authorize_url(redirect_uri, state)
+    return schemas.OAuthAuthorizeResponse(
+        authorization_url=authorization_url, state=state
+    )
+
+
+@router.post(
+    "/oauth/{provider}/callback",
+    response_model=schemas.OAuthTokenResponse,
+)
+def oauth_callback(
+    provider: str,
+    data: schemas.OAuthCallbackRequest,
+    db: Session = Depends(get_db),
+    oauth_client: OAuthClient = Depends(get_oauth_client),
+):
+    """Complete the OAuth flow: exchange the code, link/create the user, issue our JWT.
+
+    Provider/transport failures from the client surface as 502; the link-or-create
+    rules (and the 400 for an unverified provider email) live in the service.
+    """
+    redirect_uri = _oauth_redirect_uri(provider)
+    try:
+        access_token = oauth_client.exchange_code(data.code, redirect_uri)
+        info = oauth_client.fetch_user_info(access_token)
+    except OAuthError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="provider authentication failed",
+        ) from exc
+
+    auth_service = service.AuthService(db)
+    user = auth_service.login_or_create_oauth_user(provider, info)
+    session_token = utils.create_access_token(data={"sub": str(user.id)})
+    return schemas.OAuthTokenResponse(
+        access_token=session_token,
+        token_type="bearer",
+        user=schemas.UserResponse.model_validate(user),
+    )

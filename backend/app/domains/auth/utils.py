@@ -31,6 +31,23 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+# OAuth ``state`` only needs to survive one authorize -> callback round-trip, so
+# keep it short-lived.
+OAUTH_STATE_EXPIRE_MINUTES = 10
+
+
+def create_oauth_state(provider: str) -> str:
+    """Return a signed, short-TTL ``state`` token embedding ``provider``.
+
+    Signed with ``SECRET_KEY`` (like the session token) so a forged state can be
+    detected on the callback, and given a short expiry because it only has to
+    survive the redirect to the provider and back.
+    """
+    expire = datetime.utcnow() + timedelta(minutes=OAUTH_STATE_EXPIRE_MINUTES)
+    to_encode = {"provider": provider, "typ": "oauth_state", "exp": expire}
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
 def generate_verification_token() -> str:
     return secrets.token_urlsafe(32)
 
