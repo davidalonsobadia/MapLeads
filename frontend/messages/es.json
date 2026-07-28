@@ -48,6 +48,14 @@
       "failed": "Error al iniciar sesión",
       "genericError": "Se produjo un error. Inténtalo de nuevo."
     },
+    "oauth": {
+      "continueWithGoogle": "Continuar con Google",
+      "continueWithGithub": "Continuar con GitHub",
+      "divider": "o",
+      "error": "No pudimos iniciar tu sesión con ese proveedor. Inténtalo de nuevo.",
+      "errorState": "Tu sesión de inicio de sesión expiró. Inténtalo de nuevo.",
+      "errorUnconfigured": "Este método de inicio de sesión no está disponible en este momento."
+    },
     "register": {
       "description": "Crea una cuenta para comenzar",
       "nameLabel": "Nombre",
