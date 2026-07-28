@@ -2,20 +2,23 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { authApi } from "@/features/auth/api"
+import { OAuthButtons } from "@/features/auth/oauth-buttons"
 import { CheckCircle2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const t = useTranslations("auth.register")
+  const tOauth = useTranslations("auth.oauth")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -23,6 +26,15 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const oauthError = searchParams.get("error")
+  const oauthErrorMessage = oauthError
+    ? oauthError === "oauth_state"
+      ? tOauth("errorState")
+      : oauthError === "oauth_unconfigured"
+        ? tOauth("errorUnconfigured")
+        : tOauth("error")
+    : ""
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,9 +103,9 @@ export default function RegisterPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {error && (
+            {(error || oauthErrorMessage) && (
               <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">
-                {error}
+                {error || oauthErrorMessage}
               </div>
             )}
             <div className="space-y-2">
@@ -145,6 +157,7 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? t("submitting") : t("submit")}
             </Button>
+            <OAuthButtons />
             <p className="text-sm text-center text-muted-foreground">
               {t("haveAccount")}{" "}
               <Link href="/login" className="text-primary hover:underline">
@@ -155,5 +168,33 @@ export default function RegisterPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+function RegisterFallback() {
+  const t = useTranslations("auth.register")
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="h-6 w-6 text-primary" />
+            <CardTitle className="text-2xl font-bold">MapLeads</CardTitle>
+          </div>
+          <CardDescription>{t("description")}</CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
+  )
+}
+
+// useSearchParams() must be read inside a Suspense boundary so the page can be
+// statically prerendered (Next.js App Router requirement).
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<RegisterFallback />}>
+      <RegisterContent />
+    </Suspense>
   )
 }

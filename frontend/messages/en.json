@@ -48,6 +48,14 @@
       "failed": "Login failed",
       "genericError": "An error occurred. Please try again."
     },
+    "oauth": {
+      "continueWithGoogle": "Continue with Google",
+      "continueWithGithub": "Continue with GitHub",
+      "divider": "or",
+      "error": "We couldn't sign you in with that provider. Please try again.",
+      "errorState": "Your sign-in session expired. Please try again.",
+      "errorUnconfigured": "This sign-in method isn't available right now."
+    },
     "register": {
       "description": "Create an account to get started",
       "nameLabel": "Name",
