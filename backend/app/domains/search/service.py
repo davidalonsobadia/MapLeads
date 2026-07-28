@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.domains.leads.models import Lead
 from app.domains.projects.models import Project
 from app.domains.search.places_client import PlacesClient, PlacesClientError
@@ -12,6 +13,38 @@ from . import models, schemas
 # Metres per kilometre, used to translate the request's radius_km into the
 # radius_m the Places client expects.
 METRES_PER_KM = 1000.0
+
+
+def dispatch_search(
+    places_client: PlacesClient, req: schemas.SearchRequest
+) -> tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Call the right Places endpoint and return (persisted params, results).
+
+    Shared by the authenticated and anonymous search flows. A
+    ``PlacesClientError`` from the client surfaces as HTTP 502.
+    """
+    try:
+        if req.location_type == "text":
+            params: Dict[str, Any] = {"location_text": req.location_text}
+            results = places_client.text_search(req.keyword, req.location_text)
+        else:  # point
+            params = {
+                "lat": req.lat,
+                "lng": req.lng,
+                "radius_km": req.radius_km,
+            }
+            results = places_client.nearby_search(
+                req.keyword,
+                req.lat,
+                req.lng,
+                req.radius_km * METRES_PER_KM,
+            )
+    except PlacesClientError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+    return params, results
 
 
 class SearchService:
@@ -102,30 +135,7 @@ class SearchService:
         self, req: schemas.SearchRequest
     ) -> tuple[Dict[str, Any], List[Dict[str, Any]]]:
         """Call the right Places endpoint and return (persisted params, results)."""
-        try:
-            if req.location_type == "text":
-                params: Dict[str, Any] = {"location_text": req.location_text}
-                results = self.places_client.text_search(
-                    req.keyword, req.location_text
-                )
-            else:  # point
-                params = {
-                    "lat": req.lat,
-                    "lng": req.lng,
-                    "radius_km": req.radius_km,
-                }
-                results = self.places_client.nearby_search(
-                    req.keyword,
-                    req.lat,
-                    req.lng,
-                    req.radius_km * METRES_PER_KM,
-                )
-        except PlacesClientError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=str(exc),
-            ) from exc
-        return params, results
+        return dispatch_search(self.places_client, req)
 
     def _existing_place_ids(self, project_id: int) -> set[str]:
         """Return the set of place_ids already saved as leads in the project."""
@@ -135,3 +145,41 @@ class SearchService:
             .all()
         )
         return {row[0] for row in rows}
+
+
+class AnonymousSearchService:
+    """Runs a search for an unauthenticated visitor: capped and contact-masked.
+
+    Unlike ``SearchService`` this persists nothing (no ``Search`` row, no
+    ``Lead``) and consumes no subscription quota. Results are capped to
+    ``settings.ANONYMOUS_SEARCH_RESULT_LIMIT`` and masked to identity-only
+    fields (no phone, website or coordinates). A ``db`` session is accepted for
+    signature parity with the other services even though it is unused today.
+    """
+
+    def __init__(self, db: Session, places_client: PlacesClient):
+        self.db = db
+        self.places_client = places_client
+
+    def run_search(
+        self, req: schemas.SearchRequest
+    ) -> schemas.AnonymousSearchResponse:
+        """Run a text or point+radius search and return capped, masked results."""
+        _, raw_results = dispatch_search(self.places_client, req)
+
+        limit = settings.ANONYMOUS_SEARCH_RESULT_LIMIT
+        results = [
+            schemas.AnonymousSearchResultItem(
+                place_id=place.get("place_id"),
+                name=place.get("name"),
+                address=place.get("address"),
+                category=place.get("category"),
+            )
+            for place in raw_results[:limit]
+        ]
+
+        return schemas.AnonymousSearchResponse(
+            result_count=len(results),
+            total_available=len(raw_results),
+            results=results,
+        )

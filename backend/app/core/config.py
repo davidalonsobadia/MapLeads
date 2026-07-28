@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # Google Maps Platform: Places API (New). Provisioned via env; never hardcode.
     GOOGLE_PLACES_API_KEY: str = ""
 
+    # Anonymous "try a search" funnel: max results returned by the
+    # unauthenticated search endpoint (results beyond this are masked out).
+    ANONYMOUS_SEARCH_RESULT_LIMIT: int = 3
+
     # Social login (OAuth) credentials. Provisioned via env; never hardcode
     # secrets. Empty defaults mean the provider is unconfigured (the OAuth client
     # raises ``OAuthUnconfiguredError``) so the app still boots and tests run
