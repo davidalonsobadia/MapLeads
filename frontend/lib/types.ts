@@ -207,6 +207,57 @@ export function transformSearchRunResponse(backend: SearchRunResponse): SearchRu
   }
 }
 
+// Backend API response types (snake_case). A masked place for the anonymous
+// "try a search" funnel: identity-only, no contact fields or coordinates.
+export interface AnonymousSearchResultResponse {
+  place_id: string
+  name?: string | null
+  address?: string | null
+  category?: string | null
+}
+
+export interface AnonymousSearchResponse {
+  result_count: number
+  total_available: number
+  results: AnonymousSearchResultResponse[]
+  visitor_token: string
+}
+
+// Frontend types (camelCase for easier use in components)
+export interface AnonymousSearchResult {
+  placeId: string
+  name?: string
+  address?: string
+  category?: string
+}
+
+export interface AnonymousSearchRun {
+  results: AnonymousSearchResult[]
+  totalAvailable: number
+  visitorToken: string
+}
+
+export function transformAnonymousSearchResult(
+  backend: AnonymousSearchResultResponse,
+): AnonymousSearchResult {
+  return {
+    placeId: backend.place_id,
+    name: backend.name || undefined,
+    address: backend.address || undefined,
+    category: backend.category || undefined,
+  }
+}
+
+export function transformAnonymousSearchResponse(
+  backend: AnonymousSearchResponse,
+): AnonymousSearchRun {
+  return {
+    results: (backend.results ?? []).map(transformAnonymousSearchResult),
+    totalAvailable: backend.total_available,
+    visitorToken: backend.visitor_token,
+  }
+}
+
 // Request payload for saving a search result as a lead (snake_case, mirrors the
 // backend LeadSaveItem schema). `name` is required by the backend.
 export interface LeadSaveItem {
