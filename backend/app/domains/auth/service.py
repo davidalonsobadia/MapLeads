@@ -88,7 +88,13 @@ class AuthService:
             models.User.email == payload.email
         ).first()
 
-        if not user or not utils.verify_password(payload.password, user.hashed_password):
+        # Guard against OAuth-only users (hashed_password is None): passing None
+        # to verify_password raises instead of returning False, so reject early.
+        if (
+            not user
+            or not user.hashed_password
+            or not utils.verify_password(payload.password, user.hashed_password)
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect email or password"
