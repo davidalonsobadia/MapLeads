@@ -12,6 +12,7 @@
       "title": "Find local business leads with <highlight>MapLeads</highlight>",
       "subtitle": "Search Google Maps by keyword and location, save the businesses that matter, and track every lead for every client from one mini-CRM built for agencies.",
       "startFree": "Start for free",
+      "tryFree": "Try a free search",
       "signIn": "Sign in"
     },
     "features": {
@@ -287,6 +288,48 @@
       "notFound": "Project not found.",
       "rename": "Failed to rename the project.",
       "update": "Failed to update the project."
+    }
+  },
+  "anonymousSearch": {
+    "title": "Try a free search",
+    "subtitle": "Run one free search of local businesses. Sign up to unlock every result and full contact details.",
+    "form": {
+      "title": "Search local businesses",
+      "description": "Search Google Maps for businesses by keyword and location.",
+      "keywordLabel": "Keyword",
+      "keywordPlaceholder": "e.g. dental clinic",
+      "locationLabel": "Location",
+      "locationPlaceholder": "e.g. Chamberí, Madrid",
+      "locationHint": "Type a city, region or area.",
+      "submit": "Search"
+    },
+    "results": {
+      "title": "Search results",
+      "count": "{count, plural, one {# result} other {# results}}",
+      "maskedNotice": "This is a limited preview — contact details are hidden.",
+      "empty": {
+        "title": "No results found",
+        "description": "We couldn't find any businesses for that search. Try a different keyword or location."
+      }
+    },
+    "item": {
+      "unnamed": "Unnamed place",
+      "contactHidden": "Contact details hidden"
+    },
+    "cta": {
+      "title": "See every result and full contact details",
+      "hiddenResults": "{count, plural, =0 {Create a free account to unlock phone numbers and websites for every business.} one {# more result is hidden. Sign up to unlock it — plus phone numbers and websites.} other {# more results are hidden. Sign up to unlock them — plus phone numbers and websites.}}",
+      "register": "Create free account",
+      "login": "I already have an account"
+    },
+    "blocked": {
+      "title": "You've used your free search",
+      "description": "Sign up to keep searching — every result and full contact details included.",
+      "register": "Create free account",
+      "login": "Sign in"
+    },
+    "errors": {
+      "runFailed": "Failed to run the search. Please try again."
     }
   },
   "search": {
