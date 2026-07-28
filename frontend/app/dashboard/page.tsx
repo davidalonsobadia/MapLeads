@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Plus, Search } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { authApi } from "@/features/auth/api"
 import { billingApi } from "@/features/billing/api"
 import { TrialBanner } from "@/features/billing/trial-banner"
@@ -24,6 +25,8 @@ import type { SubscriptionUsage } from "@/lib/types"
 
 export default function DashboardPage() {
   const router = useRouter()
+  const t = useTranslations("dashboard")
+  const tProjects = useTranslations("projects")
   const [user, setUser] = useState<{ name?: string } | null>(null)
   const [subscription, setSubscription] = useState<SubscriptionUsage | null>(null)
   const [loading, setLoading] = useState(true)
@@ -58,7 +61,7 @@ export default function DashboardPage() {
   const handleCreateProject = async (name: string) => {
     const result = await projectsApi.create(name)
     if (!result.success) {
-      throw new Error(result.message || "Failed to create the project.")
+      throw new Error(result.message || tProjects("errors.create"))
     }
     setRefreshKey((key) => key + 1)
   }
@@ -91,8 +94,8 @@ export default function DashboardPage() {
             ) : (
               <Card className="h-full">
                 <CardHeader>
-                  <CardTitle className="text-base">Leads this month</CardTitle>
-                  <CardDescription>Usage is unavailable right now.</CardDescription>
+                  <CardTitle className="text-base">{t("usage.title")}</CardTitle>
+                  <CardDescription>{t("usage.unavailable")}</CardDescription>
                 </CardHeader>
               </Card>
             )}
@@ -100,17 +103,17 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Quick actions</CardTitle>
-              <CardDescription>Start something new.</CardDescription>
+              <CardTitle className="text-base">{t("quickActions.title")}</CardTitle>
+              <CardDescription>{t("quickActions.description")}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
               <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                New project
+                {t("quickActions.newProject")}
               </Button>
               <Button variant="outline" onClick={scrollToProjects}>
                 <Search className="mr-2 h-4 w-4" />
-                New search
+                {t("quickActions.newSearch")}
               </Button>
             </CardContent>
           </Card>

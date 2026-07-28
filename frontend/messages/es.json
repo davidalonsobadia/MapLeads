@@ -195,5 +195,80 @@
         }
       }
     }
+  },
+  "dashboard": {
+    "usage": {
+      "title": "Clientes potenciales este mes",
+      "unavailable": "El uso no está disponible en este momento."
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "description": "Empieza algo nuevo.",
+      "newProject": "Nuevo proyecto",
+      "newSearch": "Nueva búsqueda"
+    }
+  },
+  "projects": {
+    "title": "Proyectos",
+    "subtitle": "Agrupa tus búsquedas y clientes potenciales por cliente.",
+    "showArchived": "Mostrar archivados",
+    "newProject": "Nuevo proyecto",
+    "archivedBadge": "Archivado",
+    "createdAt": "Creado el {date}",
+    "empty": {
+      "title": "Aún no hay proyectos",
+      "description": "Crea tu primer proyecto para empezar a organizar las búsquedas de clientes potenciales por cliente."
+    },
+    "actionsFor": "Acciones para {name}",
+    "rename": "Renombrar",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "delete": "Eliminar",
+    "errors": {
+      "load": "No se pudieron cargar los proyectos.",
+      "create": "No se pudo crear el proyecto.",
+      "rename": "No se pudo renombrar el proyecto.",
+      "update": "No se pudo actualizar el proyecto.",
+      "delete": "No se pudo eliminar el proyecto."
+    },
+    "dialog": {
+      "createTitle": "Nuevo proyecto",
+      "renameTitle": "Renombrar proyecto",
+      "createDescription": "Crea un proyecto para agrupar sus búsquedas y clientes potenciales.",
+      "renameDescription": "Dale un nuevo nombre a este proyecto.",
+      "nameLabel": "Nombre del proyecto",
+      "namePlaceholder": "p. ej. Clínicas dentales — Madrid",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "save": "Guardar",
+      "nameRequired": "El nombre del proyecto es obligatorio.",
+      "genericError": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar «{name}»?",
+      "description": "Esto elimina permanentemente el proyecto junto con sus búsquedas y clientes potenciales guardados. Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "error": "No se pudo eliminar el proyecto."
+    }
+  },
+  "projectView": {
+    "backToDashboard": "Volver al panel",
+    "archivedBadge": "Archivado",
+    "newSearch": "Nueva búsqueda",
+    "actions": "Acciones del proyecto",
+    "rename": "Renombrar",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "tabs": {
+      "searches": "Búsquedas",
+      "leads": "Clientes potenciales guardados"
+    },
+    "errors": {
+      "load": "No se pudo cargar el proyecto.",
+      "notFound": "Proyecto no encontrado.",
+      "rename": "No se pudo renombrar el proyecto.",
+      "update": "No se pudo actualizar el proyecto."
+    }
   }
 }

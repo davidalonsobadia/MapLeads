@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ export function ProjectDialog({
   initialName = "",
   onSubmit,
 }: ProjectDialogProps) {
+  const t = useTranslations("projects.dialog")
   const [name, setName] = useState(initialName)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -49,7 +51,7 @@ export function ProjectDialog({
     event.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) {
-      setError("Project name is required.")
+      setError(t("nameRequired"))
       return
     }
 
@@ -59,7 +61,7 @@ export function ProjectDialog({
       await onSubmit(trimmed)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      setError(err instanceof Error ? err.message : t("genericError"))
     } finally {
       setSubmitting(false)
     }
@@ -72,21 +74,19 @@ export function ProjectDialog({
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isCreate ? "New project" : "Rename project"}</DialogTitle>
+            <DialogTitle>{isCreate ? t("createTitle") : t("renameTitle")}</DialogTitle>
             <DialogDescription>
-              {isCreate
-                ? "Create a project to group its searches and leads."
-                : "Give this project a new name."}
+              {isCreate ? t("createDescription") : t("renameDescription")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-2 py-4">
-            <Label htmlFor="project-name">Project name</Label>
+            <Label htmlFor="project-name">{t("nameLabel")}</Label>
             <Input
               id="project-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="e.g. Dental clinics — Madrid"
+              placeholder={t("namePlaceholder")}
               autoFocus
               disabled={submitting}
             />
@@ -100,11 +100,11 @@ export function ProjectDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isCreate ? "Create" : "Save"}
+              {isCreate ? t("create") : t("save")}
             </Button>
           </DialogFooter>
         </form>

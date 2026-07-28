@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Archive, ArchiveRestore, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import type { Project } from "@/lib/types"
 import { config } from "@/lib/config"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +30,7 @@ function formatDate(iso: string) {
 }
 
 export function ProjectItem({ project, onRename, onToggleArchive, onDelete }: ProjectItemProps) {
+  const t = useTranslations("projects")
   return (
     <Card className="py-4">
       <CardHeader className="px-4">
@@ -38,41 +40,43 @@ export function ProjectItem({ project, onRename, onToggleArchive, onDelete }: Pr
           </Link>
           {project.archived && (
             <Badge variant="secondary" className="shrink-0">
-              Archived
+              {t("archivedBadge")}
             </Badge>
           )}
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Created {formatDate(project.createdAt)}</p>
+        <p className="text-sm text-muted-foreground">
+          {t("createdAt", { date: formatDate(project.createdAt) })}
+        </p>
 
         <CardAction>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label={`Actions for ${project.name}`}>
+              <Button variant="ghost" size="icon" aria-label={t("actionsFor", { name: project.name })}>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onRename(project)}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Rename
+                {t("rename")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggleArchive(project)}>
                 {project.archived ? (
                   <>
                     <ArchiveRestore className="mr-2 h-4 w-4" />
-                    Unarchive
+                    {t("unarchive")}
                   </>
                 ) : (
                   <>
                     <Archive className="mr-2 h-4 w-4" />
-                    Archive
+                    {t("archive")}
                   </>
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onClick={() => onDelete(project)}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                {t("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

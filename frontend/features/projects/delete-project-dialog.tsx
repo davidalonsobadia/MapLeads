@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,7 @@ export function DeleteProjectDialog({
   projectName,
   onConfirm,
 }: DeleteProjectDialogProps) {
+  const t = useTranslations("projects.deleteDialog")
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,7 +41,7 @@ export function DeleteProjectDialog({
       await onConfirm()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete the project.")
+      setError(err instanceof Error ? err.message : t("error"))
     } finally {
       setDeleting(false)
     }
@@ -49,22 +51,21 @@ export function DeleteProjectDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete “{projectName}”?</AlertDialogTitle>
+          <AlertDialogTitle>{t("title", { name: projectName })}</AlertDialogTitle>
           <AlertDialogDescription>
-            This permanently deletes the project along with its searches and saved leads. This
-            action cannot be undone.
+            {t("description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleting}>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={deleting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Delete
+            {t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
