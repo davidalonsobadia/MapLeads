@@ -478,10 +478,10 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                 className="justify-start"
                 aria-label={t("notes.entryTypeAria")}
               >
-                <ToggleGroupItem value="note">
+                <ToggleGroupItem value="note" className="flex-none px-3">
                   {t("notes.type.note")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="reminder">
+                <ToggleGroupItem value="reminder" className="flex-none px-3">
                   {t("notes.type.reminder")}
                 </ToggleGroupItem>
               </ToggleGroup>
