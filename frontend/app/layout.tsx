@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Roboto, Roboto_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -51,7 +50,6 @@ export default async function RootLayout({
             {children}
           </NextIntlClientProvider>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   )

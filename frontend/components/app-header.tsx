@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CreditCard, LogOut, MapPin, Settings } from "lucide-react"
+import { LogOut, MapPin, Settings } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { config } from "@/lib/config"
 import { authApi } from "@/features/auth/api"
@@ -15,8 +15,9 @@ interface AppHeaderProps {
 
 /**
  * Shared authenticated header: MapLeads home link plus the account action area
- * (welcome greeting, Billing, Settings and Logout). Used by the dashboard and
- * settings pages so the header stays in a single place.
+ * (welcome greeting, Settings and Logout). Used by the dashboard and settings
+ * pages so the header stays in a single place. Billing lives under the
+ * Settings tabs, not here, to avoid a duplicate entry point.
  */
 export function AppHeader({ userName }: AppHeaderProps) {
   const router = useRouter()
@@ -44,12 +45,6 @@ export function AppHeader({ userName }: AppHeaderProps) {
                 })}
               </span>
             )}
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={config.routes.billing}>
-                <CreditCard className="h-4 w-4 mr-2" />
-                {t("billing")}
-              </Link>
-            </Button>
             <Button variant="ghost" size="sm" asChild>
               <Link href={config.routes.settings}>
                 <Settings className="h-4 w-4 mr-2" />
