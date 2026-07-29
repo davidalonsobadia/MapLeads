@@ -37,14 +37,25 @@ def _get_subscription(db_session, user_id):
 
 def _stripe_subscription(*, user_id, period_start, period_end, price_id="price_pro",
                          status="active", customer="cus_1", sub_id="sub_1"):
-    """A minimal fake of a retrieved Stripe subscription object (a plain dict)."""
+    """A minimal fake of a retrieved Stripe subscription object (a plain dict).
+
+    Matches the current Stripe API shape: ``current_period_start``/``_end``
+    live on the subscription *item*, not on the subscription itself (Stripe
+    moved them so each item can bill on its own cycle).
+    """
     return {
         "id": sub_id,
         "customer": customer,
         "status": status,
-        "current_period_start": int(period_start.timestamp()),
-        "current_period_end": int(period_end.timestamp()),
-        "items": {"data": [{"price": {"id": price_id}}]},
+        "items": {
+            "data": [
+                {
+                    "price": {"id": price_id},
+                    "current_period_start": int(period_start.timestamp()),
+                    "current_period_end": int(period_end.timestamp()),
+                }
+            ]
+        },
         "metadata": {"user_id": str(user_id)},
     }
 
@@ -271,8 +282,9 @@ def test_webhook_subscription_updated_same_period_preserves_usage(
         price_id="price_pro",
         customer="cus_1",
     )
-    sub.period_start = datetime.utcfromtimestamp(stripe_sub["current_period_start"])
-    sub.period_end = datetime.utcfromtimestamp(stripe_sub["current_period_end"])
+    item = stripe_sub["items"]["data"][0]
+    sub.period_start = datetime.utcfromtimestamp(item["current_period_start"])
+    sub.period_end = datetime.utcfromtimestamp(item["current_period_end"])
     db_session.commit()
 
     def fake_construct_event(payload, signature, secret):
@@ -292,7 +304,46 @@ def test_webhook_subscription_updated_same_period_preserves_usage(
     # Usage preserved within the same period and the account stays read-only
     # because the quota is still exhausted.
     assert sub.leads_used_this_period == plans.PRO.monthly_lead_quota
-    assert sub.read_only is True
+
+
+def test_webhook_subscription_updated_legacy_top_level_period_fields(
+    client, test_user, db_session, monkeypatch
+):
+    """Older Stripe API versions report current_period_start/_end on the
+    subscription itself rather than on each item; the fallback must still work."""
+    _configure_stripe(monkeypatch)
+    _get_subscription(db_session, test_user.id)  # provision the trial subscription
+
+    now = datetime.utcnow()
+    period_start = now
+    period_end = now + timedelta(days=30)
+    stripe_sub = {
+        "id": "sub_legacy",
+        "customer": "cus_1",
+        "status": "active",
+        "current_period_start": int(period_start.timestamp()),
+        "current_period_end": int(period_end.timestamp()),
+        "items": {"data": [{"price": {"id": "price_pro"}}]},
+        "metadata": {"user_id": str(test_user.id)},
+    }
+
+    def fake_construct_event(payload, signature, secret):
+        return {
+            "type": "customer.subscription.updated",
+            "data": {"object": stripe_sub},
+        }
+
+    monkeypatch.setattr(stripe.Webhook, "construct_event", fake_construct_event)
+
+    response = client.post(
+        WEBHOOK, content=b"{}", headers={"stripe-signature": "ok"}
+    )
+    assert response.status_code == 200
+
+    sub = _get_subscription(db_session, test_user.id)
+    assert sub.plan == plans.PLAN_PRO
+    assert sub.stripe_subscription_id == "sub_legacy"
+    assert sub.read_only is False
 
 
 def test_webhook_subscription_deleted_marks_canceled_read_only(
@@ -323,6 +374,74 @@ def test_webhook_subscription_deleted_marks_canceled_read_only(
     db_session.refresh(sub)
     assert sub.status == plans.STATUS_CANCELED
     assert sub.read_only is True
+
+
+class _FakeStripeObject:
+    """Mimics the real ``stripe`` SDK's ``StripeObject`` shape: indexable and
+    recursively convertible via ``to_dict()``, but does NOT support ``.get()``.
+    Every other test in this file mocks Stripe responses as plain dicts, which
+    masked a real bug: production code called ``.get()`` on genuine SDK
+    objects and crashed with ``AttributeError``. This fake guards against that
+    regressing."""
+
+    def __init__(self, data):
+        self._data = {
+            k: _FakeStripeObject(v) if isinstance(v, dict) else v
+            for k, v in data.items()
+        }
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def to_dict(self):
+        return {
+            k: (v.to_dict() if isinstance(v, _FakeStripeObject) else v)
+            for k, v in self._data.items()
+        }
+
+
+def test_webhook_checkout_completed_handles_real_stripe_sdk_objects(
+    client, test_user, db_session, monkeypatch
+):
+    """The webhook must work against real Stripe SDK response shapes, not just
+    the plain-dict test doubles used elsewhere in this file."""
+    _configure_stripe(monkeypatch)
+    _get_subscription(db_session, test_user.id)  # provision the trial subscription
+
+    now = datetime.utcnow()
+    stripe_sub = _stripe_subscription(
+        user_id=test_user.id,
+        period_start=now,
+        period_end=now + timedelta(days=30),
+        price_id="price_pro",
+        customer="cus_1",
+        sub_id="sub_1",
+    )
+
+    def fake_construct_event(payload, signature, secret):
+        return _FakeStripeObject(
+            {
+                "type": "checkout.session.completed",
+                "data": {"object": {"customer": "cus_1", "subscription": "sub_1"}},
+            }
+        )
+
+    def fake_sub_retrieve(sub_id, **kwargs):
+        assert sub_id == "sub_1"
+        return _FakeStripeObject(stripe_sub)
+
+    monkeypatch.setattr(stripe.Webhook, "construct_event", fake_construct_event)
+    monkeypatch.setattr(stripe.Subscription, "retrieve", fake_sub_retrieve)
+
+    response = client.post(
+        WEBHOOK, content=b"{}", headers={"stripe-signature": "ok"}
+    )
+    assert response.status_code == 200
+
+    sub = _get_subscription(db_session, test_user.id)
+    assert sub.plan == plans.PLAN_PRO
+    assert sub.stripe_customer_id == "cus_1"
+    assert sub.stripe_subscription_id == "sub_1"
 
 
 def test_webhook_ignores_unhandled_event(client, monkeypatch):

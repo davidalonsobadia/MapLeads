@@ -46,13 +46,13 @@ BASIC = Plan(
     name=PLAN_BASIC,
     monthly_lead_quota=200,
     max_active_projects=1,
-    price_eur=15,
+    price_eur=9,
 )
 PRO = Plan(
     name=PLAN_PRO,
     monthly_lead_quota=800,
     max_active_projects=None,  # unlimited
-    price_eur=39,
+    price_eur=24,
 )
 ENTERPRISE = Plan(
     name=PLAN_ENTERPRISE,

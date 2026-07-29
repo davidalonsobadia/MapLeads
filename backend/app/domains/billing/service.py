@@ -232,14 +232,50 @@ def _local_status_for(stripe_status: str) -> str:
     return _STRIPE_TO_LOCAL_STATUS.get(stripe_status, plans.STATUS_ACTIVE)
 
 
-def _extract_price_id(stripe_sub: dict) -> Optional[str]:
-    """Return the price id of a Stripe subscription's first line item, if any."""
+def _as_dict(stripe_object):
+    """Normalize a Stripe SDK response into a plain (recursively nested) dict.
+
+    The installed ``stripe`` SDK's ``StripeObject`` supports indexing
+    (``obj["key"]``) but not ``.get()``, which the rest of this module relies
+    on throughout. Test doubles already pass plain dicts, so this is a no-op
+    for them.
+    """
+    return stripe_object.to_dict() if hasattr(stripe_object, "to_dict") else stripe_object
+
+
+def _first_item(stripe_sub: dict) -> Optional[dict]:
+    """Return a Stripe subscription's first line item dict, if any.
+
+    This app only ever creates single-item subscriptions (one price per
+    plan), so the first item is the only one that matters.
+    """
     items = stripe_sub.get("items") or {}
     data = items.get("data") or []
-    if not data:
+    return data[0] if data else None
+
+
+def _extract_price_id(stripe_sub: dict) -> Optional[str]:
+    """Return the price id of a Stripe subscription's first line item, if any."""
+    item = _first_item(stripe_sub)
+    if item is None:
         return None
-    price = data[0].get("price") or {}
+    price = item.get("price") or {}
     return price.get("id")
+
+
+def _extract_period(stripe_sub: dict) -> Tuple[Optional[int], Optional[int]]:
+    """Return the (current_period_start, current_period_end) epoch seconds.
+
+    Stripe moved these fields off the top-level Subscription object onto each
+    subscription item (accounts can bill each item on its own cycle); newer
+    API versions/accounts only report them there. Fall back to the top-level
+    fields for older API versions that still set them on the subscription
+    itself.
+    """
+    item = _first_item(stripe_sub)
+    if item and "current_period_start" in item and "current_period_end" in item:
+        return item["current_period_start"], item["current_period_end"]
+    return stripe_sub.get("current_period_start"), stripe_sub.get("current_period_end")
 
 
 class StripeBillingService:
@@ -446,6 +482,7 @@ class StripeBillingService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid Stripe webhook signature.",
             ) from exc
+        event = _as_dict(event)
 
         event_type = event["type"]
         if event_type == "checkout.session.completed":
@@ -518,7 +555,7 @@ class StripeBillingService:
         if not stripe_sub_id:
             logger.warning("checkout.session.completed without a subscription id")
             return
-        stripe_sub = stripe.Subscription.retrieve(stripe_sub_id)
+        stripe_sub = _as_dict(stripe.Subscription.retrieve(stripe_sub_id))
         self._sync_from_stripe_subscription(
             stripe_sub, customer_id=session.get("customer")
         )
@@ -548,12 +585,17 @@ class StripeBillingService:
             logger.warning("Stripe subscription with an unrecognized price id; skipping")
             return
 
+        period_start_ts, period_end_ts = _extract_period(stripe_sub)
+        if period_start_ts is None or period_end_ts is None:
+            logger.warning("Stripe subscription without billing period fields; skipping")
+            return
+
         self._apply_paid_plan(
             subscription,
             plan_name=plan_name,
             stripe_status=stripe_sub.get("status", "active"),
-            period_start=datetime.utcfromtimestamp(stripe_sub["current_period_start"]),
-            period_end=datetime.utcfromtimestamp(stripe_sub["current_period_end"]),
+            period_start=datetime.utcfromtimestamp(period_start_ts),
+            period_end=datetime.utcfromtimestamp(period_end_ts),
             stripe_customer_id=customer_id,
             stripe_subscription_id=stripe_sub.get("id"),
         )

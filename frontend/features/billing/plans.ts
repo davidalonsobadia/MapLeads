@@ -16,14 +16,14 @@ export const BILLING_PLANS: BillingPlan[] = [
   {
     id: "basic",
     name: "Basic",
-    priceEur: 15,
+    priceEur: 9,
     monthlyLeadQuota: 200,
     description: "1 active project.",
   },
   {
     id: "pro",
     name: "Pro",
-    priceEur: 39,
+    priceEur: 24,
     monthlyLeadQuota: 800,
     description: "Unlimited active projects.",
   },
