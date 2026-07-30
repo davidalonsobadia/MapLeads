@@ -19,7 +19,9 @@ import { useTranslations } from "next-intl"
 import {
   AlertTriangle,
   CheckCircle2,
+  List,
   Loader2,
+  MapPin,
   Save,
   SearchX,
 } from "lucide-react"
@@ -31,10 +33,10 @@ import {
   type SubscriptionUsage,
 } from "@/lib/types"
 import { config } from "@/lib/config"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { LeadsMap, type LeadMarker } from "@/components/map"
 import { billingApi } from "@/features/billing/api"
 import { leadsApi } from "@/features/leads/api"
@@ -57,6 +59,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
 
   const [run, setRun] = useState<SearchRun | null>(null)
   const [loading, setLoading] = useState(true)
+  const [view, setView] = useState<"list" | "map">("list")
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -305,17 +308,36 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
               ` · ${t("savedSuffix", { count: savedTotal })}`}
           </p>
         </div>
-        <Button
-          onClick={handleSave}
-          disabled={saving || selectedCount === 0 || readOnly}
-        >
-          {saving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          {t("saveSelected", { count: selectedCount })}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={view}
+            onValueChange={(value) => {
+              if (value === "list" || value === "map") setView(value)
+            }}
+            aria-label={t("viewToggleAria")}
+          >
+            <ToggleGroupItem value="list" aria-label={t("listView")}>
+              <List className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="map" aria-label={t("mapView")}>
+              <MapPin className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          <Button
+            onClick={handleSave}
+            disabled={saving || selectedCount === 0 || readOnly}
+          >
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            {t("saveSelected", { count: selectedCount })}
+          </Button>
+        </div>
       </div>
 
       {readOnly && (
@@ -348,8 +370,19 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="order-2 lg:order-1">
+      {view === "map" ? (
+        <div className="h-[480px] lg:h-[600px]">
+          <LeadsMap
+            markers={markers}
+            hoveredId={hoveredId}
+            selectedId={activeId}
+            onMarkerHover={setHoveredId}
+            onMarkerClick={focusResult}
+            className="h-full"
+          />
+        </div>
+      ) : (
+        <div>
           <div className="mb-2 flex items-center gap-2 px-1">
             <Checkbox
               id="select-all-results"
@@ -393,22 +426,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
             </div>
           </ScrollArea>
         </div>
-
-        <div
-          className={cn(
-            "order-1 h-[280px] lg:order-2 lg:sticky lg:top-4 lg:h-[600px]",
-          )}
-        >
-          <LeadsMap
-            markers={markers}
-            hoveredId={hoveredId}
-            selectedId={activeId}
-            onMarkerHover={setHoveredId}
-            onMarkerClick={focusResult}
-            className="h-full"
-          />
-        </div>
-      </div>
+      )}
     </div>
   )
 }

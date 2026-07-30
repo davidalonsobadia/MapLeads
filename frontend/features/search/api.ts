@@ -110,3 +110,12 @@ export function formatSearchLocation(search: SearchHistoryItem): string {
   }
   return "—"
 }
+
+/** The search's center point, if it was recorded as a point (not a text) search. */
+export function getSearchPoint(
+  search: SearchHistoryItem,
+): { lat: number; lng: number } | null {
+  if (search.locationType !== "point") return null
+  const { lat, lng } = search.params
+  return typeof lat === "number" && typeof lng === "number" ? { lat, lng } : null
+}
