@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # Anonymous "try a search" funnel: max results returned by the
     # unauthenticated search endpoint (results beyond this are masked out).
-    ANONYMOUS_SEARCH_RESULT_LIMIT: int = 3
+    ANONYMOUS_SEARCH_RESULT_LIMIT: int = 12
 
     # Anonymous "try a search" funnel: TTL of the signed visitor token that
     # marks the single free search as used. Stateless by design (no DB); a

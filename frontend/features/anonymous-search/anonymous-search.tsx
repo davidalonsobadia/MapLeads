@@ -24,6 +24,7 @@ import {
 import { anonymousSearchApi } from "./api"
 import { AnonymousSearchForm } from "./anonymous-search-form"
 import { BlockedPanel } from "./blocked-panel"
+import { ExportPdfButton } from "./export-pdf-button"
 import { MaskedResultItem } from "./masked-result-item"
 import { SignupCta } from "./signup-cta"
 
@@ -73,11 +74,16 @@ export function AnonymousSearch() {
 
       {ok && (
         <div className="space-y-4">
-          <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold">{t("results.title")}</h2>
-            <span className="text-sm text-muted-foreground">
-              {t("results.count", { count: ok.results.length })}
-            </span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-2">
+              <h2 className="text-lg font-semibold">{t("results.title")}</h2>
+              <span className="text-sm text-muted-foreground">
+                {t("results.count", { count: ok.results.length })}
+              </span>
+            </div>
+            {ok.results.length > 0 && (
+              <ExportPdfButton results={ok.results} hiddenCount={ok.hiddenCount} />
+            )}
           </div>
 
           {ok.results.length === 0 ? (

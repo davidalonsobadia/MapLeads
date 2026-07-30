@@ -11,8 +11,8 @@
     "hero": {
       "title": "Encuentra clientes potenciales locales con <highlight>MapLeads</highlight>",
       "subtitle": "Busca en Google Maps por palabra clave y ubicación, guarda los negocios que te importan y haz seguimiento de cada cliente potencial de cada cliente desde un mini-CRM creado para agencias.",
-      "startFree": "Empieza gratis",
-      "tryFree": "Prueba una búsqueda gratis",
+      "startFree": "Comenzar",
+      "tryFree": "Prueba una búsqueda",
       "signIn": "Iniciar sesión"
     },
     "features": {
@@ -298,8 +298,8 @@
     }
   },
   "anonymousSearch": {
-    "title": "Prueba una búsqueda gratis",
-    "subtitle": "Ejecuta una búsqueda gratuita de negocios locales. Regístrate para desbloquear todos los resultados y los datos de contacto completos.",
+    "title": "Prueba una búsqueda",
+    "subtitle": "Ejecuta una búsqueda de negocios locales. Regístrate para desbloquear todos los resultados y los datos de contacto completos.",
     "form": {
       "title": "Busca negocios locales",
       "description": "Busca negocios en Google Maps por palabra clave y ubicación.",
@@ -314,6 +314,7 @@
       "title": "Resultados de búsqueda",
       "count": "{count, plural, one {# resultado} other {# resultados}}",
       "maskedNotice": "Esta es una vista previa limitada: los datos de contacto están ocultos.",
+      "exportPdf": "Descargar PDF",
       "empty": {
         "title": "No se encontraron resultados",
         "description": "No encontramos ningún negocio para esa búsqueda. Prueba con otra palabra clave o ubicación."
@@ -325,14 +326,14 @@
     },
     "cta": {
       "title": "Consulta todos los resultados y los datos de contacto completos",
-      "hiddenResults": "{count, plural, =0 {Crea una cuenta gratis para desbloquear los teléfonos y sitios web de cada negocio.} one {Hay # resultado más oculto. Regístrate para desbloquearlo, junto con teléfonos y sitios web.} other {Hay # resultados más ocultos. Regístrate para desbloquearlos, junto con teléfonos y sitios web.}}",
-      "register": "Crear cuenta gratis",
+      "hiddenResults": "{count, plural, =0 {Crea una cuenta para desbloquear los teléfonos y sitios web de cada negocio.} one {Hay # resultado más oculto. Regístrate para desbloquearlo, junto con teléfonos y sitios web.} other {Hay # resultados más ocultos. Regístrate para desbloquearlos, junto con teléfonos y sitios web.}}",
+      "register": "Crear cuenta",
       "login": "Ya tengo una cuenta"
     },
     "blocked": {
-      "title": "Ya has usado tu búsqueda gratis",
+      "title": "Ya has usado tu búsqueda",
       "description": "Regístrate para seguir buscando: incluye todos los resultados y los datos de contacto completos.",
-      "register": "Crear cuenta gratis",
+      "register": "Crear cuenta",
       "login": "Iniciar sesión"
     },
     "errors": {

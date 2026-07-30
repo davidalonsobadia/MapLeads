@@ -235,14 +235,14 @@ class AnonymousSearchService:
         """Run a text or point+radius search and return capped, masked results.
 
         ``visitor_token`` is the value the caller replayed from a previous
-        response. A valid, unexpired token means the free search is already
-        spent: reject with 403 and never call the Places client. Otherwise run
-        the search and hand back a freshly issued token to persist.
+        response. A valid, unexpired token means the search is already spent:
+        reject with 403 and never call the Places client. Otherwise run the
+        search and hand back a freshly issued token to persist.
         """
         if anonymous_token.verify_token(visitor_token):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You've used your free search. Sign up to keep searching.",
+                detail="You've used your search. Sign up to keep searching.",
             )
 
         _, raw_results = dispatch_search(self.places_client, req)
