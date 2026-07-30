@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl"
 import { Lock, MapPin, Tag } from "lucide-react"
 
 import type { AnonymousSearchResult } from "@/lib/types"
+import { formatCategory } from "@/lib/utils"
 
 interface MaskedResultItemProps {
   result: AnonymousSearchResult
@@ -18,6 +19,7 @@ interface MaskedResultItemProps {
 
 export function MaskedResultItem({ result }: MaskedResultItemProps) {
   const t = useTranslations("anonymousSearch.item")
+  const category = formatCategory(result.category)
 
   return (
     <div className="flex flex-col gap-1 rounded-lg border p-3">
@@ -25,10 +27,10 @@ export function MaskedResultItem({ result }: MaskedResultItemProps) {
         {result.name ?? t("unnamed")}
       </h3>
 
-      {result.category && (
+      {category && (
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span className="truncate">{result.category}</span>
+          <span className="truncate">{category}</span>
         </p>
       )}
 

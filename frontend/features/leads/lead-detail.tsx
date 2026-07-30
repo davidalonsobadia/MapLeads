@@ -35,7 +35,7 @@ import {
   LEAD_STATUSES,
   type LeadStatus,
 } from "@/lib/lead-status"
-import { cn } from "@/lib/utils"
+import { cn, formatCategory } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -347,7 +347,7 @@ export function LeadDetail({ leadId }: LeadDetailProps) {
                 icon={<Tag className="h-3 w-3" />}
                 label={t("businessDetails.category")}
               >
-                {lead.category ?? "—"}
+                {formatCategory(lead.category) ?? "—"}
               </DataRow>
               <DataRow
                 label={t("businessDetails.address")}

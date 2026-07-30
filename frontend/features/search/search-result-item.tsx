@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl"
 import { Check, Globe, MapPin, Phone, Tag } from "lucide-react"
 
 import type { SearchResult } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { cn, formatCategory } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -50,6 +50,7 @@ export function SearchResultItem({
     result.website && /^https?:\/\//i.test(result.website)
       ? result.website
       : undefined
+  const category = formatCategory(result.category)
 
   return (
     <div
@@ -107,10 +108,10 @@ export function SearchResultItem({
           )}
         </div>
 
-        {result.category && (
+        {category && (
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span className="truncate">{result.category}</span>
+            <span className="truncate">{category}</span>
           </p>
         )}
 
