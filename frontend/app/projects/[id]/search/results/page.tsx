@@ -4,7 +4,7 @@ import { Suspense, use } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { ArrowLeft, Loader2, MapPin } from "lucide-react"
+import { ArrowLeft, Loader2, MapPin, Search } from "lucide-react"
 
 import { config } from "@/lib/config"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ function SearchResultsContent({ projectId }: { projectId: string }) {
 export default function SearchResultsPage({ params }: SearchResultsPageProps) {
   const { id } = use(params)
   const t = useTranslations("search.results")
+  const tSearch = useTranslations("search")
 
   return (
     <div className="min-h-screen bg-background">
@@ -33,12 +34,20 @@ export default function SearchResultsPage({ params }: SearchResultsPageProps) {
             <MapPin className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">MapLeads</span>
           </Link>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={config.routes.newSearch(id)}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {t("headerNewSearch")}
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={config.routes.project(id)}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                {tSearch("backToProject")}
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={config.routes.newSearch(id)}>
+                <Search className="mr-2 h-4 w-4" />
+                {t("headerNewSearch")}
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
 
