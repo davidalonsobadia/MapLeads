@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Plus, Search } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { config } from "@/lib/config"
 import { authApi } from "@/features/auth/api"
 import { billingApi } from "@/features/billing/api"
 import { TrialBanner } from "@/features/billing/trial-banner"
@@ -32,7 +33,6 @@ export default function DashboardPage() {
   const [subscription, setSubscription] = useState<SubscriptionUsage | null>(null)
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     loadData()
@@ -61,10 +61,10 @@ export default function DashboardPage() {
 
   const handleCreateProject = async (name: string) => {
     const result = await projectsApi.create(name)
-    if (!result.success) {
+    if (!result.success || !result.project) {
       throw new Error(result.message || tProjects("errors.create"))
     }
-    setRefreshKey((key) => key + 1)
+    router.push(config.routes.project(result.project.id))
   }
 
   const scrollToProjects = () => {
@@ -120,11 +120,11 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <RoadmapNotice />
-
         <section id="projects">
-          <ProjectsList refreshKey={refreshKey} />
+          <ProjectsList />
         </section>
+
+        <RoadmapNotice />
       </main>
 
       <ProjectDialog

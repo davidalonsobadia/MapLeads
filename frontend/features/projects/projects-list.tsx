@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { FolderPlus, Loader2, Plus } from "lucide-react"
 import { useTranslations } from "next-intl"
 import type { Project } from "@/lib/types"
+import { config } from "@/lib/config"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -12,14 +14,9 @@ import { ProjectDialog } from "./project-dialog"
 import { DeleteProjectDialog } from "./delete-project-dialog"
 import { ProjectItem } from "./project-item"
 
-interface ProjectsListProps {
-  /** Bump this value to force a reload from the parent (e.g. after an
-   *  external "New project" action). */
-  refreshKey?: number
-}
-
-export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
+export function ProjectsList() {
   const t = useTranslations("projects")
+  const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -48,14 +45,14 @@ export function ProjectsList({ refreshKey }: ProjectsListProps = {}) {
 
   useEffect(() => {
     load()
-  }, [load, refreshKey])
+  }, [load])
 
   const handleCreate = async (name: string) => {
     const result = await projectsApi.create(name)
-    if (!result.success) {
+    if (!result.success || !result.project) {
       throw new Error(result.message || t("errors.create"))
     }
-    await load()
+    router.push(config.routes.project(result.project.id))
   }
 
   const handleRename = async (name: string) => {
