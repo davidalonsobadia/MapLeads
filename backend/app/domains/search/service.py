@@ -33,7 +33,7 @@ def dispatch_search(
                 "lng": req.lng,
                 "radius_km": req.radius_km,
             }
-            results = places_client.nearby_search(
+            results = places_client.point_search(
                 req.keyword,
                 req.lat,
                 req.lng,

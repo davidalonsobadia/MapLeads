@@ -22,6 +22,8 @@
       overflow: hidden;
     }
     .header {
+      /* Solid fallback: Outlook's Word rendering engine drops unrecognized gradient values */
+      background-color: #764ba2;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       padding: 40px 20px;
       text-align: center;
@@ -44,6 +46,7 @@
       display: inline-block;
       padding: 14px 32px;
       margin: 20px 0;
+      background-color: #764ba2;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #ffffff !important;
       text-decoration: none;

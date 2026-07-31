@@ -28,7 +28,7 @@ class FakePlacesClient:
         self._results = results or []
         self._error = error
         self.text_calls = []
-        self.nearby_calls = []
+        self.point_calls = []
 
     def text_search(self, keyword, location_text):
         self.text_calls.append((keyword, location_text))
@@ -36,8 +36,8 @@ class FakePlacesClient:
             raise PlacesClientError(self._error)
         return list(self._results)
 
-    def nearby_search(self, keyword, lat, lng, radius_m):
-        self.nearby_calls.append((keyword, lat, lng, radius_m))
+    def point_search(self, keyword, lat, lng, radius_m):
+        self.point_calls.append((keyword, lat, lng, radius_m))
         if self._error:
             raise PlacesClientError(self._error)
         return list(self._results)
@@ -92,7 +92,7 @@ def test_text_search_records_row_and_returns_results(client, use_places_client, 
 
     # The query combined keyword + location_text for the text endpoint.
     assert fake.text_calls == [("coffee", "Berlin")]
-    assert fake.nearby_calls == []
+    assert fake.point_calls == []
 
     # A Search row was persisted with the right count and params.
     from app.domains.search.models import Search
@@ -128,7 +128,7 @@ def test_point_search_converts_radius_and_records_row(client, use_places_client,
     assert response.json()["result_count"] == 1
 
     # radius_km was converted to metres for the client.
-    assert fake.nearby_calls == [("restaurant", 40.4, -3.7, 2000.0)]
+    assert fake.point_calls == [("restaurant", 40.4, -3.7, 2000.0)]
     assert fake.text_calls == []
 
     from app.domains.search.models import Search

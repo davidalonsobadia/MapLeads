@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ name, email, password }),
     })
 
-    // Log verification token if present (for development)
-    if (data.verification_token) {
+    // Log verification token if present (for development only)
+    if (data.verification_token && process.env.NODE_ENV !== "production") {
       console.log(`[MapLeads] Verification token for ${email}: ${data.verification_token}`)
     }
 

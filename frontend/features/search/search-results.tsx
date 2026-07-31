@@ -19,9 +19,7 @@ import { useTranslations } from "next-intl"
 import {
   AlertTriangle,
   CheckCircle2,
-  List,
   Loader2,
-  MapPin,
   Save,
   SearchX,
 } from "lucide-react"
@@ -36,7 +34,6 @@ import { config } from "@/lib/config"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { LeadsMap, type LeadMarker } from "@/components/map"
 import { billingApi } from "@/features/billing/api"
 import { leadsApi } from "@/features/leads/api"
@@ -59,7 +56,6 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
 
   const [run, setRun] = useState<SearchRun | null>(null)
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<"list" | "map">("list")
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -309,23 +305,6 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            value={view}
-            onValueChange={(value) => {
-              if (value === "list" || value === "map") setView(value)
-            }}
-            aria-label={t("viewToggleAria")}
-          >
-            <ToggleGroupItem value="list" aria-label={t("listView")}>
-              <List className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="map" aria-label={t("mapView")}>
-              <MapPin className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-
           <Button
             onClick={handleSave}
             disabled={saving || selectedCount === 0 || readOnly}
@@ -370,18 +349,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
         </div>
       )}
 
-      {view === "map" ? (
-        <div className="h-[480px] lg:h-[600px]">
-          <LeadsMap
-            markers={markers}
-            hoveredId={hoveredId}
-            selectedId={activeId}
-            onMarkerHover={setHoveredId}
-            onMarkerClick={focusResult}
-            className="h-full"
-          />
-        </div>
-      ) : (
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[380px_1fr] lg:items-start">
         <div>
           <div className="mb-2 flex items-center gap-2 px-1">
             <Checkbox
@@ -398,7 +366,7 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
               {t("selectAll", { count: selectableIds.length })}
             </label>
           </div>
-          <ScrollArea className="h-[280px] rounded-lg border lg:h-[560px]">
+          <ScrollArea className="h-[320px] rounded-lg border lg:h-[640px]">
             <div className="space-y-2 p-2">
               {results.map((result) => (
                 <div
@@ -426,7 +394,18 @@ export function SearchResults({ projectId, searchId }: SearchResultsProps) {
             </div>
           </ScrollArea>
         </div>
-      )}
+
+        <div className="h-[360px] lg:sticky lg:top-4 lg:h-[640px]">
+          <LeadsMap
+            markers={markers}
+            hoveredId={hoveredId}
+            selectedId={activeId}
+            onMarkerHover={setHoveredId}
+            onMarkerClick={focusResult}
+            className="h-full"
+          />
+        </div>
+      </div>
     </div>
   )
 }

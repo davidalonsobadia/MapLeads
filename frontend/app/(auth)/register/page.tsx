@@ -77,9 +77,11 @@ function RegisterContent() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">{t("success.instructions")}</p>
-            <div className="p-4 bg-muted rounded-md">
-              <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
-            </div>
+            {process.env.NODE_ENV !== "production" && (
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
@@ -104,7 +106,7 @@ function RegisterContent() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {(error || oauthErrorMessage) && (
-              <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
                 {error || oauthErrorMessage}
               </div>
             )}

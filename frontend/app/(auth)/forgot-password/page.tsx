@@ -46,9 +46,11 @@ export default function ForgotPasswordPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">{t("success.instructions")}</p>
-            <div className="p-4 bg-muted rounded-md">
-              <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
-            </div>
+            {process.env.NODE_ENV !== "production" && (
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-xs text-muted-foreground mb-2">{t("success.demoNote")}</p>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
             <Button asChild className="w-full">

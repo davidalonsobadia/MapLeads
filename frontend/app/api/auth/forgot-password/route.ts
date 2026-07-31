@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ email }),
     })
 
-    // Log reset token if present (for development)
-    if (data.reset_token) {
+    // Log reset token if present (for development only)
+    if (data.reset_token && process.env.NODE_ENV !== "production") {
       console.log(`[MapLeads] Password reset token for ${email}: ${data.reset_token}`)
     }
 

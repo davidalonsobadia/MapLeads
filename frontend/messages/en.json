@@ -367,9 +367,6 @@
     },
     "results": {
       "headerNewSearch": "New search",
-      "viewToggleAria": "Toggle list or map view",
-      "listView": "List view",
-      "mapView": "Map view",
       "unavailable": {
         "title": "Results are no longer available",
         "description": "Search results are not kept after you leave this screen. Run the search again to view and save its results.",
@@ -405,9 +402,6 @@
     "history": {
       "loadFailed": "Failed to load search history.",
       "viewResultsAria": "View results for {keyword}",
-      "viewToggleAria": "Toggle list or map view",
-      "listView": "List view",
-      "mapView": "Map view",
       "mapTextLocationNote": "{missing} of {total} searches have no map location and are not shown on the map.",
       "empty": {
         "title": "No searches yet",

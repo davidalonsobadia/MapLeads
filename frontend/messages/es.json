@@ -367,9 +367,6 @@
     },
     "results": {
       "headerNewSearch": "Nueva búsqueda",
-      "viewToggleAria": "Alternar vista de lista o mapa",
-      "listView": "Vista de lista",
-      "mapView": "Vista de mapa",
       "unavailable": {
         "title": "Los resultados ya no están disponibles",
         "description": "Los resultados de búsqueda no se conservan después de salir de esta pantalla. Ejecuta la búsqueda de nuevo para ver y guardar sus resultados.",
@@ -405,9 +402,6 @@
     "history": {
       "loadFailed": "No se pudo cargar el historial de búsqueda.",
       "viewResultsAria": "Ver resultados de {keyword}",
-      "viewToggleAria": "Alternar vista de lista o mapa",
-      "listView": "Vista de lista",
-      "mapView": "Vista de mapa",
       "mapTextLocationNote": "{missing} de {total} búsquedas no tienen ubicación en el mapa y no se muestran.",
       "empty": {
         "title": "Aún no hay búsquedas",

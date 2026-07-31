@@ -1,10 +1,17 @@
 """Thin wrapper around the Google Places API (New).
 
-This module exposes :class:`PlacesClient`, a small, testable HTTP client for the
-two search endpoints MapLeads relies on:
+This module exposes :class:`PlacesClient`, a small, testable HTTP client built
+on a single search endpoint, ``places:searchText``, used for both of MapLeads'
+search modes:
 
-* Text Search  -> ``places:searchText``
-* Nearby Search -> ``places:searchNearby``
+* ``text_search``  - a free-text keyword plus a free-text location.
+* ``point_search`` - a free-text keyword restricted to a circle (point + radius).
+
+Both go through Text Search rather than Nearby Search because Nearby Search
+filters by place *type* (a fixed Google enum, e.g. ``"restaurant"``) and
+rejects arbitrary keywords with a 400 - MapLeads' keyword field is always free
+text, so ``point_search`` uses Text Search's ``locationRestriction`` circle to
+get the same point+radius semantics without that restriction.
 
 Only the **Basic Data** field set is requested (via the ``X-Goog-FieldMask``
 header) to keep responses cheap, and pagination is followed up to the API cap of
@@ -24,10 +31,10 @@ import httpx
 from app import logger
 from app.core.config import settings
 
-# Places API (New) base URL and endpoint paths.
+# Places API (New) base URL and endpoint path. Both search modes below go
+# through Text Search - see the module docstring for why.
 PLACES_API_BASE_URL = "https://places.googleapis.com/v1"
 TEXT_SEARCH_PATH = "/places:searchText"
-NEARBY_SEARCH_PATH = "/places:searchNearby"
 
 # The API returns at most 20 results per page and caps pagination at 3 pages,
 # i.e. ~60 results in total. We expose the cap as a constant so callers/tests can
@@ -99,22 +106,22 @@ class PlacesClient:
         body = {"textQuery": query, "pageSize": PAGE_SIZE}
         return self._paginate(TEXT_SEARCH_PATH, body)
 
-    def nearby_search(
+    def point_search(
         self,
         keyword: str,
         lat: float,
         lng: float,
         radius_m: float,
     ) -> list[dict[str, Any]]:
-        """Run a Nearby Search within ``radius_m`` metres of ``lat``/``lng``.
+        """Run a Text Search restricted to a circle of ``radius_m`` metres
+        around ``lat``/``lng``.
 
-        The New Nearby Search endpoint filters by place *type* rather than free
-        text, so ``keyword`` is passed as an included type (e.g. ``"restaurant"``,
-        ``"coffee_shop"``); a free-text phrase will be rejected by the API.
+        ``keyword`` stays free text, just like :meth:`text_search` - only the
+        location is expressed differently (a circle instead of a place name).
         """
         body = {
-            "includedTypes": [keyword.strip()],
-            "maxResultCount": PAGE_SIZE,
+            "textQuery": keyword.strip(),
+            "pageSize": PAGE_SIZE,
             "locationRestriction": {
                 "circle": {
                     "center": {"latitude": lat, "longitude": lng},
@@ -122,7 +129,7 @@ class PlacesClient:
                 }
             },
         }
-        return self._paginate(NEARBY_SEARCH_PATH, body)
+        return self._paginate(TEXT_SEARCH_PATH, body)
 
     # -- internals ----------------------------------------------------------
 

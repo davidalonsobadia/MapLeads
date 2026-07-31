@@ -86,7 +86,7 @@ def test_text_search_without_location_uses_bare_keyword():
     assert captured["body"]["textQuery"] == "dentist"
 
 
-def test_nearby_search_builds_request_and_normalizes():
+def test_point_search_builds_request_and_normalizes():
     captured = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -96,13 +96,15 @@ def test_nearby_search_builds_request_and_normalizes():
         return httpx.Response(200, json={"places": [_place(2)]})
 
     client = _client_with_handler(handler)
-    results = client.nearby_search("restaurant", 40.4, -3.7, 1500)
+    results = client.point_search("restaurant", 40.4, -3.7, 1500)
 
-    assert captured["url"] == "https://places.googleapis.com/v1/places:searchNearby"
+    # Point search goes through Text Search (not Nearby Search) so free-text
+    # keywords aren't rejected as invalid place types.
+    assert captured["url"] == "https://places.googleapis.com/v1/places:searchText"
     assert captured["field_mask"] == FIELD_MASK
     assert captured["body"] == {
-        "includedTypes": ["restaurant"],
-        "maxResultCount": PAGE_SIZE,
+        "textQuery": "restaurant",
+        "pageSize": PAGE_SIZE,
         "locationRestriction": {
             "circle": {
                 "center": {"latitude": 40.4, "longitude": -3.7},

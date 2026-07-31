@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { List, Loader2, MapPin, MoreVertical, SearchX, Trash2 } from "lucide-react"
+import { Loader2, MoreVertical, SearchX, Trash2 } from "lucide-react"
 import type { SearchHistoryItem } from "@/lib/types"
 import { config } from "@/lib/config"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { LeadsMap, type LeadMarker } from "@/components/map"
 import { searchApi, formatSearchLocation, getSearchPoint } from "./api"
 import { DeleteSearchDialog } from "./delete-search-dialog"
@@ -51,7 +51,6 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
   const [pendingDelete, setPendingDelete] = useState<SearchHistoryItem | null>(
     null,
   )
-  const [view, setView] = useState<"list" | "map">("list")
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -133,32 +132,91 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={view}
-          onValueChange={(value) => {
-            if (value === "list" || value === "map") setView(value)
-          }}
-          aria-label={t("viewToggleAria")}
-        >
-          <ToggleGroupItem value="list" aria-label={t("listView")}>
-            <List className="h-4 w-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="map" aria-label={t("mapView")}>
-            <MapPin className="h-4 w-4" />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px] lg:items-start">
+        <div className="rounded-lg border">
+          <ScrollArea className="h-[420px] lg:h-[560px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("columns.keyword")}</TableHead>
+                  <TableHead>{t("columns.location")}</TableHead>
+                  <TableHead>{t("columns.date")}</TableHead>
+                  <TableHead className="text-right">{t("columns.results")}</TableHead>
+                  <TableHead className="w-12">
+                    <span className="sr-only">{t("columns.actions")}</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {searches.map((search) => {
+                  const open = () => openSearch(search.id)
+                  return (
+                    <TableRow
+                      key={search.id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={t("viewResultsAria", { keyword: search.keyword })}
+                      onClick={open}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault()
+                          open()
+                        }
+                      }}
+                      className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                    >
+                      <TableCell className="font-medium">{search.keyword}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatSearchLocation(search)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(search.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {search.resultCount}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {/* Stop propagation so the action never triggers row navigation. */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label={t("rowActionsAria", { keyword: search.keyword })}
+                              onClick={(event) => event.stopPropagation()}
+                              onKeyDown={(event) => event.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                setPendingDelete(search)
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              {t("delete")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </div>
 
-      {view === "map" ? (
-        <div className="space-y-2">
-          <div className="h-[480px]">
+        <div className="lg:sticky lg:top-4">
+          <div className="h-[320px] lg:h-[560px]">
             <LeadsMap markers={markers} onMarkerClick={openSearch} className="h-full" />
           </div>
           {markers.length < searches.length && (
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {t("mapTextLocationNote", {
                 missing: searches.length - markers.length,
                 total: searches.length,
@@ -166,83 +224,7 @@ export function SearchHistory({ projectId }: SearchHistoryProps) {
             </p>
           )}
         </div>
-      ) : (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("columns.keyword")}</TableHead>
-                <TableHead>{t("columns.location")}</TableHead>
-                <TableHead>{t("columns.date")}</TableHead>
-                <TableHead className="text-right">{t("columns.results")}</TableHead>
-                <TableHead className="w-12">
-                  <span className="sr-only">{t("columns.actions")}</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {searches.map((search) => {
-                const open = () => openSearch(search.id)
-                return (
-                  <TableRow
-                    key={search.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={t("viewResultsAria", { keyword: search.keyword })}
-                    onClick={open}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault()
-                        open()
-                      }
-                    }}
-                    className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-                  >
-                    <TableCell className="font-medium">{search.keyword}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatSearchLocation(search)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(search.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {search.resultCount}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {/* Stop propagation so the action never triggers row navigation. */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label={t("rowActionsAria", { keyword: search.keyword })}
-                            onClick={(event) => event.stopPropagation()}
-                            onKeyDown={(event) => event.stopPropagation()}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              setPendingDelete(search)
-                            }}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            {t("delete")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      </div>
 
       <DeleteSearchDialog
         open={pendingDelete !== null}

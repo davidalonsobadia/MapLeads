@@ -91,8 +91,8 @@ def test_anonymous_point_search_converts_radius(client, use_places_client):
     )
     assert response.status_code == 200
     assert response.json()["total_available"] == 1
-    # radius_km was converted to metres and dispatched to nearby_search.
-    assert fake.nearby_calls == [("restaurant", 40.4, -3.7, 2000.0)]
+    # radius_km was converted to metres and dispatched to point_search.
+    assert fake.point_calls == [("restaurant", 40.4, -3.7, 2000.0)]
     assert fake.text_calls == []
 
 
