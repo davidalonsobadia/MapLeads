@@ -1,9 +1,9 @@
-# Internal Caddy for MapLeads (service "caddy" / container mapleads-caddy).
+# Internal Caddy for MapLeads (service "caddy" / container map-leads-caddy).
 # Does NOT listen on the host's 80/443: that belongs to the VPS's ENTRY Caddy
 # (Koalvia/infra repo), which forwards the domain over the "proxy" network:
 #
 #     mapleads.koalvia.com {
-#         reverse_proxy mapleads-caddy:80
+#         reverse_proxy map-leads-caddy:80
 #     }
 #
 # TLS is terminated by the entry Caddy. Here we route plain HTTP: backend API

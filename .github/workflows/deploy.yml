@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  DEPLOY_DIR: MapLeads
+  DEPLOY_DIR: map-leads
 
 jobs:
   build-and-deploy:

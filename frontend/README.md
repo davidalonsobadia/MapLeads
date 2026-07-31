@@ -73,8 +73,10 @@ If you want to connect to the backend running via the root `docker-compose.yml`:
    networks:
      frontend-network:
        external: true
-       name: craze_dashboard_mapleads-network
+       name: map-leads_map-leads-network
    ```
+   (Compose prefixes the network name with the root project's folder name — run
+   `docker network ls` after starting the root compose to confirm the exact name.)
 
 2. Or use the same network name as the root compose file.
 

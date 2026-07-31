@@ -158,7 +158,7 @@ docker-compose exec frontend pnpm install
 docker-compose exec api python scripts/create_api_client.py --name "test"
 
 # Access database
-docker-compose exec db psql -U postgres -d mapleads_db
+docker-compose exec db psql -U postgres -d map_leads_db
 
 # Run migrations
 docker-compose exec api alembic upgrade head
@@ -288,18 +288,18 @@ Deployed to a shared Hetzner VPS alongside other projects. `.github/workflows/de
 builds the backend and frontend images, pushes them to GHCR, then SSHes into the
 VPS to pull and restart the stack defined in `docker-compose.prod.yml`. That
 stack does not publish any ports itself — it brings its own internal Caddy
-(`mapleads-caddy`, see `caddy/Caddyfile`) that joins the VPS's shared external
+(`map-leads-caddy`, see `caddy/Caddyfile`) that joins the VPS's shared external
 `proxy` network, which the entry Caddy (`Koalvia/infra`) forwards
 `mapleads.koalvia.com` to.
 
 One-time server setup (not automated, since it touches secrets and shared
 VPS state):
 
-1. Create `~/MapLeads/backend/.env` and `~/MapLeads/frontend/.env` on the
+1. Create `~/map-leads/backend/.env` and `~/map-leads/frontend/.env` on the
    server with production secrets (`SECRET_KEY`, `POSTGRES_PASSWORD`,
    `DATABASE_URL`, `CORS_ORIGINS`, `FRONTEND_URL`, Stripe/OAuth/Google keys,
    etc.) — these are never committed.
-2. Add `mapleads.koalvia.com { reverse_proxy mapleads-caddy:80 }` to the VPS's
+2. Add `mapleads.koalvia.com { reverse_proxy map-leads-caddy:80 }` to the VPS's
    entry Caddyfile (`Koalvia/infra`) and point DNS at the VPS.
 3. In this repo's GitHub settings, create a `PROD` environment with secrets
    `SERVER_IP`, `SSH_USERNAME`, `SSH_PRIVATE_KEY`, `CR_PAT` (GHCR pull token),

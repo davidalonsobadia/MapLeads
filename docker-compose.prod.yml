@@ -5,10 +5,10 @@
 # override of docker-compose.yml (that one is for local development only).
 #
 # This stack does NOT publish ports 80/443 on the host. It brings its own
-# internal Caddy (mapleads-caddy) with no host ports: the external ingress
+# internal Caddy (map-leads-caddy) with no host ports: the external ingress
 # Caddy on the VPS (owner of 80/443, see Koalvia/infra) reaches it over the
-# external "proxy" network via mapleads-caddy:80. DB/Redis/API/frontend stay
-# internal to mapleads-network — this VPS hosts other projects too, so nothing
+# external "proxy" network via map-leads-caddy:80. DB/Redis/API/frontend stay
+# internal to map-leads-network — this VPS hosts other projects too, so nothing
 # here should bind a host port and risk colliding with them.
 #
 # Server-side files the operator must create once (never committed):
@@ -23,7 +23,7 @@
 services:
   api:
     image: ${BACKEND_IMAGE}
-    container_name: mapleads-api
+    container_name: map-leads-api
     command: ["/wait-for-postgres.sh", "db", "python", "start.py"]
     env_file: ./backend/.env
     environment:
@@ -35,7 +35,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - mapleads-network
+      - map-leads-network
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import urllib.request; response = urllib.request.urlopen(\"http://localhost:8000/api/v1/health\"); exit(0 if response.status == 200 else 1)'"]
       interval: 30s
@@ -46,7 +46,7 @@ services:
 
   worker:
     image: ${BACKEND_IMAGE}
-    container_name: mapleads-worker
+    container_name: map-leads-worker
     command: celery -A app.celery_app.celery worker --loglevel=info
     env_file: ./backend/.env
     environment:
@@ -57,12 +57,12 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - mapleads-network
+      - map-leads-network
     restart: unless-stopped
 
   frontend:
     image: ${FRONTEND_IMAGE}
-    container_name: mapleads-frontend
+    container_name: map-leads-frontend
     env_file: ./frontend/.env
     environment:
       - NODE_ENV=production
@@ -70,7 +70,7 @@ services:
       api:
         condition: service_healthy
     networks:
-      - mapleads-network
+      - map-leads-network
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
       interval: 30s
@@ -81,9 +81,9 @@ services:
 
   redis:
     image: redis:7
-    container_name: mapleads-redis
+    container_name: map-leads-redis
     networks:
-      - mapleads-network
+      - map-leads-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -94,15 +94,15 @@ services:
 
   db:
     image: postgres:15
-    container_name: mapleads-db
+    container_name: map-leads-db
     env_file: ./backend/.env
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: mapleads_db
+      POSTGRES_DB: map_leads_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - mapleads-network
+      - map-leads-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -113,7 +113,7 @@ services:
 
   caddy:
     image: caddy:latest
-    container_name: mapleads-caddy
+    container_name: map-leads-caddy
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -122,8 +122,8 @@ services:
       - api
       - frontend
     networks:
-      - mapleads-network   # to reach api/frontend
-      - proxy              # so the entry Caddy can reach mapleads-caddy:80
+      - map-leads-network   # to reach api/frontend
+      - proxy              # so the entry Caddy can reach map-leads-caddy:80
     restart: unless-stopped
 
 volumes:
@@ -132,11 +132,11 @@ volumes:
   caddy_config:
 
 networks:
-  mapleads-network:
+  map-leads-network:
     driver: bridge
   # EXTERNAL network that already exists on the VPS, where the entry Caddy lives
-  # (Koalvia/infra, owns 80/443). mapleads-caddy hooks into it so the entry Caddy
-  # can reach it at "mapleads-caddy:80".
+  # (Koalvia/infra, owns 80/443). map-leads-caddy hooks into it so the entry Caddy
+  # can reach it at "map-leads-caddy:80".
   proxy:
     external: true
     name: ${PROXY_NETWORK:-proxy}
