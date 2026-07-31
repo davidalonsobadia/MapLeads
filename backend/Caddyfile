@@ -1,16 +1,18 @@
-# MapLeads Backend Caddy Configuration
+# MapLeads Caddy configuration for local testing of the `--profile production`
+# service in the dev docker-compose.yml. The real production deploy (Hetzner)
+# uses caddy/Caddyfile + docker-compose.prod.yml instead — see that file.
 
-# For local development with custom domain
-localhost {
-    reverse_proxy web:8000
-}
-
-# For production - replace with your domain
-# api.yourdomain.com {
-#     reverse_proxy web:8000
-# }
-
-# Simple HTTP reverse proxy
 :80 {
-    reverse_proxy web:8000
+    handle /api/v1/* {
+        reverse_proxy api:8000
+    }
+    handle /docs {
+        reverse_proxy api:8000
+    }
+    handle /openapi.json {
+        reverse_proxy api:8000
+    }
+    handle {
+        reverse_proxy frontend:3000
+    }
 }

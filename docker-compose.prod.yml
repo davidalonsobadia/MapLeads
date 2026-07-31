@@ -1,23 +1,142 @@
-# Production override file
-# Use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+# Production compose — uses pre-built images from GHCR.
+#
+# BACKEND_IMAGE and FRONTEND_IMAGE are exported by the deploy workflow
+# (.github/workflows/deploy.yml). This file is SELF-CONTAINED — it is not an
+# override of docker-compose.yml (that one is for local development only).
+#
+# This stack does NOT publish ports 80/443 on the host. It brings its own
+# internal Caddy (mapleads-caddy) with no host ports: the external ingress
+# Caddy on the VPS (owner of 80/443, see Koalvia/infra) reaches it over the
+# external "proxy" network via mapleads-caddy:80. DB/Redis/API/frontend stay
+# internal to mapleads-network — this VPS hosts other projects too, so nothing
+# here should bind a host port and risk colliding with them.
+#
+# Server-side files the operator must create once (never committed):
+#   ./backend/.env  -> all backend secrets: SECRET_KEY, POSTGRES_PASSWORD,
+#                      DATABASE_URL, API keys, CORS_ORIGINS, etc.
+#   ./frontend/.env -> frontend secrets
+#
+# Usage (on the VPS, launched by the GitHub Actions workflow):
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
 
 services:
-  frontend:
-    build:
-      target: runner
-    environment:
-      - NODE_ENV=production
-    volumes:
-      # Remove source code mounting for production
-      - /app/node_modules
-      - /app/.next
-
   api:
-    volumes:
-      # Remove source code mounting for production
-      - pip_cache:/root/.cache/pip
+    image: ${BACKEND_IMAGE}
+    container_name: mapleads-api
+    command: ["/wait-for-postgres.sh", "db", "python", "start.py"]
+    env_file: ./backend/.env
+    environment:
+      - RUN_MIGRATIONS=1
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mapleads-network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; response = urllib.request.urlopen(\"http://localhost:8000/api/v1/health\"); exit(0 if response.status == 200 else 1)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   worker:
+    image: ${BACKEND_IMAGE}
+    container_name: mapleads-worker
+    command: celery -A app.celery_app.celery worker --loglevel=info
+    env_file: ./backend/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mapleads-network
+    restart: unless-stopped
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    container_name: mapleads-frontend
+    env_file: ./frontend/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - mapleads-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: mapleads-redis
+    networks:
+      - mapleads-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: mapleads-db
+    env_file: ./backend/.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: mapleads_db
     volumes:
-      # Remove source code mounting for production
-      - pip_cache:/root/.cache/pip
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mapleads-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:latest
+    container_name: mapleads-caddy
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - mapleads-network   # to reach api/frontend
+      - proxy              # so the entry Caddy can reach mapleads-caddy:80
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  mapleads-network:
+    driver: bridge
+  # EXTERNAL network that already exists on the VPS, where the entry Caddy lives
+  # (Koalvia/infra, owns 80/443). mapleads-caddy hooks into it so the entry Caddy
+  # can reach it at "mapleads-caddy:80".
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}

@@ -284,14 +284,30 @@ docker-compose up -d
 
 ## 🚀 Production Deployment
 
-For production deployment:
+Deployed to a shared Hetzner VPS alongside other projects. `.github/workflows/deploy.yml`
+builds the backend and frontend images, pushes them to GHCR, then SSHes into the
+VPS to pull and restart the stack defined in `docker-compose.prod.yml`. That
+stack does not publish any ports itself — it brings its own internal Caddy
+(`mapleads-caddy`, see `caddy/Caddyfile`) that joins the VPS's shared external
+`proxy` network, which the entry Caddy (`Koalvia/infra`) forwards
+`mapleads.koalvia.com` to.
 
-1. Set `NODE_ENV=production` in `frontend/.env`
-2. Use production build target: `FRONTEND_BUILD_TARGET=runner`
-3. Remove volume mounts for source code
-4. Use environment-specific secrets
-5. Configure proper CORS origins
-6. Set up SSL/TLS (consider using Caddy profile)
+One-time server setup (not automated, since it touches secrets and shared
+VPS state):
+
+1. Create `~/MapLeads/backend/.env` and `~/MapLeads/frontend/.env` on the
+   server with production secrets (`SECRET_KEY`, `POSTGRES_PASSWORD`,
+   `DATABASE_URL`, `CORS_ORIGINS`, `FRONTEND_URL`, Stripe/OAuth/Google keys,
+   etc.) — these are never committed.
+2. Add `mapleads.koalvia.com { reverse_proxy mapleads-caddy:80 }` to the VPS's
+   entry Caddyfile (`Koalvia/infra`) and point DNS at the VPS.
+3. In this repo's GitHub settings, create a `PROD` environment with secrets
+   `SERVER_IP`, `SSH_USERNAME`, `SSH_PRIVATE_KEY`, `CR_PAT` (GHCR pull token),
+   plus the frontend build-time vars `NEXT_PUBLIC_API_URL` (`http://api:8000`),
+   `NEXT_PUBLIC_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, and
+   `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`.
+
+After that, every push to `main` deploys automatically.
 
 ## 📝 License
 

@@ -1,0 +1,30 @@
+# Internal Caddy for MapLeads (service "caddy" / container mapleads-caddy).
+# Does NOT listen on the host's 80/443: that belongs to the VPS's ENTRY Caddy
+# (Koalvia/infra repo), which forwards the domain over the "proxy" network:
+#
+#     mapleads.koalvia.com {
+#         reverse_proxy mapleads-caddy:80
+#     }
+#
+# TLS is terminated by the entry Caddy. Here we route plain HTTP: backend API
+# paths (needed publicly for things like the Stripe webhook) go to the FastAPI
+# container, everything else goes to the Next.js frontend, whose server-side
+# route handlers talk to the backend (api:8000) over the internal network.
+
+:80 {
+    # FastAPI backend routes
+    handle /api/v1/* {
+        reverse_proxy api:8000
+    }
+    handle /docs {
+        reverse_proxy api:8000
+    }
+    handle /openapi.json {
+        reverse_proxy api:8000
+    }
+
+    # Next.js frontend — everything else
+    handle {
+        reverse_proxy frontend:3000
+    }
+}
