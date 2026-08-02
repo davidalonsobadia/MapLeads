@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { Button } from "@/components/ui/button"
+import { LocaleSwitcher } from "@/components/locale-switcher"
 import { MapPin, Search, Shield, Users } from "lucide-react"
 
 export default async function HomePage() {
@@ -15,6 +16,7 @@ export default async function HomePage() {
             <span className="text-xl font-bold">MapLeads</span>
           </div>
           <div className="flex items-center gap-4">
+            <LocaleSwitcher />
             <Button variant="ghost" asChild>
               <Link href="/login">{t("signIn")}</Link>
             </Button>
