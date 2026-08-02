@@ -5,7 +5,7 @@ import { config } from "@/lib/config"
 
 type RouteContext = { params: Promise<{ provider: string }> }
 
-const ALLOWED_PROVIDERS = ["google", "github"]
+const ALLOWED_PROVIDERS = ["google"]
 
 /**
  * Start the OAuth flow for a provider.

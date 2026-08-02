@@ -50,7 +50,6 @@
     },
     "oauth": {
       "continueWithGoogle": "Continue with Google",
-      "continueWithGithub": "Continue with GitHub",
       "divider": "or",
       "error": "We couldn't sign you in with that provider. Please try again.",
       "errorState": "Your sign-in session expired. Please try again.",

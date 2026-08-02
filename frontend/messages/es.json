@@ -50,7 +50,6 @@
     },
     "oauth": {
       "continueWithGoogle": "Continuar con Google",
-      "continueWithGithub": "Continuar con GitHub",
       "divider": "o",
       "error": "No pudimos iniciar tu sesión con ese proveedor. Inténtalo de nuevo.",
       "errorState": "Tu sesión de inicio de sesión expiró. Inténtalo de nuevo.",

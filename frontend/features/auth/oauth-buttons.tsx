@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { config } from "@/lib/config"
-import { Github } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 function GoogleIcon() {
@@ -48,12 +47,6 @@ export function OAuthButtons() {
           <a href={config.api.endpoints.auth.oauthStart("google")}>
             <GoogleIcon />
             {t("continueWithGoogle")}
-          </a>
-        </Button>
-        <Button asChild variant="outline" className="w-full">
-          <a href={config.api.endpoints.auth.oauthStart("github")}>
-            <Github className="h-4 w-4" />
-            {t("continueWithGithub")}
           </a>
         </Button>
       </div>
