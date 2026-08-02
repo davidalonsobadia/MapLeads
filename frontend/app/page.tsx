@@ -71,7 +71,20 @@ export default async function HomePage() {
 
       <footer className="border-t mt-20">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>{t("footer.copyright")}</p>
+          <p>
+            {t.rich("footer.copyright", {
+              koalvia: (chunks) => (
+                <a
+                  href="https://www.koalvia.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
         </div>
       </footer>
     </div>
