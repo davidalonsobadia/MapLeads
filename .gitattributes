@@ -1,3 +1,8 @@
+# Shell scripts are run directly inside Linux containers as Docker entrypoints
+# (see backend/Dockerfile); force LF regardless of the contributor's OS or
+# local core.autocrlf so a CRLF checkout on Windows never breaks the shebang.
+*.sh text eol=lf
+
 # Design reference assets (design/refs/) — see CLAUDE.md §6 and design/refs/README.md.
 design/refs/**/*.png binary
 design/refs/**/*.jpg binary
