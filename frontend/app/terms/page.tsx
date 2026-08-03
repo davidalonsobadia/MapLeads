@@ -35,6 +35,7 @@ export default async function TermsPage() {
         <p className="mt-6 text-muted-foreground text-pretty">{s("intro")}</p>
 
         <div className="mt-12 space-y-10">
+          <Section title={s("provider.title")} body={s("provider.body")} />
           <Section title={s("acceptance.title")} body={s("acceptance.body")} />
           <Section title={s("service.title")} body={s("service.body")} />
           <Section title={s("account.title")} body={s("account.body")} />

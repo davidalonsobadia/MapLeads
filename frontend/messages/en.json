@@ -568,7 +568,7 @@
       "intro": "This Privacy Policy explains what personal data MapLeads (\"MapLeads\", \"we\", \"us\") collects, why we collect it, and the rights you have over it. MapLeads is a product built and operated by Koalvia.",
       "controller": {
         "title": "Data controller",
-        "body": "Koalvia is the data controller for the personal data described in this policy. You can reach us at privacy@koalvia.com for any question or request about your data."
+        "body": "Koalvia Technologies SL (NIF B26886952), registered at C/ Arbúcies 17, 08173 Sant Cugat del Vallès, Spain, is the data controller for the personal data described in this policy. You can reach us at support@koalvia.com for any question or request about your data."
       },
       "dataCollected": {
         "title": "What data we collect",
@@ -603,7 +603,7 @@
       },
       "rights": {
         "title": "Your rights",
-        "intro": "If you are in the European Economic Area, you have the following rights over your personal data. To exercise any of them, email privacy@koalvia.com.",
+        "intro": "If you are in the European Economic Area, you have the following rights over your personal data. To exercise any of them, email support@koalvia.com.",
         "access": "Access — get a copy of the data we hold about you.",
         "rectification": "Rectification — correct inaccurate or incomplete data.",
         "erasure": "Erasure — ask us to delete your data ('right to be forgotten').",
@@ -630,7 +630,7 @@
       },
       "contact": {
         "title": "Contact",
-        "body": "Questions about this policy or your data? Email us at privacy@koalvia.com."
+        "body": "Questions about this policy or your data? Email us at support@koalvia.com."
       }
     },
     "terms": {
@@ -638,6 +638,10 @@
       "title": "Terms of Service",
       "updated": "Last updated: August 3, 2026",
       "intro": "These Terms of Service (\"Terms\") govern your use of MapLeads, a product built and operated by Koalvia. By creating an account or using MapLeads, you agree to these Terms.",
+      "provider": {
+        "title": "Who provides this service",
+        "body": "MapLeads is provided by Koalvia Technologies SL (NIF B26886952), registered at C/ Arbúcies 17, 08173 Sant Cugat del Vallès, Spain. You can reach us at support@koalvia.com."
+      },
       "acceptance": {
         "title": "Acceptance of these Terms",
         "body": "By registering for or using MapLeads, you confirm that you can form a binding contract, and that you accept these Terms and our Privacy Policy."
@@ -688,7 +692,7 @@
       },
       "contact": {
         "title": "Contact",
-        "body": "Questions about these Terms? Email us at legal@koalvia.com."
+        "body": "Questions about these Terms? Email us at support@koalvia.com."
       }
     }
   }

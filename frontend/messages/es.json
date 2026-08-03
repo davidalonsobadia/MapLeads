@@ -568,7 +568,7 @@
       "intro": "Esta política de privacidad explica qué datos personales recoge MapLeads («MapLeads», «nosotros»), por qué los recogemos y qué derechos tienes sobre ellos. MapLeads es un producto desarrollado y operado por Koalvia.",
       "controller": {
         "title": "Responsable del tratamiento",
-        "body": "Koalvia es el responsable del tratamiento de los datos personales descritos en esta política. Puedes contactarnos en privacy@koalvia.com para cualquier consulta o solicitud sobre tus datos."
+        "body": "Koalvia Technologies SL (NIF B26886952), con domicilio en C/ Arbúcies 17, 08173 Sant Cugat del Vallès, España, es el responsable del tratamiento de los datos personales descritos en esta política. Puedes contactarnos en support@koalvia.com para cualquier consulta o solicitud sobre tus datos."
       },
       "dataCollected": {
         "title": "Qué datos recogemos",
@@ -603,7 +603,7 @@
       },
       "rights": {
         "title": "Tus derechos",
-        "intro": "Si te encuentras en el Espacio Económico Europeo, tienes los siguientes derechos sobre tus datos personales. Para ejercerlos, escribe a privacy@koalvia.com.",
+        "intro": "Si te encuentras en el Espacio Económico Europeo, tienes los siguientes derechos sobre tus datos personales. Para ejercerlos, escribe a support@koalvia.com.",
         "access": "Acceso — obtener una copia de los datos que tenemos sobre ti.",
         "rectification": "Rectificación — corregir datos inexactos o incompletos.",
         "erasure": "Supresión — solicitar la eliminación de tus datos («derecho al olvido»).",
@@ -630,7 +630,7 @@
       },
       "contact": {
         "title": "Contacto",
-        "body": "¿Dudas sobre esta política? Escríbenos a privacy@koalvia.com."
+        "body": "¿Dudas sobre esta política? Escríbenos a support@koalvia.com."
       }
     },
     "terms": {
@@ -638,6 +638,10 @@
       "title": "Términos de servicio",
       "updated": "Última actualización: 3 de agosto de 2026",
       "intro": "Estos Términos de servicio («Términos») regulan tu uso de MapLeads, un producto desarrollado y operado por Koalvia. Al crear una cuenta o usar MapLeads, aceptas estos Términos.",
+      "provider": {
+        "title": "Quién presta este servicio",
+        "body": "MapLeads es prestado por Koalvia Technologies SL (NIF B26886952), con domicilio en C/ Arbúcies 17, 08173 Sant Cugat del Vallès, España. Puedes contactarnos en support@koalvia.com."
+      },
       "acceptance": {
         "title": "Aceptación de estos Términos",
         "body": "Al registrarte o usar MapLeads, confirmas que puedes celebrar un contrato vinculante y que aceptas estos Términos y nuestra Política de privacidad."
@@ -688,7 +692,7 @@
       },
       "contact": {
         "title": "Contacto",
-        "body": "¿Dudas sobre estos Términos? Escríbenos a legal@koalvia.com."
+        "body": "¿Dudas sobre estos Términos? Escríbenos a support@koalvia.com."
       }
     }
   }
