@@ -557,5 +557,139 @@
       "success": "Your code was redeemed successfully.",
       "error": "We couldn't redeem that code."
     }
+  },
+  "legal": {
+    "backToHome": "← Back to home",
+    "consentNotice": "By creating an account, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+    "privacy": {
+      "metaTitle": "Privacy Policy — MapLeads",
+      "title": "Privacy Policy",
+      "updated": "Last updated: August 3, 2026",
+      "intro": "This Privacy Policy explains what personal data MapLeads (\"MapLeads\", \"we\", \"us\") collects, why we collect it, and the rights you have over it. MapLeads is a product built and operated by Koalvia.",
+      "controller": {
+        "title": "Data controller",
+        "body": "Koalvia is the data controller for the personal data described in this policy. You can reach us at privacy@koalvia.com for any question or request about your data."
+      },
+      "dataCollected": {
+        "title": "What data we collect",
+        "intro": "We collect only what we need to run MapLeads:",
+        "account": "Account data: your name and email address, and a hashed password if you register with email and password.",
+        "oauth": "Sign-in data: if you sign in with Google (or another provider we support), we receive your name, email address, and provider account id from that provider — never your password.",
+        "usage": "Usage data: the searches you run (keyword and location), and the business leads you choose to save, organize, and annotate.",
+        "billing": "Billing data: if you subscribe to a paid plan, Stripe processes your payment details on our behalf; we store your subscription status and plan, not your card number.",
+        "cookies": "Session data: a small set of cookies used to keep you signed in and to protect the sign-in flow (see Cookies below)."
+      },
+      "useOfData": {
+        "title": "How we use your data",
+        "body": "We use your data to provide the service (running searches, storing your projects and leads), to authenticate you, to send transactional emails (verification, password reset), to process billing, and to fix bugs and keep MapLeads secure. We do not sell your personal data."
+      },
+      "legalBasis": {
+        "title": "Legal basis for processing",
+        "body": "We process your data to perform the contract between you and us (providing the service you signed up for), to comply with legal obligations (such as billing records), and, for security and abuse-prevention logging, based on our legitimate interest in keeping MapLeads safe and reliable."
+      },
+      "sharing": {
+        "title": "Who we share data with",
+        "intro": "We share data with a small number of service providers who process it on our behalf, under their own data protection commitments:",
+        "google": "Google — sign-in (OAuth) and the Places API used to search businesses.",
+        "github": "GitHub — sign-in (OAuth), where enabled.",
+        "stripe": "Stripe — payment processing and subscription billing.",
+        "resend": "Resend — transactional email delivery (verification, password reset).",
+        "sentry": "Sentry — error monitoring, to help us find and fix bugs.",
+        "maps": "Google Maps — to render maps of your leads inside the app."
+      },
+      "retention": {
+        "title": "How long we keep your data",
+        "body": "We keep your account and lead data for as long as your account is active. If you close your account, we delete your personal data within 30 days, except where we must keep certain billing records for longer to comply with tax and accounting law."
+      },
+      "rights": {
+        "title": "Your rights",
+        "intro": "If you are in the European Economic Area, you have the following rights over your personal data. To exercise any of them, email privacy@koalvia.com.",
+        "access": "Access — get a copy of the data we hold about you.",
+        "rectification": "Rectification — correct inaccurate or incomplete data.",
+        "erasure": "Erasure — ask us to delete your data ('right to be forgotten').",
+        "portability": "Portability — receive your data in a structured, machine-readable format.",
+        "objection": "Objection — object to processing based on our legitimate interest.",
+        "restriction": "Restriction — ask us to limit how we use your data.",
+        "complaint": "Complaint — lodge a complaint with your local data protection authority (in Spain, the Agencia Española de Protección de Datos, www.aepd.es)."
+      },
+      "international": {
+        "title": "International data transfers",
+        "body": "Some of our providers (Google, Stripe, Resend, Sentry) process data outside the European Economic Area. Where that happens, we rely on the providers' Standard Contractual Clauses or an equivalent safeguard recognized under GDPR."
+      },
+      "security": {
+        "title": "Security",
+        "body": "We use industry-standard measures — encrypted connections (HTTPS), hashed passwords, and access controls — to protect your data. No system is perfectly secure, and we work continuously to improve ours."
+      },
+      "children": {
+        "title": "Children's privacy",
+        "body": "MapLeads is intended for business use and is not directed at children. We do not knowingly collect personal data from anyone under 16."
+      },
+      "changes": {
+        "title": "Changes to this policy",
+        "body": "We may update this policy as MapLeads evolves. We'll update the date above when we do, and let you know of material changes by email."
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Questions about this policy or your data? Email us at privacy@koalvia.com."
+      }
+    },
+    "terms": {
+      "metaTitle": "Terms of Service — MapLeads",
+      "title": "Terms of Service",
+      "updated": "Last updated: August 3, 2026",
+      "intro": "These Terms of Service (\"Terms\") govern your use of MapLeads, a product built and operated by Koalvia. By creating an account or using MapLeads, you agree to these Terms.",
+      "acceptance": {
+        "title": "Acceptance of these Terms",
+        "body": "By registering for or using MapLeads, you confirm that you can form a binding contract, and that you accept these Terms and our Privacy Policy."
+      },
+      "service": {
+        "title": "The service",
+        "body": "MapLeads lets you search Google Maps for local businesses by keyword and location, save the ones that matter as leads, organize them into projects, and track your follow-up. Some features are limited by your plan's monthly lead quota."
+      },
+      "account": {
+        "title": "Your account",
+        "body": "You're responsible for keeping your login credentials secure and for all activity under your account. Tell us right away if you suspect unauthorized access. You must provide accurate information when you register."
+      },
+      "acceptableUse": {
+        "title": "Acceptable use",
+        "body": "Use MapLeads only for lawful purposes. Don't scrape, resell, or redistribute the service itself; don't attempt to bypass usage limits or security controls; and don't use leads obtained through MapLeads in a way that violates applicable data protection or anti-spam law in the jurisdictions you contact."
+      },
+      "billing": {
+        "title": "Subscriptions and billing",
+        "body": "Paid plans are billed in advance on a recurring basis through Stripe. You can change or cancel your plan at any time from your account's billing settings; cancellation takes effect at the end of the current billing period. Fees are non-refundable except where required by law."
+      },
+      "intellectualProperty": {
+        "title": "Intellectual property",
+        "body": "MapLeads, its branding, and its software are owned by Koalvia. Business data you save (your leads, notes, and projects) remains yours; you grant us only the license needed to store and display it back to you as part of the service."
+      },
+      "thirdPartyServices": {
+        "title": "Third-party services",
+        "body": "MapLeads relies on third-party providers (including Google Maps/Places, Google and GitHub sign-in, and Stripe) to operate. Your use of those providers through MapLeads is also subject to their own terms."
+      },
+      "disclaimer": {
+        "title": "Disclaimer",
+        "body": "MapLeads is provided \"as is\". Business listing data comes from Google Maps and may be incomplete, outdated, or inaccurate; we don't guarantee the accuracy of search results or the availability of the service without interruption."
+      },
+      "liability": {
+        "title": "Limitation of liability",
+        "body": "To the maximum extent permitted by law, Koalvia is not liable for indirect, incidental, or consequential damages arising from your use of MapLeads. Our total liability for any claim is limited to the amount you paid us in the 12 months before the claim."
+      },
+      "termination": {
+        "title": "Termination",
+        "body": "You can close your account at any time from Settings. We may suspend or terminate accounts that violate these Terms or that we reasonably believe pose a risk to the service or other users."
+      },
+      "governingLaw": {
+        "title": "Governing law",
+        "body": "These Terms are governed by Spanish law. Any dispute not resolved informally will be submitted to the courts of Spain, without prejudice to any mandatory consumer-protection rights you may have in your country of residence."
+      },
+      "changes": {
+        "title": "Changes to these Terms",
+        "body": "We may update these Terms as MapLeads evolves. We'll update the date above and, for material changes, notify you by email."
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Questions about these Terms? Email us at legal@koalvia.com."
+      }
+    }
   }
 }

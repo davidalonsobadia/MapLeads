@@ -6,6 +6,7 @@ import { MapPin, Search, Shield, Users } from "lucide-react"
 
 export default async function HomePage() {
   const t = await getTranslations("landing")
+  const tLegal = await getTranslations("legal")
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,7 +73,7 @@ export default async function HomePage() {
       </main>
 
       <footer className="border-t mt-20">
-        <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
+        <div className="container mx-auto px-4 py-8 text-center text-muted-foreground space-y-3">
           <p>
             {t.rich("footer.copyright", {
               koalvia: (chunks) => (
@@ -86,6 +87,14 @@ export default async function HomePage() {
                 </a>
               ),
             })}
+          </p>
+          <p className="flex items-center justify-center gap-4 text-sm">
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+              {tLegal("privacy.title")}
+            </Link>
+            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
+              {tLegal("terms.title")}
+            </Link>
           </p>
         </div>
       </footer>

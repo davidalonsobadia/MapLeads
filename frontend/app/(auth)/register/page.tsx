@@ -19,6 +19,7 @@ function RegisterContent() {
   const searchParams = useSearchParams()
   const t = useTranslations("auth.register")
   const tOauth = useTranslations("auth.oauth")
+  const tLegal = useTranslations("legal")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -160,6 +161,20 @@ function RegisterContent() {
               {loading ? t("submitting") : t("submit")}
             </Button>
             <OAuthButtons />
+            <p className="text-xs text-center text-muted-foreground text-pretty">
+              {tLegal.rich("consentNotice", {
+                terms: (chunks) => (
+                  <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
+                    {chunks}
+                  </Link>
+                ),
+                privacy: (chunks) => (
+                  <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
             <p className="text-sm text-center text-muted-foreground">
               {t("haveAccount")}{" "}
               <Link href="/login" className="text-primary hover:underline">
