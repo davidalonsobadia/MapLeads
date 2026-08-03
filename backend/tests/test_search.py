@@ -322,8 +322,11 @@ def test_delete_search_removes_row_and_is_idempotent_404(
     ).json()
     search_id = run["search_id"]
 
-    # Delete the owned search: 204, row gone, no longer in history.
-    assert client.delete(f"{base}/{search_id}").status_code == 204
+    # Delete the owned search: 204 with an empty, non-JSON body; row gone.
+    response = client.delete(f"{base}/{search_id}")
+    assert response.status_code == 204
+    assert response.content == b""
+    assert "application/json" not in response.headers.get("content-type", "")
 
     from app.domains.search.models import Search
 

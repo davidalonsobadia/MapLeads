@@ -41,7 +41,8 @@ export function DeleteSearchDialog({
       await onConfirm()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("error"))
+      console.error("[MapLeads] Delete search failed:", err)
+      setError(t("error"))
     } finally {
       setDeleting(false)
     }

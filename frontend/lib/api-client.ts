@@ -87,13 +87,14 @@ export async function apiFetch<T = any>(
       headers: requestHeaders,
     })
 
-    // Parse response body
-    let data: any
-    const contentType = response.headers.get("content-type")
-    if (contentType?.includes("application/json")) {
-      data = await response.json()
-    } else {
-      data = await response.text()
+    // Parse response body (204/304 and empty bodies stay undefined)
+    let data: any = undefined
+    if (response.status !== 204 && response.status !== 304) {
+      const contentType = response.headers.get("content-type")
+      const raw = await response.text()
+      if (raw) {
+        data = contentType?.includes("application/json") ? JSON.parse(raw) : raw
+      }
     }
 
     // Handle HTTP errors

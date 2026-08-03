@@ -49,7 +49,10 @@ def test_create_list_and_delete_notes(client):
 
     # Delete the first-created note; the list then holds only the reminder.
     note_id = notes[1]["id"]
-    assert client.delete(f"{base}/{note_id}").status_code == 204
+    deleted = client.delete(f"{base}/{note_id}")
+    assert deleted.status_code == 204
+    assert deleted.content == b""
+    assert "application/json" not in deleted.headers.get("content-type", "")
     remaining = client.get(base).json()
     assert [n["id"] for n in remaining] == [reminder["id"]]
 

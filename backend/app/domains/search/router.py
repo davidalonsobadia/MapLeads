@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Header, status
+from fastapi import APIRouter, Depends, Header, Response, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -110,3 +110,4 @@ def delete_search(
     service.SearchService(db, places_client).delete_search(
         current_user.id, project_id, search_id
     )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
