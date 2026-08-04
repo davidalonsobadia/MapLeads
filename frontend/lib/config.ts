@@ -2,6 +2,14 @@ export const config = {
   app: {
     name: "MapLeads",
     description: "Find and manage local business leads from Google Maps",
+    // Trusted origin used to build absolute redirect URLs in Route Handlers
+    // (e.g. the OAuth callback). Do NOT derive these from `request.url`: when
+    // the dev/prod server is bound to 0.0.0.0 (as it is in Docker, so the
+    // container accepts connections from the host's port mapping), Next.js
+    // can resolve `request.url`'s origin to that bind hostname instead of the
+    // browser's actual `Host` header, redirecting users to
+    // `http://0.0.0.0:3000/...` instead of `http://localhost:3000/...`.
+    url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   },
   api: {
     // Real backend API configuration

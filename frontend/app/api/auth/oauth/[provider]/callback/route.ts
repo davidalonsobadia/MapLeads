@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   const { provider } = await params
 
   if (!ALLOWED_PROVIDERS.includes(provider)) {
-    return NextResponse.redirect(new URL("/login?error=oauth", request.url))
+    return NextResponse.redirect(new URL("/login?error=oauth", config.app.url))
   }
 
   const cookieStore = await cookies()
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   if (!code || !state || !storedState || state !== storedState) {
     cookieStore.delete("oauth_state")
     return NextResponse.redirect(
-      new URL("/login?error=oauth_state", request.url),
+      new URL("/login?error=oauth_state", config.app.url),
     )
   }
 
@@ -53,16 +53,16 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     })
     cookieStore.delete("oauth_state")
 
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    return NextResponse.redirect(new URL("/dashboard", config.app.url))
   } catch (error) {
     console.error("[MapLeads] OAuth callback error:", error)
     cookieStore.delete("oauth_state")
 
     if (error instanceof ApiError) {
       // Do not leak backend error details to the URL.
-      return NextResponse.redirect(new URL("/login?error=oauth", request.url))
+      return NextResponse.redirect(new URL("/login?error=oauth", config.app.url))
     }
 
-    return NextResponse.redirect(new URL("/login?error=oauth", request.url))
+    return NextResponse.redirect(new URL("/login?error=oauth", config.app.url))
   }
 }

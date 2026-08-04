@@ -14,11 +14,11 @@ const ALLOWED_PROVIDERS = ["google"]
  * stashes `state` in a short-lived httpOnly cookie (for the CSRF check on the
  * callback), then 302-redirects the browser to the provider.
  */
-export async function GET(request: NextRequest, { params }: RouteContext) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const { provider } = await params
 
   if (!ALLOWED_PROVIDERS.includes(provider)) {
-    return NextResponse.redirect(new URL("/login?error=oauth", request.url))
+    return NextResponse.redirect(new URL("/login?error=oauth", config.app.url))
   }
 
   try {
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     if (error instanceof ApiError && error.status === 503) {
       return NextResponse.redirect(
-        new URL("/login?error=oauth_unconfigured", request.url),
+        new URL("/login?error=oauth_unconfigured", config.app.url),
       )
     }
 
-    return NextResponse.redirect(new URL("/login?error=oauth", request.url))
+    return NextResponse.redirect(new URL("/login?error=oauth", config.app.url))
   }
 }

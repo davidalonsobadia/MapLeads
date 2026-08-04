@@ -192,6 +192,9 @@ Key variables:
 
 - `NEXT_PUBLIC_API_URL` - Backend API URL (use `http://api:8000` in Docker)
 - `NEXT_PUBLIC_API_KEY` - API key for backend authentication
+- `NEXT_PUBLIC_APP_URL` - Public origin of this app as the browser reaches it
+  (e.g. `http://localhost:3000` locally, `https://mapleads.koalvia.com` in
+  prod). Used to build absolute redirect URLs (e.g. the OAuth callback).
 - `NODE_ENV` - `production` or `development`
 
 ### Ports
@@ -304,8 +307,11 @@ VPS state):
 3. In this repo's GitHub settings, create a `PROD` environment with secrets
    `SERVER_IP`, `SSH_USERNAME`, `SSH_PRIVATE_KEY`, `CR_PAT` (GHCR pull token),
    plus the frontend build-time vars `NEXT_PUBLIC_API_URL` (`http://api:8000`),
-   `NEXT_PUBLIC_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, and
-   `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`.
+   `NEXT_PUBLIC_API_KEY`, `NEXT_PUBLIC_APP_URL` (the public origin, e.g.
+   `https://mapleads.koalvia.com` — used to build absolute redirect URLs in
+   OAuth routes; must NOT be derived from the request at runtime, since the
+   standalone server ignores `Host`/`X-Forwarded-Host`), `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`,
+   and `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`.
 
 After that, every push to `main` deploys automatically.
 
