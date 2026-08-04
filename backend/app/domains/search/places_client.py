@@ -5,13 +5,16 @@ on a single search endpoint, ``places:searchText``, used for both of MapLeads'
 search modes:
 
 * ``text_search``  - a free-text keyword plus a free-text location.
-* ``point_search`` - a free-text keyword restricted to a circle (point + radius).
+* ``point_search`` - a free-text keyword biased to a circle (point + radius).
 
 Both go through Text Search rather than Nearby Search because Nearby Search
 filters by place *type* (a fixed Google enum, e.g. ``"restaurant"``) and
 rejects arbitrary keywords with a 400 - MapLeads' keyword field is always free
-text, so ``point_search`` uses Text Search's ``locationRestriction`` circle to
-get the same point+radius semantics without that restriction.
+text, so ``point_search`` uses Text Search's ``locationBias`` circle to
+get the same point+radius semantics without that restriction. Text Search only
+accepts a circle under ``locationBias`` (a soft bias); ``locationRestriction``
+supports a rectangle only, so a circular ``locationRestriction`` is rejected
+with a 400 (``Unknown name "circle" at 'location_restriction'``).
 
 Only the **Basic Data** field set is requested (via the ``X-Goog-FieldMask``
 header) to keep responses cheap, and pagination is followed up to the API cap of
@@ -113,16 +116,22 @@ class PlacesClient:
         lng: float,
         radius_m: float,
     ) -> list[dict[str, Any]]:
-        """Run a Text Search restricted to a circle of ``radius_m`` metres
+        """Run a Text Search biased to a circle of ``radius_m`` metres
         around ``lat``/``lng``.
 
         ``keyword`` stays free text, just like :meth:`text_search` - only the
         location is expressed differently (a circle instead of a place name).
+
+        The circle is sent under ``locationBias`` rather than
+        ``locationRestriction`` because Text Search only supports a circular
+        shape as a soft bias; ``locationRestriction`` accepts a rectangle only
+        and 400s on a circle. A bias is the closest Text Search behaviour to a
+        point+radius search.
         """
         body = {
             "textQuery": keyword.strip(),
             "pageSize": PAGE_SIZE,
-            "locationRestriction": {
+            "locationBias": {
                 "circle": {
                     "center": {"latitude": lat, "longitude": lng},
                     "radius": radius_m,

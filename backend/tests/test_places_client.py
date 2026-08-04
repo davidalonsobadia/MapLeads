@@ -102,10 +102,13 @@ def test_point_search_builds_request_and_normalizes():
     # keywords aren't rejected as invalid place types.
     assert captured["url"] == "https://places.googleapis.com/v1/places:searchText"
     assert captured["field_mask"] == FIELD_MASK
+    # The circle goes under ``locationBias`` (a soft bias), not
+    # ``locationRestriction`` - Text Search only accepts a rectangle as a hard
+    # restriction and 400s on a circular ``locationRestriction``.
     assert captured["body"] == {
         "textQuery": "restaurant",
         "pageSize": PAGE_SIZE,
-        "locationRestriction": {
+        "locationBias": {
             "circle": {
                 "center": {"latitude": 40.4, "longitude": -3.7},
                 "radius": 1500,
