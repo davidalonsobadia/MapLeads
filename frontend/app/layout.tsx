@@ -19,7 +19,7 @@ const robotoMono = Roboto_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "MapLeads - Local Business Lead Generation",
+  title: "MapLeads",
   description: "Find, organize, and follow up on local business leads from Google Maps",
   generator: "v0.app",
 }
