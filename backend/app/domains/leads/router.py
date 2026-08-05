@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -148,3 +148,4 @@ def delete_note(
 ):
     """Delete a note that lives under an owned lead. Returns 404 if not found there."""
     service.LeadService(db).delete_note(current_user.id, lead_id, note_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
